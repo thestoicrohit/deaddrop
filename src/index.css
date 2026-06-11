@@ -1,0 +1,307 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark theme — Deep Forest Green */
+    --bg-primary: #051F20;
+    --bg-secondary: #163832;
+    --bg-card: rgba(11, 43, 38, 0.55);
+    --border-card: rgba(142, 182, 155, 0.18);
+    --border-glow: rgba(218, 241, 222, 0.35);
+    --text-primary: #DAF1DE;
+    --text-secondary: #8EB69B;
+    --text-muted: #235347;
+    --text-heading: #DAF1DE;
+    --navbar-bg: rgba(5, 31, 32, 0.93);
+    --btn-primary-bg: #0B2B26;
+    --btn-primary-border: rgba(142, 182, 155, 0.45);
+  }
+
+  .light {
+    /* Light theme — Mid Forest Green, lifted */
+    --bg-primary: #235347;
+    --bg-secondary: #163832;
+    --bg-card: rgba(35, 83, 71, 0.7);
+    --border-card: rgba(142, 182, 155, 0.3);
+    --border-glow: rgba(218, 241, 222, 0.45);
+    --text-primary: #DAF1DE;
+    --text-secondary: #8EB69B;
+    --text-muted: #8EB69B;
+    --text-heading: #DAF1DE;
+    --navbar-bg: rgba(22, 56, 50, 0.95);
+    --btn-primary-bg: #163832;
+    --btn-primary-border: rgba(218, 241, 222, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Sora', sans-serif;
+    color: var(--text-heading);
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: #051F20; }
+  ::-webkit-scrollbar-thumb { background: #0B2B26; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #8EB69B; }
+}
+
+@layer components {
+
+  /* ── Glass card ── */
+  .glass-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .glass-card:hover {
+    border-color: var(--border-glow);
+    box-shadow: 0 0 32px rgba(142,182,155,0.1), inset 0 1px 0 rgba(218,241,222,0.06);
+  }
+
+  /* ── Vault card ── */
+  .vault-card {
+    background: rgba(11, 43, 38, 0.85);
+    border: 1px solid rgba(142, 182, 155, 0.22);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 14px;
+    transition: all 0.3s ease;
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    background: linear-gradient(135deg, #0B2B26, #051F20);
+    color: #DAF1DE;
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(142, 182, 155, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #163832, #0B2B26);
+    border-color: rgba(218, 241, 222, 0.55);
+    box-shadow: 0 0 24px rgba(142,182,155,0.25), 0 0 8px rgba(218,241,222,0.1);
+    transform: translateY(-2px);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-outline {
+    background: transparent;
+    color: #DAF1DE;
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(218, 241, 222, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .btn-outline:hover {
+    background: rgba(218, 241, 222, 0.06);
+    border-color: rgba(218, 241, 222, 0.6);
+    box-shadow: 0 0 20px rgba(142,182,155,0.18);
+    transform: translateY(-2px);
+  }
+
+  .btn-cobalt {
+    background: linear-gradient(135deg, #235347, #163832);
+    color: #DAF1DE;
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(142,182,155,0.35);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .btn-cobalt:hover {
+    box-shadow: 0 0 24px rgba(142,182,155,0.3);
+    transform: translateY(-2px);
+  }
+
+  /* ── Shimmer text ── */
+  .shimmer-text {
+    background: linear-gradient(90deg, #DAF1DE 0%, #8EB69B 30%, #DAF1DE 55%, #235347 80%, #DAF1DE 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+  }
+
+  /* ── Page background ── */
+  .page-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(11,43,38,0.8) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 80% at 100% 50%, rgba(22,56,50,0.45) 0%, transparent 60%),
+      #051F20;
+    animation: aurora 20s ease infinite;
+  }
+
+  .page-bg-light {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(35,83,71,0.8) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 80% at 100% 50%, rgba(22,56,50,0.5) 0%, transparent 60%),
+      #235347;
+    animation: aurora 20s ease infinite;
+  }
+
+  /* ── Input ── */
+  .vault-input {
+    background: rgba(5, 31, 32, 0.5);
+    border: 1px solid rgba(142, 182, 155, 0.2);
+    color: var(--text-primary);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    width: 100%;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  .vault-input:focus {
+    border-color: rgba(142, 182, 155, 0.55);
+    box-shadow: 0 0 0 3px rgba(142,182,155,0.08);
+  }
+  .vault-input::placeholder { color: var(--text-muted); }
+
+  /* ── Badges ── */
+  .badge-cobalt {
+    background: rgba(142,182,155,0.12);
+    color: #8EB69B;
+    border: 1px solid rgba(142,182,155,0.3);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-family: 'Sora', sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .badge-yellow {
+    background: rgba(218,241,222,0.1);
+    color: #DAF1DE;
+    border: 1px solid rgba(218,241,222,0.25);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-family: 'Sora', sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .badge-satsuma {
+    background: rgba(35,83,71,0.25);
+    color: #8EB69B;
+    border: 1px solid rgba(142,182,155,0.3);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-family: 'Sora', sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .badge-amber {
+    background: rgba(142,182,155,0.12);
+    color: #8EB69B;
+    border: 1px solid rgba(142,182,155,0.25);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-family: 'Sora', sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── Skeleton ── */
+  .skeleton {
+    background: linear-gradient(90deg, rgba(11,43,38,0.5) 25%, rgba(35,83,71,0.35) 50%, rgba(11,43,38,0.5) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
+
+  /* ── Waveform bar ── */
+  .waveform-bar {
+    background: #8EB69B;
+    border-radius: 2px;
+    animation: waveform 1.2s ease-in-out infinite;
+  }
+  @keyframes waveform {
+    0%, 100% { transform: scaleY(0.3); }
+    50% { transform: scaleY(1); }
+  }
+
+  /* ── Orbit rings ── */
+  .orbit-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(142, 182, 155, 0.1);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* ── Ticker ── */
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    animation: ticker 40s linear infinite;
+  }
+  .ticker-track:hover { animation-play-state: paused; }
+}
+
+/* ── Keyframes ── */
+@keyframes shimmer {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes aurora {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.75); }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}

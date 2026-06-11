@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "Bash(npx create-vite@latest . --template react --yes)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(mkdir \"C:\\\\Users\\\\rohit\\\\AppData\\\\Roaming\\\\npm\")",
+      "Bash(npm --version)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(mkdir -p \"D:\\\\3.projects\\\\deaddrop\\\\.claude\" 2>/dev/null; echo \"done\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(node -e ' *)",
+      "Bash(node --input-type=module)",
+      "Bash(taskkill /F /IM node.exe)",
+      "PowerShell(Stop-Process -Name \"node\" -Force -ErrorAction SilentlyContinue)",
+      "Bash(gh repo *)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(npx --yes skills add https://github.com/Leonxlnx/taste-skill)",
+      "Bash(npm install *)",
+      "Bash(mkdir -p \"/d/Skills/taste-skill\")",
+      "Bash(cp -r \"D:/3.projects/deaddrop/.agents/skills/\"* \"/d/Skills/taste-skill/\")",
+      "Read(//d/Skills/**)",
+      "Bash(npx eslint *)",
+      "Bash(npx vite *)"
+    ]
+  }
+}

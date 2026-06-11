@@ -1,0 +1,20 @@
+{
+  "name": "DeadDrop — Digital Legacy Vault",
+  "short_name": "DeadDrop",
+  "description": "A blockchain-powered personal memory vault and digital legacy platform. Your keys. Your memories.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#051F20",
+  "theme_color": "#0B2B26",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vault-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "en"
+}

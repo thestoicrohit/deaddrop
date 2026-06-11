@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="42%" r="50%">
+      <stop offset="0%" stop-color="#0d2420" />
+      <stop offset="100%" stop-color="#050F0D" />
+    </radialGradient>
+    <radialGradient id="dropGlow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#8EB69B" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="#8EB69B" stop-opacity="0" />
+    </radialGradient>
+    <clipPath id="circleClip">
+      <circle cx="200" cy="200" r="196" />
+    </clipPath>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="200" fill="#050F0D" />
+
+  <!-- Radial glow behind drop -->
+  <circle cx="200" cy="175" r="110" fill="url(#dropGlow)" clip-path="url(#circleClip)" />
+
+  <!-- Outer border ring -->
+  <circle cx="200" cy="200" r="190" fill="none" stroke="#8EB69B" stroke-width="1" stroke-opacity="0.22" />
+  <!-- Inner border ring -->
+  <circle cx="200" cy="200" r="181" fill="none" stroke="#8EB69B" stroke-width="0.8" stroke-opacity="0.14" />
+
+  <!-- Drop shape with keyhole cutout -->
+  <g filter="url(#softGlow)">
+    <path
+      d="M200 68
+         C200 68 148 130 148 178
+         C148 207.2 171.4 231 200 231
+         C228.6 231 252 207.2 252 178
+         C252 130 200 68 200 68 Z"
+      fill="#8EB69B"
+    />
+    <!-- Keyhole: circle top -->
+    <circle cx="200" cy="182" r="18" fill="#050F0D" />
+    <!-- Keyhole: trapezoid bottom -->
+    <path
+      d="M189 197 L189 220 L211 220 L211 197
+         C211 197 207 192 200 192
+         C193 192 189 197 189 197 Z"
+      fill="#050F0D"
+    />
+  </g>
+
+  <!-- DEADDROP wordmark -->
+  <text
+    x="200"
+    y="285"
+    text-anchor="middle"
+    font-family="'Futura', 'Trebuchet MS', 'Gill Sans', sans-serif"
+    font-size="24"
+    font-weight="300"
+    letter-spacing="10"
+    fill="#8EB69B"
+    fill-opacity="0.9"
+  >DEADDROP</text>
+</svg>
