@@ -1,8 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAccount } from 'wagmi'
 import { useAppStore } from '@/store/useAppStore'
 import { useTranslation } from '@/lib/translations'
+import { useCircles, useOwnerCircles, useCircleMembers, CIRCLE_ROLE } from '@/hooks/useCircles'
+import { useCapsules } from '@/hooks/useCapsules'
+import { useActivity } from '@/hooks/useActivity'
 import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
@@ -24,12 +28,16 @@ const TYPE_RGB = {
   Custom:     '142,182,155',
 }
 
+function tsToDate(ts) {
+  return new Date(Number(ts || 0) * 1000)
+}
+
 function AvatarStack({ members }) {
   return (
     <div className="flex -space-x-2">
       {members.slice(0, 4).map((m, i) => (
         <div
-          key={m.address}
+          key={m.wallet}
           className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-sora font-bold border-2 relative"
           style={{
             background: `hsl(${i * 60 + 140}, 35%, 28%)`,
@@ -38,7 +46,7 @@ function AvatarStack({ members }) {
             zIndex: members.length - i,
           }}
         >
-          {m.name.charAt(0)}
+          {(m.name || m.wallet || '?').charAt(0).toUpperCase()}
         </div>
       ))}
       {members.length > 4 && (
@@ -53,10 +61,26 @@ function AvatarStack({ members }) {
   )
 }
 
-function ProfileCard({ profile, onClick, onDelete, onEdit }) {
-  const typeColor = TYPE_COLORS[profile.type] || TYPE_COLORS.Custom
-  const typeRgb   = TYPE_RGB[profile.type]   || TYPE_RGB.Custom
-  const [confirmDelete, setConfirmDelete] = useState(false)
+// Each card fetches its own member roster (small, per-circle reads — bounded
+// by however many circles one wallet belongs to) so it can render the avatar
+// stack and work out, locally, whether the connected wallet is an Admin
+// (only Admins may edit a circle's details on-chain — see onlyAdmin in
+// DeadDropCircles.sol). There is no on-chain "delete circle" or "leave
+// circle" function, so neither action is offered here.
+function ProfileCard({ circle, fileCount, memoryCount, lastActivityTs, onClick, onEdit }) {
+  const { address } = useAccount()
+  const { data: members } = useCircleMembers(circle.id)
+  const memberList = members || []
+  const isAdmin = memberList.some(
+    (m) => m.wallet?.toLowerCase() === address?.toLowerCase() && Number(m.role) === CIRCLE_ROLE.ADMIN
+  )
+
+  const typeColor = TYPE_COLORS[circle.circleType] || TYPE_COLORS.Custom
+  const typeRgb   = TYPE_RGB[circle.circleType]   || TYPE_RGB.Custom
+
+  const lastActiveLabel = lastActivityTs
+    ? formatDistanceToNow(new Date(lastActivityTs * 1000), { addSuffix: true })
+    : `created ${formatDistanceToNow(tsToDate(circle.createdAt), { addSuffix: true })}`
 
   return (
     <motion.div
@@ -68,7 +92,7 @@ function ProfileCard({ profile, onClick, onDelete, onEdit }) {
         boxShadow: `0 20px 50px rgba(${typeRgb},0.18), 0 0 0 1px rgba(${typeRgb},0.25)`,
       }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      onClick={confirmDelete ? undefined : onClick}
+      onClick={onClick}
       className="glass-card p-6 cursor-pointer relative overflow-hidden group"
       style={{ borderLeft: `3px solid ${typeColor}` }}
     >
@@ -82,65 +106,25 @@ function ProfileCard({ profile, onClick, onDelete, onEdit }) {
         transition={{ duration: 0.4 }}
       />
 
-      {/* Edit + Delete buttons — appear on hover, top-right corner */}
-      <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
-        <motion.button
-          className="w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-          style={{ background: 'rgba(5,31,32,0.85)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.18)', fontSize: '11px' }}
-          onClick={(e) => { e.stopPropagation(); onEdit(profile) }}
-          title="Edit circle"
-        >
-          ✎
-        </motion.button>
-      </div>
-      <div className="absolute top-3 right-12 z-20">
-        <AnimatePresence mode="wait">
-          {confirmDelete ? (
-            <motion.div
-              key="confirm"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="flex items-center gap-1.5"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={(e) => { e.stopPropagation(); onDelete(profile.id) }}
-                className="text-xs px-2.5 py-1.5 rounded-lg font-sora font-semibold transition-all"
-                style={{ background: 'rgba(209,96,31,0.25)', color: '#D1601F', border: '1px solid rgba(209,96,31,0.4)' }}
-              >
-                Delete
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setConfirmDelete(false) }}
-                className="text-xs px-2.5 py-1.5 rounded-lg transition-all"
-                style={{ background: 'rgba(11,43,38,0.6)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.2)' }}
-              >
-                Cancel
-              </button>
-            </motion.div>
-          ) : (
-            <motion.button
-              key="btn"
-              initial={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
-              className="w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              style={{ background: 'rgba(5,31,32,0.85)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.18)' }}
-              onClick={(e) => { e.stopPropagation(); setConfirmDelete(true) }}
-              title="Delete circle"
-            >
-              ×
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </div>
+      {isAdmin && (
+        <div className="absolute top-3 right-3 z-20">
+          <motion.button
+            className="w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            style={{ background: 'rgba(5,31,32,0.85)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.18)', fontSize: '11px' }}
+            onClick={(e) => { e.stopPropagation(); onEdit(circle) }}
+            title="Edit circle"
+          >
+            ✎
+          </motion.button>
+        </div>
+      )}
 
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>
-                {profile.name}
+                {circle.name}
               </h3>
             </div>
             <span
@@ -151,25 +135,25 @@ function ProfileCard({ profile, onClick, onDelete, onEdit }) {
                 border: `1px solid rgba(${typeRgb},0.35)`,
               }}
             >
-              {profile.type}
+              {circle.circleType}
             </span>
           </div>
           <div className="text-right">
-            <div className="font-inter text-xs" style={{ color: '#8EB69B' }}>{profile.fileCount} files</div>
-            <div className="font-inter text-xs" style={{ color: '#8EB69B' }}>{profile.memoryCount} memories</div>
+            <div className="font-inter text-xs" style={{ color: '#8EB69B' }}>{fileCount} files</div>
+            <div className="font-inter text-xs" style={{ color: '#8EB69B' }}>{memoryCount} memories</div>
           </div>
         </div>
 
         <p className="font-inter text-sm mb-4 line-clamp-2" style={{ color: '#8EB69B' }}>
-          {profile.description}
+          {circle.description}
         </p>
 
         <div className="flex items-center justify-between">
-          <AvatarStack members={profile.members} />
+          <AvatarStack members={memberList} />
           <div className="text-right">
             <div className="font-inter text-xs" style={{ color: '#8EB69B' }}>Last active</div>
-            <div className="font-inter text-xs" style={{ color: '#DAF1DE' }}>
-              {formatDistanceToNow(new Date(profile.lastActivity), { addSuffix: true })}
+            <div className="font-inter text-xs capitalize" style={{ color: '#DAF1DE' }}>
+              {lastActiveLabel}
             </div>
           </div>
         </div>
@@ -178,16 +162,17 @@ function ProfileCard({ profile, onClick, onDelete, onEdit }) {
   )
 }
 
-function CreateProfileModal({ onClose }) {
-  const { addProfile } = useAppStore()
-  const [name, setName]               = useState('')
-  const [type, setType]               = useState('Family')
+function CreateProfileModal({ onClose, circles }) {
+  const { displayName } = useAppStore()
+  const [name,        setName]        = useState('')
+  const [type,        setType]        = useState('Family')
   const [description, setDescription] = useState('')
+  const [creatorName, setCreatorName] = useState(displayName || '')
 
   const handleCreate = () => {
     if (!name.trim()) { toast.error('Please enter a circle name.'); return }
-    addProfile({ name: name.trim(), type, description: description.trim() })
-    toast.success(`Circle "${name.trim()}" created!`)
+    if (!creatorName.trim()) { toast.error('Please enter your name for this circle.'); return }
+    circles.createCircle(name.trim(), type, description.trim(), creatorName.trim())
     onClose()
   }
 
@@ -228,6 +213,17 @@ function CreateProfileModal({ onClose }) {
           </div>
 
           <div>
+            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Your Name (visible to members)</label>
+            <input
+              className="vault-input"
+              placeholder="e.g. Rohit"
+              value={creatorName}
+              onChange={(e) => setCreatorName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+            />
+          </div>
+
+          <div>
             <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Description (optional)</label>
             <input
               className="vault-input"
@@ -259,7 +255,7 @@ function CreateProfileModal({ onClose }) {
 
           <div className="flex gap-3 pt-2">
             <button onClick={onClose} className="btn-outline flex-1 text-sm">Cancel</button>
-            <button onClick={handleCreate} className="btn-primary flex-1 text-sm">
+            <button onClick={handleCreate} disabled={circles.isPending || circles.isConfirming} className="btn-primary flex-1 text-sm">
               Create circle
             </button>
           </div>
@@ -269,16 +265,14 @@ function CreateProfileModal({ onClose }) {
   )
 }
 
-function EditProfileModal({ profile, onClose }) {
-  const { updateProfile } = useAppStore()
-  const [name,        setName]        = useState(profile.name)
-  const [description, setDescription] = useState(profile.description)
-  const [type,        setType]        = useState(profile.type)
+function EditProfileModal({ circle, onClose, circles }) {
+  const [name,        setName]        = useState(circle.name)
+  const [description, setDescription] = useState(circle.description)
+  const [type,        setType]        = useState(circle.circleType)
 
   const handleSave = () => {
     if (!name.trim()) { toast.error('Name cannot be empty.'); return }
-    updateProfile(profile.id, { name: name.trim(), description: description.trim(), type })
-    toast.success('Circle updated.')
+    circles.updateCircle(circle.id, name.trim(), type, description.trim())
     onClose()
   }
 
@@ -312,7 +306,7 @@ function EditProfileModal({ profile, onClose }) {
           </div>
           <div className="flex gap-3 pt-2">
             <button onClick={onClose} className="btn-outline flex-1 text-sm">Cancel</button>
-            <button onClick={handleSave} className="btn-primary flex-1 text-sm">Save changes</button>
+            <button onClick={handleSave} disabled={circles.isPending || circles.isConfirming} className="btn-primary flex-1 text-sm">Save changes</button>
           </div>
         </div>
       </motion.div>
@@ -320,14 +314,19 @@ function EditProfileModal({ profile, onClose }) {
   )
 }
 
-function JoinModal({ onClose }) {
-  const { joinProfile } = useAppStore()
-  const [code, setCode] = useState('')
+// Circles have no off-chain invite-code system — joinCircle() just needs the
+// numeric Circle ID (share it with people the way you'd share an invite link)
+// plus the display name you want other members to see.
+function JoinModal({ onClose, circles }) {
+  const { displayName } = useAppStore()
+  const [circleId, setCircleId] = useState('')
+  const [name,     setName]     = useState(displayName || '')
 
   const handleJoin = () => {
-    if (!code.trim()) { toast.error('Please enter an invite code or wallet address.'); return }
-    joinProfile(code.trim())
-    toast.success('Join request sent! Circle added to your list.')
+    const idNum = circleId.trim()
+    if (!/^\d+$/.test(idNum) || idNum === '0') { toast.error('Enter a valid numeric Circle ID.'); return }
+    if (!name.trim()) { toast.error('Enter your name.'); return }
+    circles.joinCircle(idNum, name.trim())
     onClose()
   }
 
@@ -356,20 +355,32 @@ function JoinModal({ onClose }) {
         <div className="space-y-4">
           <div>
             <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>
-              Invite Code or Wallet Address
+              Circle ID
             </label>
             <input
               className="vault-input"
-              placeholder="dd-xxxxxxxx or 0x..."
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
+              placeholder="e.g. 3"
+              value={circleId}
+              onChange={(e) => setCircleId(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
               autoFocus
             />
           </div>
+          <div>
+            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>
+              Your Name
+            </label>
+            <input
+              className="vault-input"
+              placeholder="e.g. Rohit"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+            />
+          </div>
           <div className="flex gap-3 pt-2">
             <button onClick={onClose} className="btn-outline flex-1 text-sm">Cancel</button>
-            <button onClick={handleJoin} className="btn-cobalt flex-1 text-sm">
+            <button onClick={handleJoin} disabled={circles.isPending || circles.isConfirming} className="btn-cobalt flex-1 text-sm">
               Send Request
             </button>
           </div>
@@ -381,20 +392,58 @@ function JoinModal({ onClose }) {
 
 export default function ProfilesPage() {
   const navigate = useNavigate()
-  const { lang, profiles, setActiveProfile, deleteProfile } = useAppStore()
+  const { address, isConnected } = useAccount()
+  const { lang } = useAppStore()
   const tr = useTranslation(lang)
+
+  const circles = useCircles()
+  const owner   = useOwnerCircles(address)
+  const { myCapsules } = useCapsules()
+  const { activity } = useActivity()
+
   const [showCreate,  setShowCreate]  = useState(false)
   const [showJoin,    setShowJoin]    = useState(false)
-  const [editProfile, setEditProfile] = useState(null)
+  const [editCircle, setEditCircle]   = useState(null)
 
-  const handleOpenProfile = (profile) => {
-    setActiveProfile(profile)
-    navigate(`/profiles/${profile.id}`)
-  }
+  // Any confirmed write from this page's useCircles() instance (create,
+  // update, join) should refresh the owner's circle/file list it renders from.
+  useEffect(() => {
+    if (circles.isConfirmed) owner.refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [circles.isConfirmed, circles.txHash])
 
-  const handleDeleteProfile = (id) => {
-    deleteProfile(id)
-    toast.success('Circle removed.')
+  const memoryCountByCircle = useMemo(() => {
+    const map = {}
+    myCapsules.forEach((c) => {
+      if (c.circleId == null) return
+      const k = c.circleId.toString()
+      map[k] = (map[k] || 0) + 1
+    })
+    return map
+  }, [myCapsules])
+
+  const lastActivityByCircle = useMemo(() => {
+    const map = {}
+    activity.forEach((item) => {
+      if (item.domain !== 'circles' || item.args?.circleId == null) return
+      const k  = item.args.circleId.toString()
+      const ts = Number(item.timestamp || 0)
+      if (!map[k] || ts > map[k]) map[k] = ts
+    })
+    return map
+  }, [activity])
+
+  const handleOpenProfile = (circle) => navigate(`/profiles/${circle.id.toString()}`)
+
+  if (!isConnected) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="font-sora text-xl mb-4" style={{ color: '#8EB69B' }}>Connect your wallet to view your circles.</p>
+          <button onClick={() => navigate('/connect')} className="btn-primary">Connect Wallet</button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -413,6 +462,12 @@ export default function ProfilesPage() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
 
+        {!circles.contractReady && (
+          <div className="mb-6 p-3 rounded-xl text-center font-inter text-sm" style={{ background: 'rgba(209,96,31,0.12)', color: '#D1601F' }}>
+            Circles contract not deployed yet — run <code>npm run deploy:sepolia</code>.
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between mb-10">
           <motion.div
@@ -430,7 +485,7 @@ export default function ProfilesPage() {
               {tr('profiles.title')}
             </h1>
             <p className="font-inter text-sm mt-1" style={{ color: '#8EB69B' }}>
-              {profiles.length} active circle{profiles.length !== 1 ? 's' : ''} — encrypted &amp; on-chain
+              {owner.circles.length} active circle{owner.circles.length !== 1 ? 's' : ''} — encrypted &amp; on-chain
             </p>
           </motion.div>
 
@@ -454,7 +509,11 @@ export default function ProfilesPage() {
         </div>
 
         {/* Grid */}
-        {profiles.length === 0 ? (
+        {owner.isLoading ? (
+          <div className="text-center py-24">
+            <p className="font-sora text-lg" style={{ color: '#8EB69B' }}>Loading your circles…</p>
+          </div>
+        ) : owner.circles.length === 0 ? (
           <motion.div className="text-center py-24" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="text-5xl mb-4">🏡</div>
             <p className="font-sora text-lg" style={{ color: '#8EB69B' }}>
@@ -466,27 +525,32 @@ export default function ProfilesPage() {
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {profiles.map((profile, i) => (
-              <motion.div
-                key={profile.id}
-                initial={{ opacity: 0, y: 28 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <ProfileCard
-                  profile={profile}
-                  onClick={() => handleOpenProfile(profile)}
-                  onDelete={handleDeleteProfile}
-                  onEdit={(p) => setEditProfile(p)}
-                />
-              </motion.div>
-            ))}
+            {owner.circles.map((circle, i) => {
+              const key = circle.id.toString()
+              return (
+                <motion.div
+                  key={key}
+                  initial={{ opacity: 0, y: 28 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <ProfileCard
+                    circle={circle}
+                    fileCount={circle.files?.length || 0}
+                    memoryCount={memoryCountByCircle[key] || 0}
+                    lastActivityTs={lastActivityByCircle[key]}
+                    onClick={() => handleOpenProfile(circle)}
+                    onEdit={(c) => setEditCircle(c)}
+                  />
+                </motion.div>
+              )
+            })}
 
             {/* Add circle card */}
             <motion.div
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: profiles.length * 0.08, duration: 0.5 }}
+              transition={{ delay: owner.circles.length * 0.08, duration: 0.5 }}
               whileHover={{
                 borderColor: 'rgba(142,182,155,0.55)',
                 boxShadow: '0 12px 40px rgba(142,182,155,0.1)',
@@ -510,9 +574,9 @@ export default function ProfilesPage() {
       </div>
 
       <AnimatePresence>
-        {showCreate  && <CreateProfileModal onClose={() => setShowCreate(false)} />}
-        {showJoin    && <JoinModal          onClose={() => setShowJoin(false)}   />}
-        {editProfile && <EditProfileModal   profile={editProfile} onClose={() => setEditProfile(null)} />}
+        {showCreate  && <CreateProfileModal onClose={() => setShowCreate(false)} circles={circles} />}
+        {showJoin    && <JoinModal          onClose={() => setShowJoin(false)}   circles={circles} />}
+        {editCircle  && <EditProfileModal   circle={editCircle} onClose={() => setEditCircle(null)} circles={circles} />}
       </AnimatePresence>
     </div>
   )

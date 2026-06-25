@@ -1,78 +1,67 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { useAppStore } from '@/store/useAppStore'
 import { formatDistanceToNow, format } from 'date-fns'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
+import { useActivity, describeActivity } from '@/hooks/useActivity'
 
 const FILTERS = [
-  { key: 'all',    label: 'All' },
-  { key: 'circle', label: 'Circles' },
-  { key: 'system', label: 'System' },
+  { key: 'all',         label: 'All' },
+  { key: 'vault',       label: 'Vault' },
+  { key: 'circles',     label: 'Circles' },
+  { key: 'capsules',    label: 'Capsules' },
+  { key: 'safe',        label: 'Safe' },
+  { key: 'credentials', label: 'Credentials' },
+  { key: 'keyRegistry', label: 'Keys' },
 ]
 
+const DOMAIN_ICON = {
+  vault:       '🏛️',
+  keyRegistry: '🔑',
+  circles:     '🌐',
+  capsules:    '🌸',
+  safe:        '🔒',
+  credentials: '🎖️',
+}
+
 export default function ActivityPage() {
-  const { profileTimeline, profiles, notifications } = useAppStore()
+  const { activity, isLoading, domainsReady } = useActivity()
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
 
-  const allEvents = useMemo(() => {
-    const events = []
-
-    Object.entries(profileTimeline || {}).forEach(([profileId, timeline]) => {
-      const profile = profiles.find(p => p.id === profileId)
-      ;(timeline || []).forEach(event => {
-        events.push({
-          ...event,
-          source:      'circle',
-          profileName: profile?.name || 'Unknown Circle',
-        })
-      })
-    })
-
-    ;(notifications || []).forEach(n => {
-      events.push({
-        id:          n.id,
-        icon:        n.icon,
-        wallet:      n.title,
-        description: n.body,
-        timestamp:   n.time,
-        source:      'system',
-        profileName: null,
-      })
-    })
-
-    return events.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-  }, [profileTimeline, notifications])
-
   const filtered = useMemo(() => {
-    let list = filter === 'all' ? allEvents : allEvents.filter(e => e.source === filter)
+    let list = filter === 'all' ? activity : activity.filter(e => e.domain === filter)
     if (search.trim().length >= 2) {
       const q = search.toLowerCase()
       list = list.filter(e =>
-        e.description?.toLowerCase().includes(q) ||
-        e.wallet?.toLowerCase().includes(q) ||
-        e.profileName?.toLowerCase().includes(q)
+        describeActivity(e).toLowerCase().includes(q) ||
+        e.eventName?.toLowerCase().includes(q) ||
+        e.domainLabel?.toLowerCase().includes(q) ||
+        e.transactionHash?.toLowerCase().includes(q)
       )
     }
     return list
-  }, [allEvents, filter, search])
+  }, [activity, filter, search])
 
-  const counts = useMemo(() => ({
-    all:    allEvents.length,
-    circle: allEvents.filter(e => e.source === 'circle').length,
-    system: allEvents.filter(e => e.source === 'system').length,
-  }), [allEvents])
+  const counts = useMemo(() => {
+    const c = { all: activity.length }
+    FILTERS.slice(1).forEach(f => {
+      c[f.key] = activity.filter(e => e.domain === f.key).length
+    })
+    return c
+  }, [activity])
 
-  // Group by date
   const grouped = useMemo(() => {
     const groups = {}
     filtered.forEach(e => {
-      const dateKey = format(new Date(e.timestamp), 'dd MMM yyyy')
+      const ts = e.timestamp ? new Date(Number(e.timestamp) * 1000) : null
+      const dateKey = ts ? format(ts, 'dd MMM yyyy') : 'Pending'
       if (!groups[dateKey]) groups[dateKey] = []
-      groups[dateKey].push(e)
+      groups[dateKey].push({ ...e, _ts: ts })
     })
     return Object.entries(groups)
   }, [filtered])
+
+  const noContracts = domainsReady.length === 0
 
   return (
     <div className="relative min-h-screen" style={{ paddingTop: '80px' }}>
@@ -90,14 +79,26 @@ export default function ActivityPage() {
           <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full" style={{ background: '#8EB69B' }} />
             <span className="font-inter text-xs uppercase tracking-widest" style={{ color: '#8EB69B' }}>
-              Vault timeline
+              On-chain event feed
             </span>
           </div>
           <h1 className="font-sora font-bold text-3xl shimmer-text mb-2">Activity</h1>
           <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
-            A complete record of everything that happened in your vault.
+            Live contract events across all DeadDrop domains.
           </p>
         </motion.div>
+
+        {noContracts && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="glass-card p-6 mb-6 text-center"
+          >
+            <p className="font-inter text-sm" style={{ color: '#D1601F' }}>
+              ⚠ No contracts deployed yet. Run <code className="font-mono">npm run deploy:sepolia</code> then set the contract addresses in your <code className="font-mono">.env</code>.
+            </p>
+          </motion.div>
+        )}
 
         {/* Search + filters */}
         <motion.div
@@ -108,7 +109,7 @@ export default function ActivityPage() {
         >
           <input
             className="vault-input text-sm"
-            placeholder="Search activity…"
+            placeholder="Search events…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -126,7 +127,7 @@ export default function ActivityPage() {
               >
                 {f.label}
                 <span className="ml-1.5 text-xs" style={{ color: 'rgba(142,182,155,0.5)' }}>
-                  {counts[f.key]}
+                  {counts[f.key] ?? 0}
                 </span>
               </button>
             ))}
@@ -134,7 +135,17 @@ export default function ActivityPage() {
         </motion.div>
 
         {/* Timeline */}
-        {grouped.length === 0 ? (
+        {isLoading ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4 py-16">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              className="w-10 h-10 rounded-full border-2 border-t-transparent"
+              style={{ borderColor: '#8EB69B', borderTopColor: 'transparent' }}
+            />
+            <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>Fetching on-chain events…</p>
+          </motion.div>
+        ) : grouped.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -142,14 +153,13 @@ export default function ActivityPage() {
           >
             <span className="text-4xl block mb-3">📭</span>
             <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.5)' }}>
-              {search.length >= 2 ? `No results for "${search}"` : 'No activity yet. Start using your vault.'}
+              {search.length >= 2 ? `No results for "${search}"` : 'No on-chain events yet.'}
             </p>
           </motion.div>
         ) : (
           <div className="space-y-8">
             {grouped.map(([dateKey, events], gi) => (
               <div key={dateKey}>
-                {/* Date divider */}
                 <div className="flex items-center gap-3 mb-4">
                   <div className="h-px flex-1" style={{ background: 'rgba(142,182,155,0.1)' }} />
                   <span className="font-inter text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(11,43,38,0.4)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.15)' }}>
@@ -161,7 +171,7 @@ export default function ActivityPage() {
                 <div className="space-y-2">
                   {events.map((event, i) => (
                     <motion.div
-                      key={event.id || `${gi}-${i}`}
+                      key={event.id}
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.04 }}
@@ -169,33 +179,41 @@ export default function ActivityPage() {
                     >
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
-                        style={{ background: event.source === 'system' ? 'rgba(142,182,155,0.08)' : 'rgba(11,43,38,0.5)' }}
+                        style={{ background: 'rgba(11,43,38,0.5)' }}
                       >
-                        {event.icon}
+                        {DOMAIN_ICON[event.domain] || '📋'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 flex-wrap">
                           <div className="min-w-0">
-                            {event.profileName && (
-                              <span className="badge-cobalt text-xs mb-1 inline-block">{event.profileName}</span>
-                            )}
+                            <span className="badge-cobalt text-xs mb-1 inline-block">{event.domainLabel}</span>
                             <p className="font-inter text-sm" style={{ color: '#DAF1DE' }}>
-                              {event.source === 'circle' && (
-                                <span style={{ color: '#8EB69B' }}>{event.wallet} </span>
-                              )}
-                              {event.description}
+                              {describeActivity(event)}
                             </p>
-                            {event.source === 'system' && (
-                              <p className="font-sora font-semibold text-xs mt-0.5" style={{ color: '#8EB69B' }}>{event.wallet}</p>
-                            )}
+                            <p className="font-inter text-xs mt-0.5 font-mono truncate" style={{ color: 'rgba(142,182,155,0.4)' }}>
+                              {event.transactionHash
+                                ? <a
+                                    href={`https://sepolia.etherscan.io/tx/${event.transactionHash}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="underline hover:text-green-300"
+                                  >
+                                    {event.transactionHash.slice(0, 12)}…
+                                  </a>
+                                : null}
+                            </p>
                           </div>
-                          <p className="font-inter text-xs flex-shrink-0" style={{ color: 'rgba(142,182,155,0.4)' }}>
-                            {format(new Date(event.timestamp), 'HH:mm')}
-                          </p>
+                          {event._ts && (
+                            <p className="font-inter text-xs flex-shrink-0" style={{ color: 'rgba(142,182,155,0.4)' }}>
+                              {format(event._ts, 'HH:mm')}
+                            </p>
+                          )}
                         </div>
-                        <p className="font-inter text-xs mt-1" style={{ color: 'rgba(142,182,155,0.3)' }}>
-                          {formatDistanceToNow(new Date(event.timestamp), { addSuffix: true })}
-                        </p>
+                        {event._ts && (
+                          <p className="font-inter text-xs mt-1" style={{ color: 'rgba(142,182,155,0.3)' }}>
+                            {formatDistanceToNow(event._ts, { addSuffix: true })}
+                          </p>
+                        )}
                       </div>
                     </motion.div>
                   ))}
@@ -205,7 +223,6 @@ export default function ActivityPage() {
           </div>
         )}
 
-        {/* Load more hint */}
         {filtered.length > 0 && (
           <motion.p
             initial={{ opacity: 0 }}

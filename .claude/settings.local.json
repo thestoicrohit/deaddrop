@@ -24,7 +24,17 @@
       "Bash(cp -r \"D:/3.projects/deaddrop/.agents/skills/\"* \"/d/Skills/taste-skill/\")",
       "Read(//d/Skills/**)",
       "Bash(npx eslint *)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(npx hardhat *)",
+      "Bash(not exist *)",
+      "PowerShell(Get-Command node -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command npm -ErrorAction SilentlyContinue)",
+      "PowerShell($env:PATH)",
+      "Read(//c/Users/thero/AppData/Roaming/**)",
+      "Read(//c//**)",
+      "Read(//c/Users/thero/**)",
+      "Bash(git config *)",
+      "Bash(git -C /d/3.projects/deaddrop remote -v)"
     ]
   }
 }

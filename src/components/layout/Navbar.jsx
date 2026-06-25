@@ -2,13 +2,15 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppStore } from '@/store/useAppStore'
+import { useCapsules } from '@/hooks/useCapsules'
+import { useCircles } from '@/hooks/useCircles'
 import { useTranslation } from '@/lib/translations'
 import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
 
 // ── Settings panel ─────────────────────────────────────────────────────────────
 function SettingsPanel({ onClose }) {
-  const { displayName, updateDisplayName, updatePin, safePin, clearDemoData, resetAll, disconnectWallet, importVault } = useAppStore()
+  const { displayName, updateDisplayName, updatePin, safePin, resetAll, disconnectWallet, importVault } = useAppStore()
   const navigate = useNavigate()
   const [editingName,  setEditingName]  = useState(false)
   const [nameVal,      setNameVal]      = useState(displayName || '')
@@ -125,18 +127,14 @@ function SettingsPanel({ onClose }) {
             <div className="font-semibold font-sora" style={{ color: '#DAF1DE' }}>Import vault backup</div>
             <div className="text-xs mt-0.5" style={{ color: 'rgba(142,182,155,0.6)' }}>Restore from a JSON backup file</div>
           </button>
-          <button onClick={() => { clearDemoData(); toast.success('Demo data cleared.'); onClose() }} className="w-full text-left px-4 py-3 rounded-xl text-sm font-inter transition-all" style={{ background: 'rgba(142,182,155,0.06)', border: '1px solid rgba(142,182,155,0.15)', color: '#8EB69B' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(142,182,155,0.12)' }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(142,182,155,0.06)' }}>
-            <div className="font-semibold font-sora" style={{ color: '#DAF1DE' }}>Clear demo data</div>
-            <div className="text-xs mt-0.5" style={{ color: 'rgba(142,182,155,0.6)' }}>Removes sample circles &amp; capsules</div>
-          </button>
           {!confirmReset ? (
             <button onClick={() => setConfirmReset(true)} className="w-full text-left px-4 py-3 rounded-xl text-sm font-inter transition-all" style={{ background: 'rgba(209,96,31,0.06)', border: '1px solid rgba(209,96,31,0.2)', color: '#D1601F' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(209,96,31,0.12)' }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(209,96,31,0.06)' }}>
-              <div className="font-semibold font-sora">Reset all vault data</div>
-              <div className="text-xs mt-0.5" style={{ color: 'rgba(209,96,31,0.7)' }}>Permanently erases everything</div>
+              <div className="font-semibold font-sora">Reset local session data</div>
+              <div className="text-xs mt-0.5" style={{ color: 'rgba(209,96,31,0.7)' }}>Clears local prefs &amp; disconnects wallet — on-chain data is untouched</div>
             </button>
           ) : (
             <div className="px-4 py-3 rounded-xl space-y-2" style={{ background: 'rgba(209,96,31,0.08)', border: '1px solid rgba(209,96,31,0.3)' }}>
-              <p className="font-sora text-sm font-semibold" style={{ color: '#D1601F' }}>Cannot be undone.</p>
+              <p className="font-sora text-sm font-semibold" style={{ color: '#D1601F' }}>Your circles, capsules, safe entries, and credentials stay on-chain.</p>
               <div className="flex gap-2">
                 <button onClick={handleReset} className="flex-1 text-xs py-2 rounded-lg font-sora font-semibold" style={{ background: 'rgba(209,96,31,0.3)', color: '#D1601F', border: '1px solid rgba(209,96,31,0.5)' }}>Yes, reset</button>
                 <button onClick={() => setConfirmReset(false)} className="flex-1 text-xs py-2 rounded-lg font-sora" style={{ background: 'rgba(142,182,155,0.1)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.2)' }}>Cancel</button>
@@ -203,25 +201,23 @@ function NotificationsPanel({ onClose }) {
 
 // ── Search overlay ─────────────────────────────────────────────────────────────
 function SearchOverlay({ onClose }) {
-  const { capsules, profiles, safeData } = useAppStore()
+  const { myCapsules } = useCapsules()
+  const { myCircles }  = useCircles()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const inputRef = useRef(null)
 
   useEffect(() => { setTimeout(() => inputRef.current?.focus(), 50) }, [])
 
+  // Note: Private Safe entries are intentionally excluded from search — their
+  // label/content is client-side ciphertext on the public ledger, so there is
+  // no plaintext to match a search query against.
   const q = query.toLowerCase().trim()
   const results = q.length < 2 ? [] : [
-    ...capsules.filter(c => c.title?.toLowerCase().includes(q) || c.contentPreview?.toLowerCase().includes(q))
-      .map(c => ({ type: 'capsule', icon: '🌸', label: c.title, sub: c.type, path: '/memory' })),
-    ...profiles.filter(p => p.name?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q))
-      .map(p => ({ type: 'circle', icon: '👥', label: p.name, sub: p.type, path: `/profiles/${p.id}` })),
-    ...(safeData.documents || []).filter(d => d.name?.toLowerCase().includes(q))
-      .map(d => ({ type: 'doc', icon: '📄', label: d.name, sub: d.nftId, path: '/safe' })),
-    ...(safeData.passwords || []).filter(p => p.label?.toLowerCase().includes(q))
-      .map(p => ({ type: 'password', icon: '🔑', label: p.label, sub: 'Password vault', path: '/safe' })),
-    ...(safeData.cryptoKeys || []).filter(k => k.label?.toLowerCase().includes(q))
-      .map(k => ({ type: 'key', icon: '🗝️', label: k.label, sub: 'Crypto key', path: '/safe' })),
+    ...myCapsules.filter(c => c.title?.toLowerCase().includes(q) || c.contentPreview?.toLowerCase().includes(q))
+      .map(c => ({ type: 'capsule', icon: '🌸', label: c.title, sub: 'Memory capsule', path: '/memory' })),
+    ...myCircles.filter(p => p.name?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q))
+      .map(p => ({ type: 'circle', icon: '👥', label: p.name, sub: p.description, path: `/profiles/${p.id.toString()}` })),
   ]
 
   const go = (path) => { navigate(path); onClose() }

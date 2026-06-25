@@ -1,202 +1,279 @@
-# DeadDrop — Digital Legacy Vault
+# DeadDrop — On-Chain Digital Legacy Vault
 
 > *"What happens to everything you built, saved, and loved — when you're no longer here?"*
+
+DeadDrop is a fully decentralised Web3 application that lets you store your digital legacy — crypto, memories, documents, letters, passwords — encrypted on IPFS, and release it automatically to your chosen beneficiaries when you stop being active. No lawyers. No banks. No middlemen. Just code running on Ethereum.
 
 ---
 
 ## The Problem
 
-Every year, over **$50 billion** in cryptocurrency sits unclaimed because the owner passed away without leaving access instructions. More than **2 billion photos** are lost annually when cloud subscriptions lapse after death. In India alone, **400 million+ people** remain unbanked — their financial lives entirely undocumented, inaccessible to the families they leave behind.
+Every year:
+- **$50B+** in cryptocurrency sits permanently locked because owners died without leaving access
+- **2B+ photos** are lost when cloud subscriptions lapse after death
+- Families are left with no access to accounts, seed phrases, or important documents
 
-Beyond money, there's a quieter loss: the voice notes that were never meant to be deleted, the letters never sent, the family documents scattered across hard drives no one can unlock, the seed phrases memorised but never written down anywhere safe.
+Traditional solutions (wills, password managers, cloud backups) all have the same flaw: they depend on a company or a person to execute. Companies shut down. People forget. Lawyers take months.
 
-We built DeadDrop to solve this.
-
----
-
-## What is DeadDrop?
-
-DeadDrop is a **Web3 digital legacy vault** — a private, encrypted space where you store everything that matters: your crypto keys, important documents, family memories, voice messages, letters, and passwords. You decide who gets access, when they get it, and under what conditions.
-
-It is not a will. It is not a cloud backup. It is **your digital afterlife, on your terms**.
-
-When you go inactive — when you stop logging in past a threshold you set — DeadDrop's on-chain automation triggers a grace period. Your chosen beneficiaries are notified. They can claim what you left them. Everything you stored is released, decrypted, and delivered. No lawyers. No bank bureaucracy. No lost passwords.
-
----
-
-## The Vision
-
-Most people spend their lives accumulating things — memories, assets, relationships, knowledge. But almost no one has a plan for what happens to the *digital* version of all of that.
-
-DeadDrop's vision is simple: **make digital inheritance as natural as writing a will, and as easy as sending a message**. We believe every person — regardless of wealth, location, or technical knowledge — deserves the ability to decide what happens to their digital life after they're gone.
-
-We're building this for:
-- The father who wants his children to find his photo albums, not lose them
-- The crypto investor who doesn't want their ETH permanently locked in a wallet
-- The mother who has letters she wants delivered only after she's gone
-- The founder who needs their equity documents preserved and handed over correctly
-- Anyone who has ever thought: *"What if something happens to me tomorrow?"*
+DeadDrop replaces all of that with a smart contract.
 
 ---
 
 ## How It Works
 
-DeadDrop operates on three core principles: **Privacy**, **Control**, and **Certainty**.
+```
+You create a vault on-chain
+         ↓
+You ping it every few months to prove you're alive
+         ↓
+If you stop pinging → Chainlink Automation triggers a grace period
+         ↓
+If you don't cancel the grace period → beneficiaries can claim
+         ↓
+Your ETH transfers on-chain. Your encrypted files on IPFS become accessible.
+```
 
-### 1. You Store Everything
-
-Your private vault holds:
-- **Crypto keys** — seed phrases, private keys, wallet addresses
-- **Documents** — property deeds, wills, passports, contracts
-- **Letters** — messages written for people to receive after you're gone
-- **Voice notes** — audio recordings for the moments words aren't enough
-- **Photos & videos** — encrypted personal archives
-- **Passwords** — your digital accounts, securely stored
-
-Everything is encrypted with **AES-256** before leaving your browser. Nothing is ever sent to a server in plaintext. Files are stored on **IPFS** — a decentralised, permanent file system. Your data isn't on a company's server that can shut down.
-
-### 2. You Set the Rules
-
-You configure your **legacy settings** on-chain:
-
-- **Inactivity threshold** — how long you can go without logging in (3 months / 6 months / 1 year)
-- **Grace period** — how many days your beneficiaries must wait before claiming, giving you time to reappear and cancel
-- **Multi-sig** — require two family members to confirm a claim before release
-- **Beneficiaries** — who gets what, with percentage allocations per asset
-- **Final message** — an encrypted message delivered to all beneficiaries when the legacy releases
-- **Emergency contact** — one person called immediately when the grace period begins, before any formal claim process
-
-### 3. Chainlink Keeps Watch
-
-**Chainlink Keepers** (Chainlink Automation) run on-chain checks every 24 hours. If you haven't pinged in longer than your threshold, the grace period begins automatically. No human intervention. No single point of failure. No company that can go bankrupt and take your legacy with it.
-
-You stay alive in the system simply by logging in and clicking **"Ping — I'm here"**. That's it.
-
-### 4. Your Beneficiaries Claim
-
-When the grace period ends and the legacy releases, your beneficiaries receive:
-- An AI-generated **Memory Portrait** — a narrative summary of your digital life, built from your capsules
-- Access to all memory capsules you designated as shareable
-- Your documents and files, decrypted with their authorised wallet
-- Your crypto assets, transferred on-chain
+**The owner is always in control.** Ping to cancel a grace period at any time. Update beneficiaries, settings, and files at any time. Nothing releases without the inactivity window being truly exceeded.
 
 ---
 
-## Core Features
+## Architecture
 
-### Dashboard (`/dashboard`)
-A central home screen showing the state of your vault at a glance:
-- **Vault Health Score** — an 8-point scoring system (0–100%) that evaluates how well-protected your vault is. Checks: display name set, PIN set, at least one capsule, at least one circle, safe data stored, legacy settings configured, beneficiary assigned, final message written. Color-coded SVG ring (green ≥ 75% / orange ≥ 50% / red < 50%).
-- **Onboarding Checklist** — a 5-step guided checklist for new users (dismissable once vault is complete). Tracks progress with a bar and links directly to incomplete steps.
-- **Alive Ping ring** — visual countdown showing days remaining before the next required ping, with color shift as the deadline approaches.
-- **Quick stats** — capsule count, active circles, days until next ping, beneficiary count.
-- **Quick actions** — one-click shortcuts to every major section.
-- **Recent activity** — the last 5 vault events, inline.
+### Smart Contracts (Solidity 0.8 — Sepolia Testnet)
 
-### Activity Log (`/activity`)
-A full chronological record of everything that has happened in your vault:
-- Merges circle events (from all legacy circle timelines) and system notifications into one unified feed
-- **Filter chips** — All / Circles / System with live counts
-- **Search** — real-time filtering across event descriptions, wallet addresses, and circle names (activates at 2+ characters)
-- Events grouped by date with dividers; each entry shows icon, source badge, description, timestamp, and relative time
-
-### Legacy Circles (`/profiles`)
-Group the people in your life into circles — Family, Friends, University, Work, or custom groups. Each circle has its own **Shared Vault** (for documents and files), **Memory Space** (for capsules), and **Members** list. Think of circles as living, breathing family albums that never get lost.
-
-**Circle Detail (`/profiles/:id`)** shows four tabs:
-- **Vault** — shared documents and files for the circle, with upload and NFT minting
-- **Memories** — memory capsules linked to the circle
-- **Members** — add/remove wallet addresses with role labels
-- **Timeline** — full event history for the circle
-
-### Memory Capsules (`/memory`)
-Time-locked or condition-locked containers for your memories. Types:
-- **Private** — only you can open it
-- **Shared** — visible to everyone in a circle
-- **Time-locked** — sealed until a date you set
-- **Legacy** — released to beneficiaries when your legacy triggers
-
-Each capsule holds **photos**, **voice notes**, and **letters**. Reactions (🕯️ candle, ❤️ heart, 🌸 blossom) are persistent. The masonry grid filters by type. The detail modal has four tabs (Overview / Photos / Letters / Voice) and inline editing.
-
-### Private Safe (`/safe`)
-Your personal encrypted vault, protected by a vault-lock intro animation on first access each session. Six collapsible sections:
-
-| Section | What it holds |
-|---|---|
-| Crypto Keys | Seed phrases and private keys — show/hide toggle, multi-entry |
-| Documents | PDFs and images — uploaded, sized, minted with a random NFT ID |
-| Letters | Written messages — encrypted, timestamped, previous drafts accessible |
-| Voice Notes | Simulated recordings — timed, waveform visualisation, removable |
-| Photos & Videos | Visual archives — grid preview, up to 8 shown + overflow count |
-| Password Vault | App/website credentials — label / username / password, reveal toggle |
-
-All sections persist to the Zustand store via `safeData`.
-
-### Legacy Settings (`/legacy`)
-Full on-chain legacy configuration:
-- **Inactivity Threshold** — 3 months / 6 months / 1 year selector
-- **Alive Ping** — countdown bar, last ping date, next ping due, overdue warnings
-- **Beneficiary Assignment** — multi-row table: asset / wallet / name / percentage, with running total and balance hint
-- **Grace Period** — slider (7–60 days)
-- **Multi-sig Toggle** — require 2 confirmations before release
-- **Chainlink Automation Status** — live indicator showing keeper activity
-- **Final Message** — encrypted textarea delivered to all beneficiaries on release
-- **Emergency Contact** — name + phone/email, stored encrypted, called first when grace period begins
-
-### AI Vault Assistant
-Floating panel powered by Claude — vault-aware, with context about your actual data. Answers questions like:
-- *"How many capsules do I have?"*
-- *"When is my next ping due?"*
-- *"Who are my beneficiaries?"*
-- *"What's in my safe?"*
-
-Chat history persists across sessions via `aiMessages` in the store.
-
-### Claim Portal (`/claim`)
-The beneficiary-facing side of DeadDrop. When a legacy releases, beneficiaries:
-1. Enter the deceased's wallet address and verify identity
-2. See a stats summary: capsule count, file count, letters and voice notes
-3. Read the final message (if written)
-4. Access the Memory Portrait (AI-generated narrative)
-5. Browse shareable capsules and files
-6. Claim crypto assets on-chain
-
-### Organizations (`/organizations`)
-Universities and companies can issue verified credentials as NFTs — degree certificates, offer letters, equity agreements. Stored permanently, verified on-chain, impossible to forge. Issued credentials are stored in `issuedCredentials` and display with on-chain verification status.
-
-### Settings Panel
-Accessible via the gear icon in the navbar:
-- **Export vault** — downloads a full JSON snapshot of all persisted store data
-- **Import vault backup** — accepts a `.json` export file and restores all data (handles both raw and Zustand-wrapped formats)
-- **Reset vault** — 2-step confirmation wipe of all data
-- **Theme toggle** — dark / light
-- **Language toggle** — English / Hindi (translation layer active across all pages)
-- **Disconnect wallet**
-
-### PWA Support
-DeadDrop is installable as a Progressive Web App:
-- `public/manifest.json` with standalone display mode, theme color `#0B2B26`, and SVG icon
-- Apple mobile web app meta tags for home-screen installation on iOS
-- Open Graph meta tags for link previews
+Six independent contracts. No external dependencies at deploy time (Chainlink interface implemented inline).
 
 ---
 
-## Pages
+### 1. `DeadDropVault.sol` — The Core
 
-| Route | Page | Description |
+The heart of the protocol. Manages vault lifecycle, inactivity detection, and ETH inheritance.
+
+**State machine:**
+```
+Active → GracePeriod → Released
+           ↑ ↓ (owner pings → back to Active)
+```
+
+**Write functions:**
+
+| Function | Who calls it | What it does |
 |---|---|---|
-| `/` | EntryPage | Landing — hero, stats, how-it-works, CTA |
-| `/about` | AboutPage | Mission, problem statement, stats, team |
-| `/connect` | ConnectPage | 3-step onboarding: wallet → profile → PIN |
-| `/dashboard` | DashboardPage | Vault health score, checklist, stats, ping, activity |
-| `/profiles` | ProfilesPage | Your legacy circles grid |
-| `/profiles/:id` | ProfileDetailPage | Circle detail — vault, memories, members, timeline |
-| `/memory` | MemorySpacePage | All memory capsules, filter by type |
-| `/legacy` | LegacyPage | Configure threshold, beneficiaries, ping, emergency contact |
-| `/safe` | PrivateSafePage | Private encrypted vault (6 sections) |
-| `/claim` | ClaimPage | Beneficiary claim portal |
-| `/organizations` | OrganizationsPage | B2B credential issuance |
-| `/activity` | ActivityPage | Full vault activity timeline with search and filters |
+| `createVault(thresholdDays, graceDays)` | Owner | Registers vault on-chain. Minimum 30-day threshold, 7-day grace period. Initialises `lastPing` to now. |
+| `ping()` | Owner | Resets the inactivity clock. If called during a grace period, cancels it and returns vault to Active state. |
+| `updateSettings(thresholdDays, graceDays, multiSig, metadataCID, finalMessageCID)` | Owner | Updates all vault configuration. CIDs point to IPFS-stored encrypted metadata and final message. |
+| `setBeneficiaries(wallets[], sharesBPS[], names[])` | Owner | Sets the full beneficiary list. Shares must sum to exactly 10,000 basis points (100%). Clears and replaces any existing list. |
+| `depositETH()` | Owner | Locks ETH into the vault. This ETH is split among beneficiaries on release. |
+| `triggerGracePeriod(ownerAddr)` | Anyone | Moves vault to GracePeriod if owner hasn't pinged past their threshold. Also called automatically by Chainlink. |
+| `claimLegacy(ownerAddr)` | Beneficiary | Releases ETH to all beneficiaries by their share percentage. Supports optional multi-sig (requires 2 beneficiary confirmations). |
+| `checkUpkeep(checkData)` | Chainlink node (off-chain) | Scans all vaults. Returns `true` and the first overdue owner's address when any Active vault has exceeded its threshold. |
+| `performUpkeep(performData)` | Chainlink node (on-chain) | Decodes the owner address and calls `triggerGracePeriod` automatically. |
+
+**View functions:**
+
+| Function | Returns |
+|---|---|
+| `hasVault(owner)` | Whether an address has registered a vault |
+| `getVaultInfo(owner)` | Full vault state: state enum, lastPing, thresholds, ETH balance, multiSig flag, beneficiary count |
+| `getBeneficiaries(owner)` | All beneficiary wallets, share amounts, and names |
+| `getNextPingDeadline(owner)` | Unix timestamp of when the next ping must happen |
+| `isGracePeriodOver(owner)` | Whether the grace period has fully expired (beneficiary can claim) |
+| `getVaultCIDs(owner)` | The IPFS CIDs for vault metadata and final message |
+| `getVaultCount()` | Total number of registered vaults |
+
+**Events:** `VaultCreated`, `PingRecorded`, `SettingsUpdated`, `BeneficiariesSet`, `ETHDeposited`, `GracePeriodStarted`, `GracePeriodCancelled`, `MultiSigConfirmed`, `LegacyReleased`
+
+---
+
+### 2. `DeadDropKeyRegistry.sol` — Identity Keys
+
+Stores each user's ECIES public key on-chain. This enables cross-wallet encrypted sharing — if you want to share a capsule with someone, you encrypt the content key with their registered public key, so only their wallet can decrypt it.
+
+**Functions:**
+
+| Function | What it does |
+|---|---|
+| `registerPublicKey(pubKey)` | Stores your ECIES compressed public key (33 bytes) on-chain |
+| `getPublicKey(wallet)` | Returns the registered public key for any address |
+| `hasPublicKey(wallet)` | Whether an address has registered a key |
+
+**Event:** `PublicKeyRegistered`
+
+---
+
+### 3. `DeadDropCircles.sol` — Legacy Groups
+
+Circles are on-chain groups — Family, Friends, Work, University, or custom. Each circle has members, roles, and a shared file vault. Think of a circle as a living family album that never gets lost.
+
+**Write functions:**
+
+| Function | What it does |
+|---|---|
+| `createCircle(name, description, circleType)` | Creates a new circle. Creator is automatically an Admin. |
+| `updateCircle(circleId, name, description)` | Updates circle metadata. Admin only. |
+| `addMember(circleId, wallet, name, role)` | Adds a wallet to the circle with a role (Member=0, Admin=1). Admin only. |
+| `joinCircle(circleId, name)` | Any wallet can join an existing circle as a member. |
+| `removeMember(circleId, wallet)` | Removes a member. Admin only. Cannot remove the last admin. |
+| `uploadFile(circleId, name, fileType, cid, sizeMB)` | Logs an encrypted file's IPFS CID to the circle. Actual bytes are on IPFS; only the CID lives on-chain. |
+| `removeFile(circleId, fileId)` | Removes a file record from the circle. Admin only. |
+
+**View functions:** `getMembers`, `getFiles`, `getMyCircles`, `isMemberOf`, `memberCount`, `fileCount`
+
+**Events:** `CircleCreated`, `CircleUpdated`, `MemberAdded`, `MemberRemoved`, `FileUploaded`, `FileRemoved`
+
+---
+
+### 4. `DeadDropCapsules.sol` — Memory Capsules
+
+Time-locked or condition-locked containers for memories. Each capsule has a type, optional unlock date, optional circle link, and holds encrypted content CIDs.
+
+**Capsule types:**
+- `Private` — only the owner can open it
+- `Shared` — visible to everyone in a linked circle
+- `TimeLocked` — sealed until a specific date
+- `Legacy` — released to beneficiaries when the vault triggers
+
+**Content types stored per capsule:** `Photo`, `Letter`, `Voice`
+
+**Write functions:**
+
+| Function | What it does |
+|---|---|
+| `createCapsule(title, capsuleType, contentPreview, circleId, unlockDate)` | Creates a new capsule. Pass `unlockDate=0` for no time lock, `circleId=0` for no circle link. |
+| `updateCapsule(capsuleId, title, contentPreview)` | Updates capsule metadata. Owner only. |
+| `deleteCapsule(capsuleId)` | Deletes capsule and all its content records. Owner only. |
+| `addContent(capsuleId, itemType, cid, label)` | Adds an encrypted IPFS CID as a content item (photo/letter/voice). |
+| `removeContent(capsuleId, itemId)` | Removes a content item. Owner only. |
+| `react(capsuleId, reactionIndex)` | Toggles a reaction (0=candle, 1=heart, 2=blossom). Stored per-user on-chain. |
+
+**View functions:** `getContent`, `getMyCapsules`, `getReactions`, `getUserReactions`, `isUnlocked`, `contentCount`
+
+**Events:** `CapsuleCreated`, `ContentAdded`, `ContentRemoved`, `Reacted`
+
+---
+
+### 5. `DeadDropSafe.sol` — Private Safe
+
+The most sensitive part of the vault. Stores encrypted entries by category. Every `label`, `cid`, and `hint` stored here is ciphertext — the contract never sees plaintext.
+
+**Categories:** `CryptoKey`, `Letter`, `VoiceNote`, `Password`, `Document`, `Photo`
+
+**Write functions:**
+
+| Function | What it does |
+|---|---|
+| `addEntry(category, label, cid, hint)` | Adds an encrypted entry. `label` is the encrypted title, `cid` points to the encrypted blob on IPFS, `hint` is optional encrypted metadata. |
+| `updateEntry(entryId, label, cid, hint)` | Replaces an entry's ciphertext. Owner only. |
+| `removeEntry(entryId)` | Deletes an entry permanently. Owner only. |
+
+**View functions:** `getEntries(owner, category)`, `getAllEntries(owner)`, `entryCount(owner)`
+
+**Events:** `SafeEntryAdded`, `SafeEntryUpdated`, `SafeEntryRemoved`
+
+---
+
+### 6. `DeadDropCredentials.sol` — Verifiable Credentials (ERC-721)
+
+Universities and companies can issue verifiable credentials as NFTs — degree certificates, offer letters, equity agreements. Stored permanently, verified on-chain, impossible to forge or lose.
+
+**Write functions:**
+
+| Function | Who calls it | What it does |
+|---|---|---|
+| `setIssuer(address, verified)` | Admin | Grants or revokes issuer status for an institution's wallet |
+| `transferAdmin(newAdmin)` | Admin | Transfers protocol admin rights |
+| `issueCredential(recipient, credentialType, metadataCID, issuedAt)` | Verified Issuer | Mints an ERC-721 NFT to the recipient. `metadataCID` points to encrypted credential metadata on IPFS. |
+| `revokeCredential(tokenId)` | Issuer who minted it | Marks credential as revoked. NFT still exists but `credentials[id].revoked = true`. |
+
+**View functions:** `getCredentialsOf(recipient)`, `tokenURI`, `balanceOf`, `ownerOf` — plus full ERC-721 interface (`approve`, `transferFrom`, etc.)
+
+**Events:** `IssuerStatusChanged`, `CredentialIssued`, `CredentialRevoked`, `Transfer`
+
+---
+
+## Encryption Model
+
+All content is encrypted **in the browser** before any network call. Nothing sensitive ever leaves the device in plaintext.
+
+```
+Symmetric key (AES-256-GCM)
+    derived from: wallet.signMessage("deaddrop:identity:v1")
+    → deterministic — same wallet always produces same key
+    → never stored anywhere — derived fresh each session
+
+Content encryption:
+    plaintext → AES-256-GCM(symmetricKey) → ciphertext blob → IPFS → CID stored on-chain
+
+Cross-wallet sharing (ECIES):
+    sharedKey → encrypted with recipient's public key (from KeyRegistry)
+    → recipient decrypts with their wallet's private key
+```
+
+Keys are **never** sent to a server, stored in localStorage, or included in any transaction. Lose your wallet → lose your keys. This is intentional: the same guarantee that makes crypto self-sovereign applies here.
+
+---
+
+## Frontend — Pages & Features
+
+| Route | Page | What it does |
+|---|---|---|
+| `/` | Entry | Landing page — hero, stats counter animation, how-it-works |
+| `/about` | About | Mission, problem statement, team |
+| `/connect` | Connect | 3-step onboarding: connect wallet → set display name → set PIN |
+| `/dashboard` | Dashboard | Vault health score (8-point check), alive ping ring, quick stats, recent on-chain activity |
+| `/legacy` | Legacy | Create/configure vault, set inactivity threshold, manage beneficiaries, deposit ETH, write final message |
+| `/profiles` | Circles | Create and manage legacy circles, view members and files |
+| `/profiles/:id` | Circle Detail | 4 tabs: Vault (files), Memories (capsules), Members, Timeline (on-chain events) |
+| `/memory` | Memory Space | All memory capsules — create, filter by type, add photos/letters/voice, react |
+| `/safe` | Private Safe | 6-section encrypted vault: Crypto Keys, Letters, Voice Notes, Passwords, Documents, Photos |
+| `/organizations` | Organizations | Issue ERC-721 credentials, verify issuers, view issued/received credentials |
+| `/activity` | Activity | Live on-chain event feed across all 6 contracts with search and domain filters |
+| `/claim` | Claim Portal | Beneficiary-facing: look up any vault by owner address, view contents, claim ETH |
+
+---
+
+## Vault Health Score
+
+The dashboard computes a score (0–100%) from 8 on-chain checks:
+
+| Check | Condition |
+|---|---|
+| Wallet connected | wagmi account connected |
+| Vault created | `hasVault(address)` returns true |
+| Beneficiaries set | `beneficiaryCount > 0` |
+| ETH deposited | `depositedETH > 0` |
+| At least one circle | `getMyCircles(address).length > 0` |
+| At least one capsule | `getMyCapsules(address).length > 0` |
+| Safe has entries | `entryCount(address) > 0` |
+| Public key registered | `hasPublicKey(address)` returns true |
+
+Score = (checks passed / 8) × 100. Ring color: green ≥ 75%, orange ≥ 50%, red < 50%.
+
+---
+
+## Claim Portal Flow
+
+When a vault owner goes inactive and the grace period ends, their beneficiaries:
+
+1. Go to `/claim` and enter the owner's wallet address
+2. Contract is queried — vault state, ETH balance, and beneficiary list are shown
+3. If the connected wallet is a registered beneficiary and the grace period is over, claim is unlocked
+4. An **AI Memory Portrait** is generated from on-chain data — capsule titles, circle count, safe entries, ETH locked
+5. Beneficiary calls `claimLegacy(ownerAddr)` — ETH splits and transfers on-chain automatically
+6. If multi-sig is enabled, two beneficiaries must both confirm before release
+
+---
+
+## Chainlink Automation
+
+The vault contract implements `AutomationCompatibleInterface`:
+
+- **`checkUpkeep`** — scans all registered vault owners every block (off-chain, gas-free). Returns `true` + the first overdue owner's address when any Active vault has exceeded its threshold.
+- **`performUpkeep`** — called on-chain by the Chainlink node. Transitions the vault to GracePeriod and emits `GracePeriodStarted`.
+
+To activate: register the deployed vault contract as a **Custom Logic** upkeep at [automation.chain.link](https://automation.chain.link). No code changes needed — just a one-time registration with LINK funding.
+
+Without Chainlink: anyone can still call `triggerGracePeriod(ownerAddr)` manually.
 
 ---
 
@@ -204,150 +281,85 @@ DeadDrop is installable as a Progressive Web App:
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | React 18 + Vite 5 |
-| **Styling** | TailwindCSS 3 + custom CSS (glass morphism, shimmer, vault-input) |
-| **Animations** | Framer Motion 11 (spring physics, whileInView, AnimatePresence) |
-| **Canvas FX** | HTML5 Canvas 2D API — aurora ribbons, particle streams, neural sphere, data-stream, hand wireframes |
-| **State** | Zustand with `persist` middleware → **localStorage** |
-| **Routing** | React Router v6 |
-| **Dates** | date-fns |
-| **Toasts** | react-hot-toast |
-| **Fonts** | Sora (headings) + Inter (body) via Google Fonts |
-| **Icons** | Phosphor Icons (`@phosphor-icons/react`) |
-| **PWA** | Web App Manifest + Apple meta tags |
-| **Web3 (planned)** | ethers.js v6 / wagmi v2 / viem for wallet connection |
-| **Storage (planned)** | IPFS via web3.storage or Pinata |
-| **Automation (planned)** | Chainlink Keepers / Automation |
-| **Encryption (planned)** | AES-256 via Web Crypto API + Lit Protocol for key management |
-
----
-
-## Data Architecture
-
-All data is stored in **Zustand's persisted store** (`localStorage` key: `deaddrop-store`). The `partialize` filter controls what is actually persisted.
-
-```
-deaddrop-store
-├── identity
-│   ├── walletAddress
-│   ├── displayName
-│   ├── profilePhoto
-│   └── safePin
-│
-├── onboardingChecklistDone      ← true once user dismisses the checklist
-├── emergencyContact             ← { name, contact } — stored encrypted
-│
-├── profiles[]                   ← user's legacy circles
-│   ├── id, name, type
-│   ├── description, members[]
-│   └── fileCount, memoryCount
-│
-├── profileFiles{}               ← per-circle file vault
-│   └── [profileId]: File[]
-│
-├── profileMembers{}             ← per-circle members
-│   └── [profileId]: Member[]
-│
-├── profileTimeline{}            ← per-circle activity log (feeds /activity)
-│   └── [profileId]: Event[]
-│
-├── capsules[]                   ← memory capsules
-│   ├── id, title, type
-│   ├── contentPreview
-│   ├── photos, voice, letters (counts)
-│   └── unlockDate
-│
-├── capsuleContent{}             ← actual capsule content (photos/letters/voice)
-│   └── [capsuleId]: { photos[], letters[], voice[] }
-│
-├── reactions{}                  ← capsule reactions
-│   └── [capsuleId]: { '🕯️': n, '❤️': n, '🌸': n, userReacted: [] }
-│
-├── legacySettings{}
-│   ├── inactivityThreshold
-│   ├── gracePeriod, multiSig
-│   ├── beneficiaries[]
-│   ├── finalMessage
-│   ├── lastPing, nextPing
-│   └── chainlinkActive
-│
-├── safeData{}                   ← private vault contents
-│   ├── cryptoKeys[]             { label, value }
-│   ├── letters[]                { content, savedAt }
-│   ├── voiceNotes[]             { name, duration, date }
-│   ├── passwords[]              { label, username, password }
-│   ├── documents[]              { name, size, type, nftId, date }
-│   └── photos[]                 { name, date }
-│
-├── notifications[]              ← system notifications (feeds /activity)
-├── aiMessages[]                 ← persistent AI chat history
-└── issuedCredentials[]          ← B2B credentials issued via /organizations
-```
-
----
-
-## Vault Health Score
-
-The dashboard computes a **health score (0–100%)** from 8 checks:
-
-| Check | Condition |
-|---|---|
-| Display name set | `displayName` is not null |
-| Safe PIN set | `safePin` is not null |
-| At least one memory capsule | `capsules.length > 0` |
-| At least one legacy circle | `profiles.length > 0` |
-| Something stored in the private safe | any `safeData` section has entries |
-| Legacy settings saved | `legacySettings.beneficiaries.length > 0` or `finalMessage` written |
-| At least one beneficiary assigned | `legacySettings.beneficiaries.length > 0` |
-| Final message written | `legacySettings.finalMessage.trim().length > 0` |
-
-Score = (checks passed / 8) × 100. Ring color: green ≥ 75%, orange ≥ 50%, red < 50%.
+| Frontend | React 18 + Vite 5 |
+| Styling | TailwindCSS + custom CSS (glass morphism) |
+| Animations | Framer Motion 11 |
+| Canvas FX | HTML5 Canvas 2D — aurora ribbons, particle streams, neural sphere |
+| State | Zustand (UI only — theme, language, display name) |
+| Routing | React Router v6 |
+| Web3 | wagmi v2 + viem |
+| Wallet | MetaMask (injected) + WalletConnect |
+| Smart Contracts | Solidity 0.8 + Hardhat |
+| Tests | Chai + ethers.js — 79 tests across 6 contracts |
+| Storage | IPFS via Pinata |
+| Encryption | AES-256-GCM + ECIES (Web Crypto API) |
+| Automation | Chainlink Automation (Custom Logic upkeep) |
+| Credentials | ERC-721 NFT |
+| Network | Ethereum Sepolia testnet |
 
 ---
 
 ## Local Setup
 
 ```bash
-# Clone the repo
 git clone https://github.com/your-org/deaddrop.git
 cd deaddrop
-
-# Install dependencies
 npm install
 
-# Start the development server
+# Run all 79 tests
+npm test
+
+# Start the frontend (no contracts needed for UI exploration)
 npm run dev
-
-# Build for production
-npm run build
+# or double-click open-deaddrop.bat on Windows
 ```
 
-The app runs entirely in the browser. No backend server is required for the current demo version. All data persists via `localStorage`.
+### Deploy to Sepolia
 
-### Environment (future)
-When connecting to real blockchain infrastructure, you'll need:
-```env
-VITE_WALLET_CONNECT_PROJECT_ID=your_project_id
-VITE_IPFS_API_KEY=your_web3storage_key
-VITE_CHAINLINK_REGISTRY=0x...
+```bash
+# 1. Copy and fill environment file
+cp .env.example .env
+# Set SEPOLIA_RPC_URL and DEPLOYER_PRIVATE_KEY
+
+# 2. Compile contracts
+npm run compile
+
+# 3. Deploy all 6 contracts
+npm run deploy:sepolia
+# Prints all 6 addresses — paste them into .env
+
+# 4. Regenerate ABI modules (only if you changed contracts)
+node scripts/gen-contract-modules.mjs
 ```
+
+### Environment Variables
+
+| Variable | Purpose |
+|---|---|
+| `SEPOLIA_RPC_URL` | Alchemy/Infura RPC for deployment |
+| `DEPLOYER_PRIVATE_KEY` | Deployer wallet — only used at deploy time, never in the app |
+| `VITE_VAULT_ADDRESS` | DeadDropVault deployed address |
+| `VITE_KEY_REGISTRY_ADDRESS` | DeadDropKeyRegistry deployed address |
+| `VITE_CIRCLES_ADDRESS` | DeadDropCircles deployed address |
+| `VITE_CAPSULES_ADDRESS` | DeadDropCapsules deployed address |
+| `VITE_SAFE_ADDRESS` | DeadDropSafe deployed address |
+| `VITE_CREDENTIALS_ADDRESS` | DeadDropCredentials deployed address |
+| `VITE_PINATA_JWT` | Pinata JWT for IPFS uploads |
+| `VITE_ALCHEMY_KEY` | Alchemy key for frontend RPC |
+| `VITE_DEPLOY_BLOCK` | Block number of first deploy (speeds up activity feed) |
 
 ---
 
-## Visual Design
+## Contract Tests — 79 total
 
-DeadDrop uses a **dark teal** design language — deliberately chosen to feel serious, calm, and trustworthy. Not the neon-on-black crypto aesthetic. Not the beige-and-warm fintech look. Something in between — like a vault that has been designed with care.
-
-**Palette:**
-- Background: `#051F20` (deep forest)
-- Surface: `#0B2B26` (elevated glass)
-- Accent: `#8EB69B` (sage green)
-- Highlight: `#DAF1DE` (pale mint)
-- Warning: `#D1601F` (burnt orange)
-
-**Motion philosophy:** every interaction has a spring — pages don't cut, they breathe. Modals scale in. Cards lift on hover. The aurora in the background is alive — 8 ribbon bands drift continuously at different speeds, layered with 490 glowing particles and 6 ambient orbs. The side decorations (wireframe hand, neural sphere, data-stream binary) reinforce the idea that something intelligent and organic is watching over your vault.
-
-**Typography:** Sora for all headings (geometric, confident), Inter for all body copy (readable, neutral). Never mixed.
+| Contract | Tests cover |
+|---|---|
+| DeadDropVault | createVault, ping, setBeneficiaries, depositETH, triggerGracePeriod, claimLegacy, multiSig, updateSettings, getVaultCIDs, view helpers, **Chainlink checkUpkeep/performUpkeep** |
+| DeadDropKeyRegistry | registerPublicKey, getPublicKey, hasPublicKey, duplicate registration |
+| DeadDropCircles | createCircle, updateCircle, addMember, joinCircle, removeMember, uploadFile, removeFile, access control |
+| DeadDropCapsules | createCapsule, updateCapsule, deleteCapsule, addContent, removeContent, react, time-lock, view helpers |
+| DeadDropSafe | addEntry, updateEntry, removeEntry, getEntries by category, getAllEntries, access control |
+| DeadDropCredentials | setIssuer, issueCredential, revokeCredential, ERC-721 transfers, tokenURI, access control |
 
 ---
 
@@ -356,36 +368,14 @@ DeadDrop uses a **dark teal** design language — deliberately chosen to feel se
 | Feature | DeadDrop | Traditional Will | Password Manager | Cloud Backup |
 |---|---|---|---|---|
 | Crypto key transfer | ✅ | ❌ | ❌ | ❌ |
-| Automated release | ✅ on-chain | ❌ manual | ❌ | ❌ |
+| Automated trustless release | ✅ Chainlink | ❌ Manual | ❌ | ❌ |
 | Memory preservation | ✅ | ❌ | ❌ | Partial |
-| Beneficiary assignment | ✅ | ✅ | ❌ | ❌ |
 | Decentralised storage | ✅ IPFS | ❌ | ❌ | ❌ |
-| No single point of failure | ✅ | ❌ | ❌ | ❌ |
 | Zero-knowledge encryption | ✅ | N/A | Partial | ❌ |
+| No single point of failure | ✅ | ❌ | ❌ | ❌ |
 | Works without lawyers | ✅ | ❌ | ✅ | ✅ |
-| Emergency contact failsafe | ✅ | ❌ | ❌ | ❌ |
-| Vault health monitoring | ✅ | ❌ | ❌ | ❌ |
-| AI vault assistant | ✅ | ❌ | ❌ | ❌ |
-| Installable (PWA) | ✅ | ❌ | Partial | ❌ |
-
----
-
-## Roadmap
-
-- [ ] Real wallet connection (MetaMask / WalletConnect)
-- [ ] Actual IPFS upload via web3.storage
-- [ ] AES-256 encryption in-browser via Web Crypto API
-- [ ] Lit Protocol for decentralised key management (access control)
-- [ ] Chainlink Automation deployment (Polygon / Ethereum)
-- [ ] Multi-chain support (ETH, Polygon, BNB)
-- [ ] Mobile app (React Native)
-- [ ] Organisation dashboard for universities / companies
-- [ ] Beneficiary mobile notification system
-- [ ] AI Memory Portrait generation (Claude API)
-- [ ] Hindi / regional language support (translation layer already in place)
-- [ ] Push notifications for ping reminders
-- [ ] Biometric unlock for Private Safe
-- [ ] Sharable legacy circle invite links
+| Verifiable credentials | ✅ ERC-721 | ❌ | ❌ | ❌ |
+| On-chain activity log | ✅ | ❌ | ❌ | ❌ |
 
 ---
 
@@ -393,7 +383,7 @@ DeadDrop uses a **dark teal** design language — deliberately chosen to feel se
 
 **DeadDrop** — in espionage, a dead drop is a method of passing information between two parties without them ever meeting directly. One person leaves something. Another person retrieves it. No contact. No intermediary. No risk.
 
-That's exactly what this is. You leave things for the people you love. They find them. You never have to be in the room.
+That's exactly what this is. You leave things for the people you love. They find them when the time comes. You never have to be in the room.
 
 ---
 

@@ -5,7 +5,22 @@ import { useAppStore } from '@/store/useAppStore'
 import { useTranslation } from '@/lib/translations'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
 import SideDecorCanvas from '@/components/ui/SideDecorCanvas'
-import { STATS_COUNTERS, STORAGE_TYPES } from '@/data/mockData'
+const STATS_COUNTERS = [
+  { value: 50000000000, label: 'Unclaimed Crypto',   prefix: '$', display: '$50B+' },
+  { value: 2000000000,  label: 'Photos Deleted Yearly', prefix: '', display: '2B+' },
+  { value: 400000000,   label: 'Unbanked Indians',    prefix: '', display: '400M+' },
+]
+
+const STORAGE_TYPES = [
+  { icon: '📸', label: 'Photos & Videos' },
+  { icon: '🎙️', label: 'Voice Notes' },
+  { icon: '💌', label: 'Letters' },
+  { icon: '₿',  label: 'Crypto Keys' },
+  { icon: '📄', label: 'Documents' },
+  { icon: '🎵', label: 'Playlists' },
+  { icon: '🖼️', label: 'Art & NFTs' },
+  { icon: '🔐', label: 'Passwords' },
+]
 
 function CounterCard({ value, label, prefix }) {
   const ref = useRef(null)

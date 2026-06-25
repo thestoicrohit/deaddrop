@@ -1,7 +1,15 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAccount, useReadContracts } from 'wagmi'
 import { useAppStore } from '@/store/useAppStore'
+import { useDeadDrop } from '@/hooks/useDeadDrop'
+import { useCircles } from '@/hooks/useCircles'
+import { useCapsules, CAPSULE_TYPE } from '@/hooks/useCapsules'
+import { useSafe } from '@/hooks/useSafe'
+import { useActivity, describeActivity } from '@/hooks/useActivity'
+import { CIRCLES_ADDRESS, CIRCLES_ABI } from '@/lib/contracts/circles'
+import { CAPSULES_ADDRESS, CAPSULES_ABI } from '@/lib/contracts/capsules'
 import { formatDistanceToNow, format, differenceInDays } from 'date-fns'
 import toast from 'react-hot-toast'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
@@ -14,18 +22,18 @@ function greeting(name) {
 }
 
 // ── Vault health score ────────────────────────────────────────────────────────
-function computeHealth({ displayName, safePin, capsules, profiles, safeData, legacySettings, daysLeft }) {
-  const safeCount = (safeData.documents?.length || 0) + (safeData.photos?.length || 0)
-    + (safeData.cryptoKeys?.length || 0) + (safeData.passwords?.filter(p => p.label).length || 0)
+// All inputs are now derived from on-chain hooks in the main component below —
+// see useCircles/useCapsules/useSafe/useDeadDrop — instead of mock store domains.
+function computeHealth({ displayName, safePin, capsuleCount, hasCircleWithMembers, safeCount, hasBeneficiary, hasFinalMessage, pingCurrent }) {
   return [
     { label: 'Display name set',          done: !!displayName },
     { label: 'Vault PIN configured',       done: !!safePin },
-    { label: 'Memory capsule created',     done: capsules.length > 0 },
-    { label: 'Circle with members',        done: profiles.some(p => (p.members?.length || 0) > 1) },
+    { label: 'Memory capsule created',     done: capsuleCount > 0 },
+    { label: 'Circle with members',        done: hasCircleWithMembers },
     { label: 'Files in Private Safe',      done: safeCount > 0 },
-    { label: 'Beneficiary assigned',       done: (legacySettings.beneficiaries || []).some(b => b.wallet?.trim()) },
-    { label: 'Final message written',      done: (legacySettings.finalMessage || '').length > 20 },
-    { label: 'Ping is current',            done: daysLeft > 0 },
+    { label: 'Beneficiary assigned',       done: hasBeneficiary },
+    { label: 'Final message written',      done: hasFinalMessage },
+    { label: 'Ping is current',            done: pingCurrent },
   ]
 }
 
@@ -274,53 +282,100 @@ function QuickAction({ icon, label, sub, onClick, delay = 0 }) {
   )
 }
 
+// ── Activity / capsule icon lookups ───────────────────────────────────────────
+const DOMAIN_ICON = {
+  vault: '⛓️', keyRegistry: '🗝️', circles: '👥', capsules: '🌸', safe: '🔐', credentials: '🎓',
+}
+
+const CAPSULE_TYPE_ICON = {
+  [CAPSULE_TYPE.LEGACY]:      '🕊️',
+  [CAPSULE_TYPE.TIME_LOCKED]: '⏰',
+  [CAPSULE_TYPE.SHARED]:      '👥',
+  [CAPSULE_TYPE.PRIVATE]:     '🔒',
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const navigate = useNavigate()
+  const { isConnected } = useAccount()
   const {
-    displayName, capsules, profiles, safeData,
-    legacySettings, pingAlive, profileTimeline,
-    safePin, onboardingChecklistDone, dismissOnboardingChecklist,
+    displayName, safePin, onboardingChecklistDone, dismissOnboardingChecklist,
   } = useAppStore()
 
-  // Stats
-  const safeCount = (safeData.cryptoKeys?.length || 0)
-    + (safeData.letters?.length || 0)
-    + (safeData.voiceNotes?.length || 0)
-    + (safeData.passwords?.filter(p => p.label).length || 0)
-    + (safeData.documents?.length || 0)
-    + (safeData.photos?.length || 0)
+  const dd       = useDeadDrop()
+  const circles  = useCircles()
+  const capsules = useCapsules()
+  const safe     = useSafe()
+  const { activity, isLoading: activityLoading } = useActivity()
 
-  // Ping countdown
-  const nextPing   = new Date(legacySettings.nextPing)
-  const daysLeft   = Math.max(0, differenceInDays(nextPing, new Date()))
-  const totalDays  = 30
-  const pingStatus = daysLeft === 0 ? 'overdue' : daysLeft <= 7 ? 'urgent' : 'safe'
+  const hasOnChain = !!dd.vaultExists
+
+  // getMembers(id) per circle, batched via multicall the same way
+  // useOwnerCircles batches getFiles(id) — Rules of Hooks forbids calling
+  // useCircleMembers() once per circle since the circle count is dynamic.
+  const { data: memberResults } = useReadContracts({
+    contracts: circles.myCircles.map((c) => ({
+      address: CIRCLES_ADDRESS, abi: CIRCLES_ABI, functionName: 'getMembers', args: [c.id],
+    })),
+    query: { enabled: circles.myCircles.length > 0 },
+  })
+  const memberCounts        = (memberResults || []).map((r) => (r?.status === 'success' ? r.result.length : 0))
+  const totalMembers        = memberCounts.reduce((s, n) => s + n, 0)
+  const hasCircleWithMembers = memberCounts.some((n) => n > 1)
+
+  // getContent(id) per capsule, same batching pattern — used for the "N items"
+  // sub-label on each capsule preview card below.
+  const { data: contentResults } = useReadContracts({
+    contracts: capsules.myCapsules.map((c) => ({
+      address: CAPSULES_ADDRESS, abi: CAPSULES_ABI, functionName: 'getContent', args: [c.id],
+    })),
+    query: { enabled: capsules.myCapsules.length > 0 },
+  })
+  const contentCountById = new Map(
+    capsules.myCapsules.map((c, i) => [String(c.id), contentResults?.[i]?.status === 'success' ? contentResults[i].result.length : 0])
+  )
+
+  const sortedCapsules = useMemo(
+    () => [...capsules.myCapsules].sort((a, b) => Number(b.createdAt) - Number(a.createdAt)),
+    [capsules.myCapsules]
+  )
+
+  // Stats
+  const safeCount    = safe.entries?.length || 0
+  const capsuleCount = capsules.myCapsules.length
+  const circleCount  = circles.myCircles.length
+
+  // Ping countdown — derived entirely from on-chain state, same convention
+  // established in LegacyPage.jsx.
+  const lastPingDate = dd.lastPingTs && dd.lastPingTs > 0n ? new Date(Number(dd.lastPingTs) * 1000) : null
+  const nextPingDate = dd.pingDeadline ? new Date(Number(dd.pingDeadline) * 1000) : null
+  const daysLeft      = nextPingDate ? Math.max(0, differenceInDays(nextPingDate, new Date())) : null
+  const totalDays     = dd.vaultInfo ? Math.max(1, Math.round(Number(dd.vaultInfo.inactivityThreshold) / 86400)) : 30
+  const pingCurrent   = hasOnChain && daysLeft != null && daysLeft > 0
+  const pingStatus    = !hasOnChain ? 'none' : daysLeft === 0 ? 'overdue' : daysLeft <= 7 ? 'urgent' : 'safe'
 
   // Vault health
-  const healthChecks = computeHealth({ displayName, safePin, capsules, profiles, safeData, legacySettings, daysLeft })
-  const healthDone   = healthChecks.filter(c => c.done).length
-  const healthPct    = Math.round((healthDone / healthChecks.length) * 100)
+  const hasBeneficiary  = (dd.beneficiaryData?.wallets?.length || 0) > 0
+  const hasFinalMessage = !!dd.vaultCIDs?.finalMessageCID
+  const healthChecks  = computeHealth({
+    displayName, safePin, capsuleCount, hasCircleWithMembers, safeCount,
+    hasBeneficiary, hasFinalMessage, pingCurrent,
+  })
+  const healthDone    = healthChecks.filter(c => c.done).length
+  const healthPct     = Math.round((healthDone / healthChecks.length) * 100)
   const showChecklist = !onboardingChecklistDone && healthPct < 100
 
-  // Recent activity — flatten all timelines, take last 6
-  const recentActivity = useMemo(() => {
-    const all = []
-    Object.values(profileTimeline || {}).forEach((events) => {
-      events.forEach((e) => all.push(e))
-    })
-    return all
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-      .slice(0, 6)
-  }, [profileTimeline])
+  // Recent activity — useActivity() already sorts newest-first.
+  const recentActivity = useMemo(() => activity.slice(0, 6), [activity])
 
   const handlePing = () => {
-    pingAlive()
-    toast.success("You're alive! Clock reset on-chain.")
+    if (!isConnected) { toast.error('Connect your wallet to ping.'); return }
+    if (!hasOnChain)  { toast.error('Create your on-chain vault first — head to Legacy.'); return }
+    dd.ping()
   }
 
-  const statusColor  = pingStatus === 'safe' ? '#8EB69B' : pingStatus === 'urgent' ? '#D1601F' : '#e05252'
-  const statusLabel  = pingStatus === 'safe' ? 'Vault is active' : pingStatus === 'urgent' ? 'Ping soon!' : 'Ping overdue!'
+  const statusColor = pingStatus === 'safe' ? '#8EB69B' : pingStatus === 'urgent' ? '#D1601F' : pingStatus === 'overdue' ? '#e05252' : 'rgba(142,182,155,0.5)'
+  const statusLabel = pingStatus === 'safe' ? 'Vault is active' : pingStatus === 'urgent' ? 'Ping soon!' : pingStatus === 'overdue' ? 'Ping overdue!' : 'No vault yet'
 
   return (
     <div className="relative min-h-screen" style={{ paddingTop: '80px' }}>
@@ -338,7 +393,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: statusColor }} />
             <span className="font-inter text-xs uppercase tracking-widest" style={{ color: statusColor }}>
-              {statusLabel}
+              {isConnected ? statusLabel : 'Wallet not connected'}
             </span>
           </div>
           <h1 className="font-sora font-bold text-3xl md:text-4xl shimmer-text mb-1">
@@ -349,228 +404,271 @@ export default function DashboardPage() {
           </p>
         </motion.div>
 
-        {/* Onboarding checklist */}
-        <AnimatePresence>
-          {showChecklist && (
-            <OnboardingChecklist
-              checks={healthChecks}
-              onDismiss={dismissOnboardingChecklist}
-              navigate={navigate}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Stats row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatCard
-            label="Memory Capsules" value={capsules.length} icon="🌸"
-            sub={capsules.length > 0 ? `Latest: ${capsules[0]?.title?.slice(0, 18)}…` : 'None yet'}
-            delay={0.05} onClick={() => navigate('/memory')}
-          />
-          <StatCard
-            label="Legacy Circles" value={profiles.length} icon="👥"
-            sub={`${profiles.reduce((s, p) => s + (p.members?.length || 0), 0)} total members`}
-            delay={0.1} onClick={() => navigate('/profiles')}
-          />
-          <StatCard
-            label="Safe Items" value={safeCount} icon="🔐"
-            sub="AES-256 encrypted"
-            delay={0.15} onClick={() => navigate('/safe')}
-          />
-          <StatCard
-            label="Days to Ping" value={daysLeft}
-            icon={daysLeft <= 7 ? '⚠️' : '💓'}
-            sub={`Due ${format(nextPing, 'dd MMM yyyy')}`}
-            color={statusColor} delay={0.2}
-            onClick={() => navigate('/legacy')}
-          />
-        </div>
-
-        {/* Vault health + ping */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <VaultHealthScore checks={healthChecks} navigate={navigate} />
-
-          {/* Ping status card */}
+        {!isConnected ? (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="glass-card p-6"
+            initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+            className="glass-card p-8 text-center"
           >
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-                style={{ background: 'rgba(142,182,155,0.1)', border: '1px solid rgba(142,182,155,0.18)' }}>
-                💓
-              </div>
-              <div>
-                <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Alive Ping</h2>
-                <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>On-chain inactivity monitor</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6 mb-5">
-              <PingRing daysLeft={daysLeft} totalDays={totalDays} />
-              <div className="space-y-3">
-                <div>
-                  <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Last ping</p>
-                  <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>
-                    {format(new Date(legacySettings.lastPing), 'dd MMM yyyy')}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Next due</p>
-                  <p className="font-sora font-semibold text-sm" style={{ color: statusColor }}>
-                    {format(nextPing, 'dd MMM yyyy')}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Threshold</p>
-                  <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>
-                    {legacySettings.inactivityThreshold}
-                  </p>
-                </div>
-              </div>
-            </div>
-
+            <span className="text-3xl block mb-3">🔐</span>
+            <h3 className="font-sora font-semibold text-lg mb-2" style={{ color: '#DAF1DE' }}>
+              Connect your wallet to continue
+            </h3>
+            <p className="font-inter text-sm mb-5" style={{ color: '#8EB69B' }}>
+              Your capsules, circles, safe, and legacy settings all live on-chain — there's no local
+              or demo mode to fall back on.
+            </p>
             <motion.button
-              onClick={handlePing}
-              className="btn-primary w-full text-sm"
-              whileHover={{ scale: 1.02, boxShadow: '0 0 24px rgba(142,182,155,0.3)' }}
-              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate('/connect')}
+              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+              className="btn-primary text-sm"
             >
-              Ping — I'm here ✓
+              Connect wallet →
             </motion.button>
           </motion.div>
-        </div>
+        ) : (
+          <>
+            {/* Onboarding checklist */}
+            <AnimatePresence>
+              {showChecklist && (
+                <OnboardingChecklist
+                  checks={healthChecks}
+                  onDismiss={dismissOnboardingChecklist}
+                  navigate={navigate}
+                />
+              )}
+            </AnimatePresence>
 
-        {/* Quick actions + recent activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-
-          {/* Quick actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.5 }}
-            className="glass-card p-6"
-          >
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-                style={{ background: 'rgba(142,182,155,0.1)', border: '1px solid rgba(142,182,155,0.18)' }}>
-                ⚡
-              </div>
-              <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Quick Actions</h2>
+            {/* Stats row */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <StatCard
+                label="Memory Capsules" value={capsuleCount} icon="🌸"
+                sub={sortedCapsules.length > 0 ? `Latest: ${sortedCapsules[0]?.title?.slice(0, 18)}…` : 'None yet'}
+                delay={0.05} onClick={() => navigate('/memory')}
+              />
+              <StatCard
+                label="Legacy Circles" value={circleCount} icon="👥"
+                sub={`${totalMembers} total members`}
+                delay={0.1} onClick={() => navigate('/profiles')}
+              />
+              <StatCard
+                label="Safe Items" value={safeCount} icon="🔐"
+                sub="AES-256 encrypted"
+                delay={0.15} onClick={() => navigate('/safe')}
+              />
+              <StatCard
+                label="Days to Ping" value={daysLeft ?? '—'}
+                icon={daysLeft != null && daysLeft <= 7 ? '⚠️' : '💓'}
+                sub={hasOnChain ? (nextPingDate ? `Due ${format(nextPingDate, 'dd MMM yyyy')}` : '—') : 'No vault yet'}
+                color={statusColor} delay={0.2}
+                onClick={() => navigate('/legacy')}
+              />
             </div>
-            <div className="space-y-2">
-              <QuickAction icon="🌸" label="New memory capsule" sub="Add a photo, letter, or voice note" onClick={() => navigate('/memory')} delay={0.37} />
-              <QuickAction icon="🔐" label="Upload to Private Safe" sub="Documents, crypto keys, passwords" onClick={() => navigate('/safe')} delay={0.41} />
-              <QuickAction icon="🕊️" label="Configure legacy" sub="Beneficiaries, threshold, final message" onClick={() => navigate('/legacy')} delay={0.45} />
-              <QuickAction icon="📋" label="View all activity" sub="Full history of vault events" onClick={() => navigate('/activity')} delay={0.49} />
-            </div>
-          </motion.div>
 
-          {/* Recent activity */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="glass-card p-6"
-          >
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Recent Activity</h2>
-              <button
-                onClick={() => navigate('/activity')}
-                className="font-inter text-xs transition-opacity hover:opacity-70"
-                style={{ color: '#8EB69B' }}
+            {/* Vault health + ping */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <VaultHealthScore checks={healthChecks} navigate={navigate} />
+
+              {/* Ping status card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="glass-card p-6"
               >
-                View all →
-              </button>
-            </div>
-            {recentActivity.length > 0 ? (
-              <div className="space-y-3">
-                {recentActivity.map((e, i) => (
-                  <motion.div
-                    key={e.id || i}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.42 + i * 0.05 }}
-                    className="flex items-start gap-3"
-                  >
-                    <span className="text-base flex-shrink-0 mt-0.5">{e.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-inter text-sm leading-snug" style={{ color: '#DAF1DE' }}>
-                        <span style={{ color: '#8EB69B' }}>{e.wallet}</span> {e.description}
-                      </p>
-                      <p className="font-inter text-xs mt-0.5" style={{ color: 'rgba(142,182,155,0.5)' }}>
-                        {formatDistanceToNow(new Date(e.timestamp), { addSuffix: true })}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <span className="text-3xl block mb-2">📭</span>
-                <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.5)' }}>
-                  No activity yet — upload a file or create a capsule.
-                </p>
-              </div>
-            )}
-          </motion.div>
-        </div>
-
-        {/* Capsule preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45, duration: 0.5 }}
-          className="glass-card p-6"
-        >
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Recent Capsules</h2>
-            <button
-              onClick={() => navigate('/memory')}
-              className="font-inter text-xs transition-opacity hover:opacity-70"
-              style={{ color: '#8EB69B' }}
-            >
-              View all →
-            </button>
-          </div>
-          {capsules.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {capsules.slice(0, 4).map((c, i) => (
-                <motion.div
-                  key={c.id}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.47 + i * 0.06 }}
-                  className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
-                  style={{ background: 'rgba(11,43,38,0.3)' }}
-                  onClick={() => navigate('/memory')}
-                  whileHover={{ background: 'rgba(11,43,38,0.5)' }}
-                >
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center text-base flex-shrink-0"
-                    style={{ background: 'rgba(142,182,155,0.1)' }}>
-                    {c.type === 'Legacy' ? '🕊️' : c.type === 'Time-locked' ? '⏰' : c.type === 'Shared' ? '👥' : '🔒'}
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+                    style={{ background: 'rgba(142,182,155,0.1)', border: '1px solid rgba(142,182,155,0.18)' }}>
+                    💓
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-sora font-semibold text-xs truncate" style={{ color: '#DAF1DE' }}>{c.title}</p>
-                    <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>
-                      {c.photos + c.voice + c.letters} items
+                  <div>
+                    <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Alive Ping</h2>
+                    <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>On-chain inactivity monitor</p>
+                  </div>
+                </div>
+
+                {!hasOnChain ? (
+                  <div className="text-center py-6">
+                    <p className="font-inter text-sm mb-3" style={{ color: 'rgba(142,182,155,0.6)' }}>
+                      Create your on-chain vault to start the ping clock.
+                    </p>
+                    <button onClick={() => navigate('/legacy')} className="btn-primary text-xs px-4 py-2">
+                      Go to Legacy →
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-6 mb-5">
+                      <PingRing daysLeft={daysLeft ?? 0} totalDays={totalDays} />
+                      <div className="space-y-3">
+                        <div>
+                          <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Last ping</p>
+                          <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>
+                            {lastPingDate ? format(lastPingDate, 'dd MMM yyyy') : '—'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Next due</p>
+                          <p className="font-sora font-semibold text-sm" style={{ color: statusColor }}>
+                            {nextPingDate ? format(nextPingDate, 'dd MMM yyyy') : '—'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Threshold</p>
+                          <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>
+                            {totalDays} days
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <motion.button
+                      onClick={handlePing}
+                      disabled={dd.isPending || dd.isConfirming}
+                      className="btn-primary w-full text-sm"
+                      whileHover={{ scale: 1.02, boxShadow: '0 0 24px rgba(142,182,155,0.3)' }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      {dd.isPending ? 'Confirm in MetaMask…' : dd.isConfirming ? 'Confirming…' : "Ping — I'm here ✓"}
+                    </motion.button>
+                  </>
+                )}
+              </motion.div>
+            </div>
+
+            {/* Quick actions + recent activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+              {/* Quick actions */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.5 }}
+                className="glass-card p-6"
+              >
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+                    style={{ background: 'rgba(142,182,155,0.1)', border: '1px solid rgba(142,182,155,0.18)' }}>
+                    ⚡
+                  </div>
+                  <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Quick Actions</h2>
+                </div>
+                <div className="space-y-2">
+                  <QuickAction icon="🌸" label="New memory capsule" sub="Add a photo, letter, or voice note" onClick={() => navigate('/memory')} delay={0.37} />
+                  <QuickAction icon="🔐" label="Upload to Private Safe" sub="Documents, crypto keys, passwords" onClick={() => navigate('/safe')} delay={0.41} />
+                  <QuickAction icon="🕊️" label="Configure legacy" sub="Beneficiaries, threshold, final message" onClick={() => navigate('/legacy')} delay={0.45} />
+                  <QuickAction icon="📋" label="View all activity" sub="Full history of vault events" onClick={() => navigate('/activity')} delay={0.49} />
+                </div>
+              </motion.div>
+
+              {/* Recent activity */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="glass-card p-6"
+              >
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Recent Activity</h2>
+                  <button
+                    onClick={() => navigate('/activity')}
+                    className="font-inter text-xs transition-opacity hover:opacity-70"
+                    style={{ color: '#8EB69B' }}
+                  >
+                    View all →
+                  </button>
+                </div>
+                {activityLoading ? (
+                  <div className="text-center py-8">
+                    <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.5)' }}>Loading on-chain activity…</p>
+                  </div>
+                ) : recentActivity.length > 0 ? (
+                  <div className="space-y-3">
+                    {recentActivity.map((e, i) => (
+                      <motion.div
+                        key={e.id}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.42 + i * 0.05 }}
+                        className="flex items-start gap-3"
+                      >
+                        <span className="text-base flex-shrink-0 mt-0.5">{DOMAIN_ICON[e.domain] || '📋'}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-inter text-sm leading-snug" style={{ color: '#DAF1DE' }}>
+                            <span style={{ color: '#8EB69B' }}>{e.domainLabel}</span> · {describeActivity(e)}
+                          </p>
+                          <p className="font-inter text-xs mt-0.5" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                            {e.timestamp ? formatDistanceToNow(new Date(Number(e.timestamp) * 1000), { addSuffix: true }) : '—'}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <span className="text-3xl block mb-2">📭</span>
+                    <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                      No activity yet — upload a file or create a capsule.
                     </p>
                   </div>
-                </motion.div>
-              ))}
+                )}
+              </motion.div>
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <span className="text-3xl block mb-2">🌸</span>
-              <p className="font-inter text-sm mb-3" style={{ color: 'rgba(142,182,155,0.5)' }}>No capsules yet.</p>
-              <button onClick={() => navigate('/memory')} className="btn-primary text-xs px-4 py-2">
-                Create first capsule
-              </button>
-            </div>
-          )}
-        </motion.div>
+
+            {/* Capsule preview */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, duration: 0.5 }}
+              className="glass-card p-6"
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Recent Capsules</h2>
+                <button
+                  onClick={() => navigate('/memory')}
+                  className="font-inter text-xs transition-opacity hover:opacity-70"
+                  style={{ color: '#8EB69B' }}
+                >
+                  View all →
+                </button>
+              </div>
+              {sortedCapsules.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {sortedCapsules.slice(0, 4).map((c, i) => (
+                    <motion.div
+                      key={String(c.id)}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.47 + i * 0.06 }}
+                      className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
+                      style={{ background: 'rgba(11,43,38,0.3)' }}
+                      onClick={() => navigate('/memory')}
+                      whileHover={{ background: 'rgba(11,43,38,0.5)' }}
+                    >
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center text-base flex-shrink-0"
+                        style={{ background: 'rgba(142,182,155,0.1)' }}>
+                        {CAPSULE_TYPE_ICON[Number(c.capsuleType)] || '🔒'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-sora font-semibold text-xs truncate" style={{ color: '#DAF1DE' }}>{c.title}</p>
+                        <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>
+                          {contentCountById.get(String(c.id)) ?? 0} items
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <span className="text-3xl block mb-2">🌸</span>
+                  <p className="font-inter text-sm mb-3" style={{ color: 'rgba(142,182,155,0.5)' }}>No capsules yet.</p>
+                  <button onClick={() => navigate('/memory')} className="btn-primary text-xs px-4 py-2">
+                    Create first capsule
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </>
+        )}
 
       </div>
     </div>

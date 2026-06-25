@@ -44,3 +44,11 @@ yarn-error.log*
 # Temp
 tmp/
 temp/
+
+# Hardhat
+artifacts/
+cache/
+# Ephemeral local-network deployment records (chain resets every run);
+# real testnet/mainnet records (e.g. deployments/sepolia.json) are kept.
+deployments/hardhat.json
+deployments/localhost.json

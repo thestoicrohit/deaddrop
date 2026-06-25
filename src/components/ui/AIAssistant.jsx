@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppStore } from '@/store/useAppStore'
+import { useCapsules } from '@/hooks/useCapsules'
+import { useCircles } from '@/hooks/useCircles'
+import { useDeadDrop } from '@/hooks/useDeadDrop'
+import { useSafe, SAFE_CATEGORY } from '@/hooks/useSafe'
 import { useTranslation } from '@/lib/translations'
 
 function TypingIndicator() {
@@ -19,39 +23,50 @@ function TypingIndicator() {
   )
 }
 
-// Context-aware responses based on keywords in the user's message
-const getResponse = (msg, { capsules, profiles, legacySettings, safeData, displayName }) => {
+const SECONDS_PER_DAY = 86400
+
+function formatThreshold(seconds) {
+  if (!seconds) return 'not set'
+  const days = Math.round(Number(seconds) / SECONDS_PER_DAY)
+  if (days > 0 && days % 365 === 0) return `${days / 365} year${days / 365 !== 1 ? 's' : ''}`
+  if (days > 0 && days % 30 === 0)  return `${days / 30} month${days / 30 !== 1 ? 's' : ''}`
+  return `${days} day${days !== 1 ? 's' : ''}`
+}
+
+// Context-aware responses based on keywords in the user's message. All data
+// is read from on-chain contracts via the hooks in src/hooks/ — there is no
+// local mock data anymore. Private Safe entries are encrypted client-side, so
+// only counts (not contents) are available here.
+const getResponse = (msg, { capsules, circles, vaultExists, vaultInfo, beneficiaryData, safeCounts, displayName }) => {
   const m = msg.toLowerCase()
 
   if (m.includes('capsule') || m.includes('memory')) {
     const count = capsules?.length || 0
     const latest = capsules?.[0]
-    return `You have ${count} memory capsule${count !== 1 ? 's' : ''}${latest ? `. The most recent is "${latest.title}" (${latest.type}).` : '.'} Want me to help you create a new one or search through them?`
+    return `You have ${count} memory capsule${count !== 1 ? 's' : ''}${latest ? `. The most recent is "${latest.title}".` : '.'} Want me to help you create a new one or search through them?`
   }
 
   if (m.includes('circle') || m.includes('profile') || m.includes('family') || m.includes('group')) {
-    const count = profiles?.length || 0
-    return `You're in ${count} circle${count !== 1 ? 's' : ''}${count > 0 ? ` — ${profiles.map(p => p.name).join(', ')}` : ''}. Each circle has its own shared vault and memory space.`
+    const count = circles?.length || 0
+    return `You're in ${count} circle${count !== 1 ? 's' : ''}${count > 0 ? ` — ${circles.map(p => p.name).join(', ')}` : ''}. Each circle has its own shared vault and memory space, all on-chain.`
   }
 
   if (m.includes('ping') || m.includes('alive') || m.includes('inactivity') || m.includes('legacy')) {
-    const last = legacySettings?.lastPing
-    const next = legacySettings?.nextPing
-    const threshold = legacySettings?.inactivityThreshold || '6months'
-    if (last) {
-      const lastDate = new Date(last).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-      const nextDate = new Date(next).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    if (!vaultExists) {
+      return `You haven't created your legacy vault yet. Head to the Legacy page to set an inactivity threshold and beneficiaries on-chain.`
+    }
+    const threshold = formatThreshold(vaultInfo?.inactivityThreshold)
+    if (vaultInfo?.lastPing) {
+      const lastDate = new Date(Number(vaultInfo.lastPing) * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      const nextDate = new Date((Number(vaultInfo.lastPing) + Number(vaultInfo.inactivityThreshold)) * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
       return `Your inactivity threshold is ${threshold}. Last ping was ${lastDate}. Next ping due by ${nextDate}. You're safe — go to Legacy settings to ping now and reset the clock.`
     }
     return `Your legacy settings control what happens if you go inactive. Head to the Legacy page to configure your inactivity threshold, beneficiaries, and final message.`
   }
 
   if (m.includes('safe') || m.includes('vault') || m.includes('key') || m.includes('password') || m.includes('document')) {
-    const keyCount  = safeData?.cryptoKeys?.length || 0
-    const pwdCount  = safeData?.passwords?.length || 0
-    const docCount  = safeData?.documents?.length || 0
-    const photoCount= safeData?.photos?.length || 0
-    return `Your private vault holds: ${keyCount} crypto key${keyCount !== 1 ? 's' : ''}, ${pwdCount} password${pwdCount !== 1 ? 's' : ''}, ${docCount} document${docCount !== 1 ? 's' : ''}, and ${photoCount} photo${photoCount !== 1 ? 's' : ''}. Everything is AES-256 encrypted locally.`
+    const { cryptoKeys = 0, passwords = 0, documents = 0, photos = 0 } = safeCounts || {}
+    return `Your private vault holds: ${cryptoKeys} crypto key${cryptoKeys !== 1 ? 's' : ''}, ${passwords} password${passwords !== 1 ? 's' : ''}, ${documents} document${documents !== 1 ? 's' : ''}, and ${photos} photo${photos !== 1 ? 's' : ''}. Entries are AES-256 encrypted client-side before being written on-chain.`
   }
 
   if (m.includes('portrait') || m.includes('ai') || m.includes('generate')) {
@@ -59,9 +74,12 @@ const getResponse = (msg, { capsules, profiles, legacySettings, safeData, displa
   }
 
   if (m.includes('beneficiar') || m.includes('heir') || m.includes('inherit')) {
-    const bens = legacySettings?.beneficiaries || []
-    if (bens.length > 0) {
-      return `You have ${bens.length} beneficiar${bens.length > 1 ? 'ies' : 'y'}: ${bens.map(b => `${b.name} (${b.percentage}%)`).join(', ')}. Total: ${bens.reduce((s, b) => s + b.percentage, 0)}%. Update these on the Legacy page.`
+    const names  = beneficiaryData?.names  || []
+    const shares = beneficiaryData?.shares || []
+    if (names.length > 0) {
+      const list  = names.map((n, i) => `${n || 'Unnamed'} (${(Number(shares[i] || 0) / 100).toFixed(0)}%)`).join(', ')
+      const total = shares.reduce((s, b) => s + Number(b || 0), 0) / 100
+      return `You have ${names.length} beneficiar${names.length > 1 ? 'ies' : 'y'}: ${list}. Total: ${total}%. Update these on the Legacy page.`
     }
     return `You haven't set up beneficiaries yet. Head to the Legacy page to assign who receives your vault when the time comes.`
   }
@@ -73,23 +91,34 @@ const getResponse = (msg, { capsules, profiles, legacySettings, safeData, displa
   // Default responses
   const defaults = [
     `I found ${capsules?.length || 0} memory capsules in your vault. The most recent is "${capsules?.[0]?.title || 'unnamed'}". Want me to open it?`,
-    `Your ${profiles?.length || 0} circle${(profiles?.length || 0) !== 1 ? 's' : ''} ha${(profiles?.length || 0) !== 1 ? 've' : 's'} files and memories shared across members. Check the Profiles page to see activity.`,
-    `Your inactivity threshold is set to ${legacySettings?.inactivityThreshold || '6 months'}. Ping the Legacy page to reset the clock and stay active.`,
-    `Your private safe has ${(safeData?.cryptoKeys?.length || 0) + (safeData?.passwords?.length || 0) + (safeData?.documents?.length || 0)} encrypted items. Everything stays local — never sent to any server.`,
+    `Your ${circles?.length || 0} circle${(circles?.length || 0) !== 1 ? 's' : ''} ha${(circles?.length || 0) !== 1 ? 've' : 's'} files and memories shared across members, all on-chain. Check the Profiles page to see activity.`,
+    `Your inactivity threshold is set to ${vaultExists ? formatThreshold(vaultInfo?.inactivityThreshold) : 'not configured yet'}. Ping the Legacy page to reset the clock and stay active.`,
+    `Your private safe has ${(safeCounts?.cryptoKeys || 0) + (safeCounts?.passwords || 0) + (safeCounts?.documents || 0) + (safeCounts?.photos || 0)} encrypted entries. Content is encrypted client-side before it ever touches the chain.`,
     `I can generate a Memory Portrait from your capsules using AI — visual stories of your life. Try tapping "AI Portrait ✨" on any capsule.`,
   ]
   return defaults[Math.floor(Math.random() * defaults.length)]
 }
 
 export default function AIAssistant() {
-  const { aiOpen, setAiOpen, lang, aiMessages, addAiMessage, clearAiMessages, capsules, profiles, legacySettings, safeData, displayName } = useAppStore()
+  const { aiOpen, setAiOpen, lang, aiMessages, addAiMessage, clearAiMessages, displayName } = useAppStore()
+  const { myCapsules } = useCapsules()
+  const { myCircles }  = useCircles()
+  const { vaultExists, vaultInfo, beneficiaryData } = useDeadDrop()
+  const { entriesByCategory } = useSafe()
   const tr       = useTranslation(lang)
   const [input,  setInput]  = useState('')
   const [typing, setTyping] = useState(false)
   const bottomRef  = useRef(null)
   const inputRef   = useRef(null)
 
-  const storeCtx = { capsules, profiles, legacySettings, safeData, displayName }
+  const safeCounts = {
+    cryptoKeys: entriesByCategory[SAFE_CATEGORY.CRYPTO_KEY]?.length || 0,
+    passwords:  entriesByCategory[SAFE_CATEGORY.PASSWORD]?.length   || 0,
+    documents:  entriesByCategory[SAFE_CATEGORY.DOCUMENT]?.length   || 0,
+    photos:     entriesByCategory[SAFE_CATEGORY.PHOTO]?.length      || 0,
+  }
+
+  const storeCtx = { capsules: myCapsules, circles: myCircles, vaultExists, vaultInfo, beneficiaryData, safeCounts, displayName }
 
   useEffect(() => {
     if (aiOpen) setTimeout(() => inputRef.current?.focus(), 300)
@@ -178,7 +207,7 @@ export default function AIAssistant() {
                     {tr('ai.title')}
                   </p>
                   <p className="font-inter text-xs" style={{ color: '#235347' }}>
-                    Vault-aware · {capsules?.length || 0} capsules · {profiles?.length || 0} circles
+                    Vault-aware · {myCapsules?.length || 0} capsules · {myCircles?.length || 0} circles
                   </p>
                 </div>
                 <div className="ml-auto flex items-center gap-2">

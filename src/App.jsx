@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Toaster } from 'react-hot-toast'
 import { useAppStore } from '@/store/useAppStore'
+import { useWalletSync } from '@/hooks/useWalletSync'
 
 // Layout
 import Navbar from '@/components/layout/Navbar'
@@ -43,6 +44,7 @@ function AppRoutes() {
   const location = useLocation()
   const { walletConnected } = useAppStore()
   const isEntry = location.pathname === '/'
+  useWalletSync() // keeps wagmi ↔ Zustand in sync
 
   return (
     <>
