@@ -75,6 +75,14 @@ export const useAppStore = create(
       demoMode: false,
       setDemoMode: (v) => set({ demoMode: v }),
 
+      // ── Lead capture ─────────────────────────────────────────────────────────
+      // Soft signup used instead of a mandatory wallet connect: visitors can
+      // browse the whole app after leaving an email, and connect a wallet later
+      // only when they try an action that actually needs the chain.
+      leadCaptured: false,
+      leadEmail: null,
+      captureLead: (email) => set({ leadCaptured: true, leadEmail: email }),
+
       // ── AI panel ─────────────────────────────────────────────────────────────
       aiOpen: false,
       setAiOpen: (v) => set({ aiOpen: v }),
@@ -166,6 +174,8 @@ export const useAppStore = create(
         safePin:            s.safePin,
         onboardingComplete: s.onboardingComplete,
         demoMode:           s.demoMode,
+        leadCaptured:       s.leadCaptured,
+        leadEmail:          s.leadEmail,
         // Local-only app data
         aiMessages:              s.aiMessages,
         notifications:           s.notifications,

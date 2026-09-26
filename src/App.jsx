@@ -29,11 +29,11 @@ import ActivityPage from '@/pages/ActivityPage'
 function PageWrapper({ children }) {
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.22, ease: 'easeOut' }}
-      style={{ willChange: 'opacity' }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      style={{ willChange: 'opacity, transform' }}
     >
       {children}
     </motion.div>
@@ -50,7 +50,12 @@ function AppRoutes() {
     <>
       <Navbar />
 
-      <AnimatePresence mode="wait" initial={false}>
+      {/* No `mode="wait"` — the incoming page mounts immediately rather than
+          waiting on the outgoing page's exit animation to finish. Gating
+          navigation itself on animation completion is fragile (a throttled
+          tab, reduced-motion settings, or a slow device can all stall an
+          exit fade indefinitely) for a purely decorative crossfade. */}
+      <AnimatePresence initial={false}>
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<PageWrapper><EntryPage /></PageWrapper>} />
           <Route path="/about" element={<PageWrapper><AboutPage /></PageWrapper>} />

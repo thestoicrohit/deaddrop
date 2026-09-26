@@ -5,6 +5,8 @@ import { useAppStore } from '@/store/useAppStore'
 import { useTranslation } from '@/lib/translations'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import LangToggle from '@/components/ui/LangToggle'
+import EmailCaptureModal from '@/components/ui/EmailCaptureModal'
+import LandingSections from '@/components/landing/LandingSections'
 
 /* ─────────────────────────────────────────────────────────────
    NEURAL ORB — 3D rotating particle sphere + rings + sparks
@@ -285,53 +287,13 @@ function NeuralOrb({ mouseX, mouseY }) {
   return <canvas ref={canvasRef} className="w-full h-full block" />
 }
 
-/* ─── Live ticker ───────────────────────────────────────────── */
-const TICKER = [
-  { name: 'Priya M.',  city: 'Mumbai',    action: 'Legacy sealed',         col: '#8EB69B' },
-  { name: 'Arjun S.',  city: 'Delhi',     action: 'Vault created',         col: '#DAF1DE' },
-  { name: 'Kavya N.',  city: 'Bangalore', action: '47 memories added',     col: '#8EB69B' },
-  { name: 'Rohit K.',  city: 'Chennai',   action: 'Beneficiary set',       col: '#DAF1DE' },
-  { name: 'Anjali R.', city: 'Hyderabad', action: 'Capsule time-locked',   col: '#8EB69B' },
-  { name: 'Vikram T.', city: 'Pune',      action: 'Documents encrypted',   col: '#DAF1DE' },
-  { name: 'Meera L.',  city: 'Kolkata',   action: 'Family circle created',  col: '#8EB69B' },
-  { name: 'Suresh P.', city: 'Ahmedabad', action: 'Voice notes saved',     col: '#DAF1DE' },
-]
 
-function LiveTicker() {
-  const doubled = [...TICKER, ...TICKER]
-  return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-20 overflow-hidden"
-      style={{ height: 38, background: 'rgba(5,31,32,0.94)', borderTop: '1px solid rgba(142,182,155,0.1)', backdropFilter: 'blur(12px)' }}
-    >
-      <div className="flex items-center h-full">
-        <div
-          className="flex items-center gap-2 px-4 flex-shrink-0 h-full"
-          style={{ borderRight: '1px solid rgba(142,182,155,0.1)' }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full animate-pulse-dot" style={{ background: '#8EB69B', boxShadow: '0 0 6px rgba(142,182,155,0.9)' }} />
-          <span className="font-sora text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: '#8EB69B' }}>LIVE</span>
-        </div>
-        <div className="flex-1 overflow-hidden">
-          <div className="ticker-track">
-            {doubled.map((item, i) => (
-              <div key={i} className="flex items-center gap-2.5 px-5 flex-shrink-0">
-                <span className="font-sora text-xs font-semibold" style={{ color: item.col }}>{item.name}</span>
-                <span style={{ color: '#163832' }}>·</span>
-                <span className="font-inter text-xs" style={{ color: '#235347' }}>{item.city}</span>
-                <span style={{ color: '#163832' }}>·</span>
-                <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>{item.action}</span>
-                <span className="mx-3 opacity-20 text-xs" style={{ color: '#8EB69B' }}>◆</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ─── Iris transition ───────────────────────────────────────── */
+/* ─── Iris transition ───────────────────────────────────────────
+   Grows via `transform: scale` (GPU-composited) rather than
+   width/height (which forces a full-page layout recalculation on
+   every frame at up to 300vmax — expensive enough to stall the
+   whole transition on modest hardware). A 2500px circle scaled up
+   already comfortably covers any real viewport diagonal. ──────── */
 function IrisTransition({ active }) {
   return (
     <AnimatePresence>
@@ -339,9 +301,11 @@ function IrisTransition({ active }) {
         <motion.div className="fixed inset-0 z-[9999]" style={{ background: '#051F20' }}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <motion.div className="absolute inset-0 flex items-center justify-center">
-            <motion.div className="rounded-full" style={{ background: '#051F20' }}
-              initial={{ width: 0, height: 0 }}
-              animate={{ width: '300vmax', height: '300vmax' }}
+            <motion.div
+              className="rounded-full"
+              style={{ background: '#051F20', width: 2500, height: 2500, willChange: 'transform' }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
               transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
             />
           </motion.div>
@@ -456,10 +420,11 @@ const DATA_CARDS = [
 ══════════════════════════════════════════════════════════════ */
 export default function EntryPage() {
   const navigate = useNavigate()
-  const { walletConnected, walletAddress, lang, setDemoMode } = useAppStore()
+  const { walletConnected, walletAddress, leadCaptured, lang, setDemoMode } = useAppStore()
   const tr = useTranslation(lang)
   const [transitioning, setTransitioning] = useState(false)
-  const [vaultCount] = useState(12847 + Math.floor(Math.random() * 80))
+  const [showEmailModal, setShowEmailModal] = useState(false)
+  const alreadyIn = walletConnected || leadCaptured
 
   const mouseX = useMotionValue(typeof window !== 'undefined' ? window.innerWidth / 2 : 0)
   const mouseY = useMotionValue(typeof window !== 'undefined' ? window.innerHeight / 2 : 0)
@@ -484,14 +449,27 @@ export default function EntryPage() {
 
   const go = (to) => {
     setTransitioning(true)
-    setTimeout(() => navigate(to), 820)
+    setTimeout(() => navigate(to), 900)
+  }
+
+  // No wallet required to get in — email replaces it as the "continue" gate.
+  // A wallet is only asked for later, at the moment an action needs one.
+  const handlePrimary = () => {
+    if (alreadyIn) go('/dashboard')
+    else setShowEmailModal(true)
+  }
+
+  const handleSecondary = () => {
+    if (walletConnected) { go('/memory'); return }
+    setDemoMode(true)
+    go('/dashboard')
   }
 
   const short = walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : null
 
   return (
     <div
-      className="relative min-h-[100dvh] overflow-hidden"
+      className="relative min-h-[100dvh]"
       style={{ background: '#051F20' }}
       onMouseMove={handleMouseMove}
     >
@@ -506,7 +484,8 @@ export default function EntryPage() {
       }} />
 
       <IrisTransition active={transitioning} />
-      <EntryNavbar onConnect={() => go('/connect')} />
+      <EntryNavbar onConnect={handlePrimary} />
+      <EmailCaptureModal open={showEmailModal} onClose={() => setShowEmailModal(false)} destination="/dashboard" />
 
       {/* ── MAIN LAYOUT ── */}
       <div className="relative z-10 min-h-[100dvh] grid grid-cols-1 lg:grid-cols-[44%_56%]">
@@ -559,20 +538,22 @@ export default function EntryPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.52, duration: 0.5 }}>
             <motion.button
-              onClick={() => go(walletConnected ? '/dashboard' : '/connect')}
+              onClick={handlePrimary}
               className="font-sora font-semibold text-sm px-7 py-3 rounded-lg"
               style={{ background: 'rgba(142,182,155,0.1)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.38)' }}
               whileHover={{ background: 'rgba(142,182,155,0.18)', boxShadow: '0 0 30px rgba(142,182,155,0.22)', y: -2 }}
               whileTap={{ scale: 0.97, y: 0 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
               {walletConnected ? 'Open Vault' : 'Open My Vault'}
             </motion.button>
             <motion.button
-              onClick={walletConnected ? () => go('/memory') : () => { setDemoMode(true); go('/profiles') }}
+              onClick={handleSecondary}
               className="font-sora font-semibold text-sm px-7 py-3 rounded-lg"
               style={{ color: 'rgba(218,241,222,0.45)', border: '1px solid rgba(218,241,222,0.1)' }}
               whileHover={{ color: 'rgba(218,241,222,0.88)', borderColor: 'rgba(218,241,222,0.28)', y: -2 }}
               whileTap={{ scale: 0.97, y: 0 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
               {walletConnected ? 'Memory Space' : 'See Demo'}
             </motion.button>
@@ -581,9 +562,9 @@ export default function EntryPage() {
           {/* Stats */}
           <motion.div className="flex gap-8 mb-8"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.72 }}>
-            <Stat value={vaultCount} label="vaults protected" delay={0.72} isCounter suffix="" />
+            <Stat value="0" label="keys we ever hold" delay={0.72} />
             <Stat value="AES-256" label="client-side encryption" delay={0.84} />
-            <Stat value="Polygon" label="immutable on-chain" delay={0.96} />
+            <Stat value="Ethereum" label="immutable on-chain" delay={0.96} />
           </motion.div>
 
           {/* Footer whisper */}
@@ -603,7 +584,7 @@ export default function EntryPage() {
           <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, #051F20 0%, transparent 7%, transparent 86%, #051F20 100%)' }} />
 
           {/* Canvas */}
-          <NeuralOrb mouseX={mouseX} mouseY={mouseY} />
+          {!transitioning && <NeuralOrb mouseX={mouseX} mouseY={mouseY} />}
 
           {/* Data overlay cards */}
           <div className="absolute top-[14%] right-7 z-20 flex flex-col gap-2.5">
@@ -639,12 +620,21 @@ export default function EntryPage() {
             transition={{ delay: 1.45, duration: 0.5 }}
           >
             <p className="font-sora text-[8.5px] tracking-[0.2em] uppercase mb-1" style={{ color: 'rgba(142,182,155,0.38)' }}>ON-CHAIN IDENTITY</p>
-            <p className="font-inter text-xs" style={{ color: 'rgba(218,241,222,0.7)' }}>Polygon · IPFS · Chainlink</p>
+            <p className="font-inter text-xs" style={{ color: 'rgba(218,241,222,0.7)' }}>Ethereum · IPFS · Chainlink</p>
           </motion.div>
         </div>
       </div>
 
-      <LiveTicker />
+      {!alreadyIn && (
+        <LandingSections
+          onPrimary={handlePrimary}
+          onSecondary={handleSecondary}
+          primaryLabel="Start my vault — free"
+          secondaryLabel="See it without signing up"
+        />
+      )}
+
+      <div className="pb-10" />
       <ThemeToggle />
       <LangToggle />
     </div>

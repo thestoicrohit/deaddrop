@@ -5,6 +5,9 @@ node_modules/
 dist/
 build/
 
+# Local lead capture (dev-only, contains real emails — never commit)
+data/
+
 # Environment variables
 .env
 .env.local
