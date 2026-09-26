@@ -10,14 +10,13 @@
 // Run:  npm run deploy:sepolia   (or deploy:local for a local Hardhat node)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Accept both VITE_VAULT_ADDRESS (new) and VITE_CONTRACT_ADDRESS (legacy) so
-// existing .env files keep working without a redeploy.
+// Accept VITE_VAULT_ADDRESS (current) or VITE_CONTRACT_ADDRESS (legacy .env files).
 export const VAULT_ADDRESS =
   import.meta.env.VITE_VAULT_ADDRESS ||
   import.meta.env.VITE_CONTRACT_ADDRESS ||
   null
 
-// DeadDropVault.sol ABI — 15 functions, 9 events
+// DeadDropVault.sol ABI — 20 functions, 12 events
 export const VAULT_ABI = [
   {
     "anonymous": false,
@@ -145,6 +144,25 @@ export const VAULT_ABI = [
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "OwnerWithdrew",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "timestamp",
         "type": "uint256"
       }
@@ -175,6 +193,31 @@ export const VAULT_ABI = [
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "ShareCredited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
         "name": "threshold",
@@ -189,6 +232,49 @@ export const VAULT_ABI = [
     ],
     "name": "VaultCreated",
     "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Withdrawn",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "checkData",
+        "type": "bytes"
+      }
+    ],
+    "name": "checkUpkeep",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "upkeepNeeded",
+        "type": "bool"
+      },
+      {
+        "internalType": "bytes",
+        "name": "performData",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -406,6 +492,38 @@ export const VAULT_ABI = [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "pendingWithdrawals",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "performData",
+        "type": "bytes"
+      }
+    ],
+    "name": "performUpkeep",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "ping",
     "outputs": [],
@@ -501,22 +619,21 @@ export const VAULT_ABI = [
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "bytes", "name": "", "type": "bytes" }
-    ],
-    "name": "checkUpkeep",
-    "outputs": [
-      { "internalType": "bool",  "name": "upkeepNeeded", "type": "bool" },
-      { "internalType": "bytes", "name": "performData",  "type": "bytes" }
-    ],
-    "stateMutability": "view",
+    "inputs": [],
+    "name": "withdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes", "name": "performData", "type": "bytes" }
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
     ],
-    "name": "performUpkeep",
+    "name": "withdrawDeposit",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

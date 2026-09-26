@@ -150,6 +150,19 @@ export function useDeadDrop() {
     })
   }
 
+  // ── pending pull-payment balance for any beneficiary address ───────────────
+  // After claimLegacy() releases a vault, each beneficiary's share is credited
+  // here (not pushed) and must be pulled via withdraw(). See DeadDropVault.sol.
+  function usePendingWithdrawal(beneficiaryAddr) {
+    return useReadContract({
+      address:      CONTRACT_ADDRESS,
+      abi:          DEADDROP_ABI,
+      functionName: 'pendingWithdrawals',
+      args:         [beneficiaryAddr],
+      query:        { enabled: !!beneficiaryAddr && !!CONTRACT_ADDRESS },
+    })
+  }
+
   // ── read the metadata/final-message CIDs for any owner (used by ClaimPage) ──
   function useOwnerVaultCIDs(ownerAddr) {
     const result = useReadContract({
@@ -241,15 +254,35 @@ export function useDeadDrop() {
     })
   }
 
+  // Owner-side escape hatch: pull deposited ETH back out any time the vault
+  // is still Active (blocked once a grace period starts — see DeadDropVault.sol).
+  function withdrawDeposit(amountEth, onSuccess) {
+    if (!amountEth || Number(amountEth) <= 0) { toast.error('Enter an ETH amount.'); return }
+    write('withdrawDeposit', [parseEther(String(amountEth))], {
+      successMsg: `${amountEth} ETH withdrawn from vault.`,
+      onSuccess:  () => { refetchInfo(); onSuccess?.() },
+    })
+  }
+
   function triggerGracePeriod(ownerAddr) {
     write('triggerGracePeriod', [ownerAddr], {
       successMsg: 'Grace period triggered on-chain.',
     })
   }
 
-  function claimLegacy(ownerAddr) {
+  function claimLegacy(ownerAddr, onSuccess) {
     write('claimLegacy', [ownerAddr], {
-      successMsg: 'Claim submitted — ETH transfer initiated!',
+      successMsg: 'Legacy released — withdraw your share next.',
+      onSuccess:  () => onSuccess?.(),
+    })
+  }
+
+  // Pull the caller's own credited share (pull-payment pattern). One reverting
+  // beneficiary can never block another's withdrawal.
+  function withdraw(onSuccess) {
+    write('withdraw', [], {
+      successMsg: 'Withdrawal sent — ETH on its way to your wallet!',
+      onSuccess:  () => onSuccess?.(),
     })
   }
 
@@ -295,6 +328,7 @@ export function useDeadDrop() {
     useOwnerHasVault,
     useGracePeriodOver,
     useOwnerVaultCIDs,
+    usePendingWithdrawal,
 
     // Actions
     createVault,
@@ -302,7 +336,9 @@ export function useDeadDrop() {
     updateSettings,
     setBeneficiaries,
     depositETH,
+    withdrawDeposit,
     triggerGracePeriod,
     claimLegacy,
+    withdraw,
   }
 }

@@ -113,7 +113,17 @@ describe("DeadDropVault", function () {
 
   // ── depositETH ──────────────────────────────────────────────────────────────
   describe("depositETH", function () {
-    beforeEach(async () => { await vault.connect(owner).createVault(90, 30); });
+    beforeEach(async () => {
+      await vault.connect(owner).createVault(90, 30);
+      await vault.connect(owner).setBeneficiaries([alice.address], [10000], ["Alice"]);
+    });
+
+    it("reverts if beneficiaries have not been set yet", async function () {
+      await vault.connect(bob).createVault(90, 30);
+      await expect(
+        vault.connect(bob).depositETH({ value: ethers.parseEther("1.0") })
+      ).to.be.revertedWith("Set beneficiaries before depositing");
+    });
 
     it("accepts ETH and records the balance", async function () {
       await vault.connect(owner).depositETH({ value: ethers.parseEther("1.0") });
@@ -149,7 +159,7 @@ describe("DeadDropVault", function () {
 
   // ── claimLegacy (full flow) ─────────────────────────────────────────────────
   describe("claimLegacy — full release flow", function () {
-    it("distributes ETH to beneficiaries proportionally", async function () {
+    it("credits each beneficiary's share proportionally (pull-payment)", async function () {
       await vault.connect(owner).createVault(30, 7);
       await vault.connect(owner).setBeneficiaries(
         [alice.address, bob.address],
@@ -165,21 +175,75 @@ describe("DeadDropVault", function () {
       // Grace period expires
       await advance(8 * DAY);
 
-      const aliceBefore = await ethers.provider.getBalance(alice.address);
-      const bobBefore   = await ethers.provider.getBalance(bob.address);
-
+      // Releasing only *credits* the ledger — no ETH moves to beneficiaries yet.
       await vault.connect(alice).claimLegacy(owner.address);
 
-      const aliceAfter = await ethers.provider.getBalance(alice.address);
-      const bobAfter   = await ethers.provider.getBalance(bob.address);
-
-      // Alice gets 0.7 ETH (minus gas), Bob gets 0.3 ETH
-      expect(aliceAfter - aliceBefore).to.be.closeTo(
-        ethers.parseEther("0.7"), ethers.parseEther("0.01")
-      );
-      expect(bobAfter - bobBefore).to.equal(ethers.parseEther("0.3"));
-
+      expect(await vault.pendingWithdrawals(alice.address)).to.equal(ethers.parseEther("0.7"));
+      expect(await vault.pendingWithdrawals(bob.address  )).to.equal(ethers.parseEther("0.3"));
       expect((await vault.getVaultInfo(owner.address)).state).to.equal(2); // Released
+    });
+
+    it("lets each beneficiary withdraw their own credited share", async function () {
+      await vault.connect(owner).createVault(30, 7);
+      await vault.connect(owner).setBeneficiaries(
+        [alice.address, bob.address],
+        [7000, 3000],
+        ["Alice", "Bob"]
+      );
+      await vault.connect(owner).depositETH({ value: ethers.parseEther("1.0") });
+
+      await advance(31 * DAY);
+      await vault.triggerGracePeriod(owner.address);
+      await advance(8 * DAY);
+      await vault.connect(alice).claimLegacy(owner.address);
+
+      const bobBefore = await ethers.provider.getBalance(bob.address);
+      await vault.connect(bob).withdraw();
+      const bobAfter = await ethers.provider.getBalance(bob.address);
+
+      expect(bobAfter - bobBefore).to.be.closeTo(
+        ethers.parseEther("0.3"), ethers.parseEther("0.01") // minus gas
+      );
+      // Ledger is zeroed; a second withdraw reverts.
+      expect(await vault.pendingWithdrawals(bob.address)).to.equal(0n);
+      await expect(vault.connect(bob).withdraw()).to.be.revertedWith("Nothing to withdraw");
+    });
+
+    it("a beneficiary that rejects ETH cannot block the others (DoS resistance)", async function () {
+      // Deploy a contract that reverts on receiving ETH, and make it a beneficiary.
+      const Reject = await ethers.getContractFactory("RejectETH");
+      const rejecter = await Reject.deploy();
+      await rejecter.waitForDeployment();
+      const rejecterAddr = await rejecter.getAddress();
+
+      await vault.connect(owner).createVault(30, 7);
+      await vault.connect(owner).setBeneficiaries(
+        [rejecterAddr, bob.address],
+        [5000, 5000],
+        ["Rejecter", "Bob"]
+      );
+      await vault.connect(owner).depositETH({ value: ethers.parseEther("1.0") });
+
+      await advance(31 * DAY);
+      await vault.triggerGracePeriod(owner.address);
+      await advance(8 * DAY);
+
+      // Release succeeds even though one beneficiary rejects ETH...
+      await vault.connect(bob).claimLegacy(owner.address);
+      expect((await vault.getVaultInfo(owner.address)).state).to.equal(2); // Released
+
+      // ...and Bob can pull his share regardless of the rejecter.
+      const bobBefore = await ethers.provider.getBalance(bob.address);
+      await vault.connect(bob).withdraw();
+      const bobAfter = await ethers.provider.getBalance(bob.address);
+      expect(bobAfter - bobBefore).to.be.closeTo(
+        ethers.parseEther("0.5"), ethers.parseEther("0.01")
+      );
+
+      // The rejecter still has a credited balance it simply can't pull.
+      expect(await vault.pendingWithdrawals(rejecterAddr)).to.equal(ethers.parseEther("0.5"));
+      await expect(rejecter.withdrawFrom(await vault.getAddress()))
+        .to.be.revertedWith("withdraw failed");
     });
 
     it("reverts if caller is not a beneficiary", async function () {
@@ -207,6 +271,27 @@ describe("DeadDropVault", function () {
       await expect(vault.connect(alice).claimLegacy(owner.address))
         .to.be.revertedWith("Grace period has not ended yet");
     });
+
+    it("reverts if the vault is still Active (grace period never triggered)", async function () {
+      await vault.connect(owner).createVault(30, 7);
+      await vault.connect(owner).setBeneficiaries([alice.address], [10000], ["Alice"]);
+      await vault.connect(owner).depositETH({ value: ethers.parseEther("1.0") });
+
+      await expect(vault.connect(alice).claimLegacy(owner.address))
+        .to.be.revertedWith("Vault must be in GracePeriod state");
+    });
+  });
+
+  // ── onlyVaultOwner access-control-denial ────────────────────────────────────
+  describe("onlyVaultOwner guard", function () {
+    it("reverts ping/updateSettings/setBeneficiaries/depositETH/withdrawDeposit for an address with no vault", async function () {
+      const revert = "No vault for this address. Call createVault first";
+      await expect(vault.connect(stranger).ping()).to.be.revertedWith(revert);
+      await expect(vault.connect(stranger).updateSettings(30, 7, false, "", "")).to.be.revertedWith(revert);
+      await expect(vault.connect(stranger).setBeneficiaries([alice.address], [10000], ["Alice"])).to.be.revertedWith(revert);
+      await expect(vault.connect(stranger).depositETH({ value: 1 })).to.be.revertedWith(revert);
+      await expect(vault.connect(stranger).withdrawDeposit(1)).to.be.revertedWith(revert);
+    });
   });
 
   // ── multiSig ────────────────────────────────────────────────────────────────
@@ -233,6 +318,74 @@ describe("DeadDropVault", function () {
       await vault.connect(bob).claimLegacy(owner.address);
       expect((await vault.getVaultInfo(owner.address)).state).to.equal(2); // Released
     });
+
+    it("does not deadlock a single-beneficiary vault when multiSig is on", async function () {
+      await vault.connect(owner).createVault(30, 7);
+      await vault.connect(owner).updateSettings(30, 7, true, "", "");
+      await vault.connect(owner).setBeneficiaries([alice.address], [10000], ["Alice"]);
+      await vault.connect(owner).depositETH({ value: ethers.parseEther("1.0") });
+
+      await advance(31 * DAY);
+      await vault.triggerGracePeriod(owner.address);
+      await advance(8 * DAY);
+
+      // With only one beneficiary, the requirement caps at 1 — a single
+      // confirmation releases instead of waiting forever for a second.
+      await vault.connect(alice).claimLegacy(owner.address);
+      expect((await vault.getVaultInfo(owner.address)).state).to.equal(2); // Released
+      expect(await vault.pendingWithdrawals(alice.address)).to.equal(ethers.parseEther("1.0"));
+    });
+
+    it("reverts a second confirmation from the same beneficiary in the same grace period", async function () {
+      await vault.connect(owner).createVault(30, 7);
+      await vault.connect(owner).updateSettings(30, 7, true, "", "");
+      await vault.connect(owner).setBeneficiaries(
+        [alice.address, bob.address],
+        [5000, 5000],
+        ["Alice", "Bob"]
+      );
+      await vault.connect(owner).depositETH({ value: ethers.parseEther("1.0") });
+
+      await advance(31 * DAY);
+      await vault.triggerGracePeriod(owner.address);
+      await advance(8 * DAY);
+
+      await vault.connect(alice).claimLegacy(owner.address);
+      await expect(vault.connect(alice).claimLegacy(owner.address))
+        .to.be.revertedWith("Already confirmed by this address");
+    });
+
+    it("lets a beneficiary confirm again after the owner pings and a later grace period starts", async function () {
+      // Regression test for the bug where ping() reset confirmationCount but
+      // left the per-beneficiary "already confirmed" flag set forever,
+      // permanently locking that beneficiary out of ever confirming again.
+      await vault.connect(owner).createVault(30, 7);
+      await vault.connect(owner).updateSettings(30, 7, true, "", "");
+      await vault.connect(owner).setBeneficiaries(
+        [alice.address, bob.address],
+        [5000, 5000],
+        ["Alice", "Bob"]
+      );
+      await vault.connect(owner).depositETH({ value: ethers.parseEther("1.0") });
+
+      // First grace period: Alice confirms, then the owner pings and cancels it.
+      await advance(31 * DAY);
+      await vault.triggerGracePeriod(owner.address);
+      await advance(8 * DAY);
+      await vault.connect(alice).claimLegacy(owner.address);
+      await vault.connect(owner).ping();
+      expect((await vault.getVaultInfo(owner.address)).state).to.equal(0); // back to Active
+
+      // Second grace period: Alice must be able to confirm again.
+      await advance(31 * DAY);
+      await vault.triggerGracePeriod(owner.address);
+      await advance(8 * DAY);
+      await expect(vault.connect(alice).claimLegacy(owner.address)).to.not.be.reverted;
+      expect((await vault.getVaultInfo(owner.address)).state).to.equal(1); // waiting on Bob
+
+      await vault.connect(bob).claimLegacy(owner.address);
+      expect((await vault.getVaultInfo(owner.address)).state).to.equal(2); // Released
+    });
   });
 
   // ── updateSettings ──────────────────────────────────────────────────────────
@@ -245,6 +398,65 @@ describe("DeadDropVault", function () {
       expect(info.inactivityThreshold).to.equal(BigInt(180 * DAY));
       expect(info.gracePeriodDuration ).to.equal(BigInt(60  * DAY));
       expect(info.multiSig            ).to.be.true;
+    });
+
+    it("reverts once a grace period has started, so the wait can't be stretched out mid-flight", async function () {
+      await vault.connect(owner).createVault(30, 7);
+      await advance(31 * DAY);
+      await vault.triggerGracePeriod(owner.address);
+
+      await expect(vault.connect(owner).updateSettings(30, 3650, false, "", ""))
+        .to.be.revertedWith("Vault must be Active to update settings");
+    });
+  });
+
+  // ── setBeneficiaries state guard ────────────────────────────────────────────
+  describe("setBeneficiaries state guard", function () {
+    it("reverts once a grace period has started, so the beneficiary set can't shift under a pending release", async function () {
+      await vault.connect(owner).createVault(30, 7);
+      await vault.connect(owner).setBeneficiaries([alice.address], [10000], ["Alice"]);
+      await advance(31 * DAY);
+      await vault.triggerGracePeriod(owner.address);
+
+      await expect(
+        vault.connect(owner).setBeneficiaries([bob.address], [10000], ["Bob"])
+      ).to.be.revertedWith("Vault must be Active to change beneficiaries");
+    });
+  });
+
+  // ── withdrawDeposit ──────────────────────────────────────────────────────────
+  describe("withdrawDeposit", function () {
+    it("lets the owner recover deposited ETH while Active", async function () {
+      await vault.connect(owner).createVault(30, 7);
+      await vault.connect(owner).setBeneficiaries([alice.address], [10000], ["Alice"]);
+      await vault.connect(owner).depositETH({ value: ethers.parseEther("1.0") });
+
+      await expect(
+        vault.connect(owner).withdrawDeposit(ethers.parseEther("0.4"))
+      ).to.changeEtherBalance(owner, ethers.parseEther("0.4"));
+
+      const info = await vault.getVaultInfo(owner.address);
+      expect(info.depositedETH).to.equal(ethers.parseEther("0.6"));
+    });
+
+    it("reverts once a grace period has started", async function () {
+      await vault.connect(owner).createVault(30, 7);
+      await vault.connect(owner).setBeneficiaries([alice.address], [10000], ["Alice"]);
+      await vault.connect(owner).depositETH({ value: ethers.parseEther("1.0") });
+      await advance(31 * DAY);
+      await vault.triggerGracePeriod(owner.address);
+
+      await expect(vault.connect(owner).withdrawDeposit(ethers.parseEther("0.1")))
+        .to.be.revertedWith("Can only withdraw while Active");
+    });
+
+    it("reverts withdrawing more than the current deposit", async function () {
+      await vault.connect(owner).createVault(30, 7);
+      await vault.connect(owner).setBeneficiaries([alice.address], [10000], ["Alice"]);
+      await vault.connect(owner).depositETH({ value: ethers.parseEther("1.0") });
+
+      await expect(vault.connect(owner).withdrawDeposit(ethers.parseEther("1.1")))
+        .to.be.revertedWith("Invalid amount");
     });
   });
 
@@ -350,6 +562,35 @@ describe("DeadDropVault", function () {
       expect(needed).to.be.true;
       const decoded = ethers.AbiCoder.defaultAbiCoder().decode(["address"], performData);
       expect(decoded[0].toLowerCase()).to.equal(charlie.address.toLowerCase());
+    });
+
+    it("checkUpkeep honours a (start,end) index window in checkData", async function () {
+      const [,, charlie] = await ethers.getSigners();
+      // Index 0 = owner (kept active), index 1 = charlie (goes overdue).
+      await vault.connect(owner).createVault(90, 30);   // stays active
+      await vault.connect(charlie).createVault(30, 7);  // will go overdue
+      await advance(31 * DAY);
+
+      // Window [0,1) covers only the still-active owner → no upkeep needed.
+      const windowFirst = ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [0, 1]);
+      const [neededFirst] = await vault.checkUpkeep(windowFirst);
+      expect(neededFirst).to.be.false;
+
+      // Window [1,2) covers the overdue charlie → upkeep needed, points at charlie.
+      const windowSecond = ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [1, 2]);
+      const [neededSecond, performData] = await vault.checkUpkeep(windowSecond);
+      expect(neededSecond).to.be.true;
+      const decoded = ethers.AbiCoder.defaultAbiCoder().decode(["address"], performData);
+      expect(decoded[0].toLowerCase()).to.equal(charlie.address.toLowerCase());
+    });
+
+    it("checkUpkeep clamps an end index beyond the array length", async function () {
+      await vault.connect(owner).createVault(30, 7);
+      await advance(31 * DAY);
+      // end = 999 is clamped to vaultOwners.length, so the overdue vault is found.
+      const window = ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [0, 999]);
+      const [needed] = await vault.checkUpkeep(window);
+      expect(needed).to.be.true;
     });
   });
 
