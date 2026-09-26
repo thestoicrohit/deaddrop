@@ -1,4 +1,4 @@
-import { useState }                    from 'react'
+import { useState, useEffect }         from 'react'
 import { motion, AnimatePresence }      from 'framer-motion'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi'
 import { formatEther }                  from 'viem'
@@ -89,7 +89,8 @@ function VerificationStep({ onVerify }) {
 
   const handleVerify = () => {
     if (!exists) { toast.error('No vault found for this address on Sepolia.'); return }
-    if (info && Number(info.state) === 2) { toast.error('This legacy has already been released.'); return }
+    // A Released vault is still reachable: beneficiaries pull their credited
+    // share via withdraw() in the portal (pull-payment), so we don't block here.
     onVerify(ownerAddr.trim())
   }
 
@@ -171,6 +172,11 @@ function VerificationStep({ onVerify }) {
               {vaultState === 1 && (
                 <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
                   This vault is in its grace period. The owner can still cancel by pinging.
+                </p>
+              )}
+              {vaultState === 2 && (
+                <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                  This legacy has been released. Continue to withdraw any share credited to your wallet.
                 </p>
               )}
 
@@ -298,32 +304,70 @@ function ReleasePortal({ ownerAddr }) {
   const { data: safeEntries }                    = useAllSafeEntries(ownerAddr)
 
   const { writeContract, data: txHash, isPending } = useWriteContract()
-  const { isLoading: isConfirming, isSuccess: isClaimed } = useWaitForTransactionReceipt({ hash: txHash })
+  const { isLoading: isConfirming, isSuccess: isTxDone } = useWaitForTransactionReceipt({ hash: txHash })
 
   const [openCapsule, setOpenCapsule] = useState(null)
+  // Which action the current/last tx represents, so we can show the right copy.
+  const [lastAction,  setLastAction]  = useState(null) // 'release' | 'withdraw'
 
   const shortOwner    = `${ownerAddr.slice(0, 6)}…${ownerAddr.slice(-4)}`
   const depositedETH  = info?.depositedETH ?? 0n
   const ethDisplay    = parseFloat(formatEther(depositedETH)).toFixed(4)
+  const isReleased    = info ? Number(info.state) === 2 : false
 
   const isBeneficiary = bens?.wallets?.some(
     (w) => w?.toLowerCase() === claimerAddress?.toLowerCase()
   ) ?? false
 
+  // Pull-payment ledger: after a legacy is released, each beneficiary's share is
+  // credited here and must be pulled with withdraw(). Read the caller's balance.
+  const { data: pendingRaw, refetch: refetchPending } = useReadContract({
+    address: VAULT_ADDRESS, abi: VAULT_ABI,
+    functionName: 'pendingWithdrawals', args: [claimerAddress],
+    query: { enabled: !!claimerAddress && !!VAULT_ADDRESS },
+  })
+  const pending        = pendingRaw ?? 0n
+  const pendingDisplay = parseFloat(formatEther(pending)).toFixed(4)
+
+  // After any tx confirms, refetch the pending balance so the UI advances from
+  // the "release" step to the "withdraw" step (and clears after withdrawing).
+  useEffect(() => {
+    if (isTxDone) refetchPending()
+  }, [isTxDone, refetchPending])
+
   // Total file count across all circles
   const totalFiles = circles.reduce((s, c) => s + (c.files?.length ?? 0), 0)
 
-  const handleClaim = () => {
+  // Step 1 — release the legacy (credits every beneficiary's share on-chain).
+  const handleRelease = () => {
     if (!VAULT_ADDRESS)    { toast.error('Contract not deployed.'); return }
     if (!claimerAddress)   { toast.error('Connect your wallet to claim.'); return }
     if (!isBeneficiary)    { toast.error('Your wallet is not registered as a beneficiary.'); return }
     if (!gracePeriodOver)  { toast.error('Grace period has not ended yet.'); return }
 
+    setLastAction('release')
     writeContract(
       { address: VAULT_ADDRESS, abi: VAULT_ABI, functionName: 'claimLegacy', args: [ownerAddr] },
       {
-        onSuccess: (hash) => toast.success(`Claim submitted! (${hash.slice(0, 10)}…)`),
-        onError:   (err)  => toast.error(err.shortMessage || err.message || 'Claim failed'),
+        onSuccess: (hash) => toast.success(`Legacy released! Withdraw your share next. (${hash.slice(0, 10)}…)`),
+        onError:   (err)  => toast.error(err.shortMessage || err.message || 'Release failed'),
+      }
+    )
+  }
+
+  // Step 2 — pull the caller's own credited share. One reverting beneficiary
+  // can never block another's withdrawal (see DeadDropVault.withdraw()).
+  const handleWithdraw = () => {
+    if (!VAULT_ADDRESS)  { toast.error('Contract not deployed.'); return }
+    if (!claimerAddress) { toast.error('Connect your wallet to withdraw.'); return }
+    if (pending === 0n)  { toast.error('Nothing to withdraw.'); return }
+
+    setLastAction('withdraw')
+    writeContract(
+      { address: VAULT_ADDRESS, abi: VAULT_ABI, functionName: 'withdraw', args: [] },
+      {
+        onSuccess: (hash) => toast.success(`Withdrawal sent to your wallet! (${hash.slice(0, 10)}…)`),
+        onError:   (err)  => toast.error(err.shortMessage || err.message || 'Withdrawal failed'),
       }
     )
   }
@@ -509,23 +553,15 @@ function ReleasePortal({ ownerAddr }) {
         </div>
       )}
 
-      {/* Claim ETH */}
+      {/* Claim ETH — two-step pull-payment flow: release → withdraw */}
       <div className="glass-card p-6 text-center" style={{ borderColor: 'rgba(142,182,155,0.3)' }}>
         <h3 className="font-sora font-bold text-xl mb-2" style={{ color: '#8EB69B' }}>Claim ETH from vault</h3>
-        {depositedETH > 0n ? (
-          <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
-            {ethDisplay} ETH locked on Sepolia — will transfer to your wallet.
-          </p>
-        ) : (
-          <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
-            No ETH deposited in this vault.
-          </p>
-        )}
 
-        {isClaimed ? (
+        {/* Withdrawal complete */}
+        {lastAction === 'withdraw' && isTxDone && pending === 0n ? (
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="space-y-2">
             <p className="text-3xl">✅</p>
-            <p className="font-sora font-semibold" style={{ color: '#4a9e6a' }}>Transfer complete. Check your wallet.</p>
+            <p className="font-sora font-semibold" style={{ color: '#4a9e6a' }}>Withdrawal complete. Check your wallet.</p>
             {txHash && (
               <a href={`https://sepolia.etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
                 className="font-inter text-xs underline" style={{ color: '#8EB69B' }}>
@@ -533,25 +569,22 @@ function ReleasePortal({ ownerAddr }) {
               </a>
             )}
           </motion.div>
-        ) : (
+
+        /* Step 2 — funds credited to this wallet, ready to pull */
+        ) : pending > 0n ? (
           <div className="flex flex-col items-center gap-3">
-            {!claimerAddress && (
-              <p className="font-inter text-xs" style={{ color: '#D1601F' }}>⚠ Connect your wallet to claim.</p>
-            )}
-            {claimerAddress && !isBeneficiary && (
-              <p className="font-inter text-xs" style={{ color: '#D1601F' }}>
-                ⚠ {claimerAddress.slice(0,6)}…{claimerAddress.slice(-4)} is not a registered beneficiary.
-              </p>
-            )}
-            {claimerAddress && isBeneficiary && !gracePeriodOver && (
-              <p className="font-inter text-xs" style={{ color: '#D1601F' }}>⚠ Grace period has not ended yet.</p>
-            )}
+            <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+              Your share of <span style={{ color: '#DAF1DE' }}>{pendingDisplay} ETH</span> has been released and is
+              waiting for you. Withdraw it to your wallet — this pulls only your share, so no other beneficiary can block you.
+            </p>
             <button
-              onClick={handleClaim}
-              disabled={isPending || isConfirming || !isBeneficiary || !gracePeriodOver || depositedETH === 0n}
+              onClick={handleWithdraw}
+              disabled={isPending || isConfirming}
               className="btn-cobalt text-base px-8 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isPending ? 'Confirm in MetaMask…' : isConfirming ? 'Confirming on-chain…' : 'Claim to my wallet →'}
+              {isPending && lastAction === 'withdraw' ? 'Confirm in MetaMask…'
+                : isConfirming && lastAction === 'withdraw' ? 'Confirming on-chain…'
+                : `Withdraw ${pendingDisplay} ETH →`}
             </button>
             {txHash && (
               <a href={`https://sepolia.etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
@@ -560,6 +593,58 @@ function ReleasePortal({ ownerAddr }) {
               </a>
             )}
           </div>
+
+        /* Already released, but nothing credited to this wallet */
+        ) : isReleased ? (
+          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+            This legacy has already been released. No ETH is credited to your wallet to withdraw.
+          </p>
+
+        /* Step 1 — release the legacy */
+        ) : (
+          <>
+            {depositedETH > 0n ? (
+              <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+                {ethDisplay} ETH locked on Sepolia. Releasing credits each beneficiary's share on-chain; you then
+                withdraw your own share in a second step.
+              </p>
+            ) : (
+              <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+                No ETH deposited in this vault.
+              </p>
+            )}
+            <div className="flex flex-col items-center gap-3">
+              {!claimerAddress && (
+                <p className="font-inter text-xs" style={{ color: '#D1601F' }}>⚠ Connect your wallet to claim.</p>
+              )}
+              {claimerAddress && !isBeneficiary && (
+                <p className="font-inter text-xs" style={{ color: '#D1601F' }}>
+                  ⚠ {claimerAddress.slice(0,6)}…{claimerAddress.slice(-4)} is not a registered beneficiary.
+                </p>
+              )}
+              {claimerAddress && isBeneficiary && !gracePeriodOver && (
+                <p className="font-inter text-xs" style={{ color: '#D1601F' }}>⚠ Grace period has not ended yet.</p>
+              )}
+              {info?.multiSig && (
+                <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+                  🔐 Multi-sig is enabled — release requires confirmations from two beneficiaries.
+                </p>
+              )}
+              <button
+                onClick={handleRelease}
+                disabled={isPending || isConfirming || !isBeneficiary || !gracePeriodOver || depositedETH === 0n}
+                className="btn-cobalt text-base px-8 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isPending ? 'Confirm in MetaMask…' : isConfirming ? 'Confirming on-chain…' : 'Release legacy →'}
+              </button>
+              {txHash && (
+                <a href={`https://sepolia.etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
+                  className="font-inter text-xs underline" style={{ color: '#8EB69B' }}>
+                  View transaction ↗
+                </a>
+              )}
+            </div>
+          </>
         )}
       </div>
     </motion.div>

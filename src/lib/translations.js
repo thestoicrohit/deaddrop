@@ -10,10 +10,10 @@ export const t = {
     openMemorySpace: 'Open memory space',
     checkLegacy: 'Check legacy settings',
     navbar: {
-      profiles: 'Profiles',
-      memorySpace: 'Memory Space',
-      privateSafe: 'Private Safe',
-      legacy: 'Legacy',
+      profiles: 'Circles',
+      memorySpace: 'Memories',
+      privateSafe: 'Safe',
+      legacy: 'Inheritance',
       about: 'About',
     },
     profiles: {

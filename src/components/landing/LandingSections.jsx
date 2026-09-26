@@ -62,52 +62,14 @@ function ProblemSection() {
 /* ─── 02 · WHAT WE'RE TRYING TO PROVE ────────────────────────────
    Back to the trust-green world — calm, deliberate, the opposite
    feeling of the section above on purpose. ──────────────────── */
-function MissionSection() {
-  const BELIEFS = [
-    { icon: '🔐', title: 'A vault should outlive its company.', body: 'DeadDrop isn’t a startup you trust with your legacy — it’s a smart contract on Ethereum. No servers to shut down, no support team to disappear, no "we’re sunsetting this product" email.' },
-    { icon: '🔑', title: 'Only you should hold the key.', body: 'Every file is encrypted in your browser before it ever leaves your device. We never see your keys, your PIN, or your plaintext — not once, not even by accident.' },
-    { icon: '⏳', title: 'Inheritance should need no permission.', body: 'No probate, no bank sign-off, no lawyer’s calendar. Once your inactivity window and grace period pass, the contract itself releases what you left behind — automatically, on schedule, to the people you named.' },
-  ]
-  return (
-    <section className="relative py-28 px-6 md:px-14 lg:px-20" style={{ background: '#051F20' }}>
-      <div className="max-w-5xl mx-auto">
-        <Reveal>
-          <p className="font-sora text-[10px] tracking-[0.25em] uppercase mb-4" style={{ color: 'rgba(142,182,155,0.65)' }}>
-            What we're trying to prove
-          </p>
-          <h2 className="font-sora font-bold leading-[1.1] mb-4" style={{ fontSize: 'clamp(1.9rem, 3.4vw, 2.9rem)', color: '#DAF1DE', maxWidth: '38ch' }}>
-            That code can keep a promise longer than a company can.
-          </h2>
-          <p className="font-inter text-base leading-relaxed mb-16" style={{ color: 'rgba(142,182,155,0.65)', maxWidth: '58ch' }}>
-            Three things had to be true for us to build this at all.
-          </p>
-        </Reveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {BELIEFS.map((b, i) => (
-            <Reveal key={b.title} delay={0.1 + i * 0.14}>
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-5"
-                style={{ background: 'rgba(142,182,155,0.08)', border: '1px solid rgba(142,182,155,0.18)' }}
-              >{b.icon}</div>
-              <h3 className="font-sora font-semibold text-lg mb-3 leading-snug" style={{ color: '#DAF1DE' }}>{b.title}</h3>
-              <p className="font-inter text-sm leading-relaxed" style={{ color: 'rgba(142,182,155,0.6)' }}>{b.body}</p>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 /* ─── 03 · HOW IT WORKS ──────────────────────────────────────────
    The actual mechanism, plainly, as a real sequence — numbering
    here is legitimate because it IS a fixed order of events. ─── */
 function HowItWorksSection() {
   const STEPS = [
-    { n: '01', title: 'You seal it', body: 'Deposit ETH, write a final message, upload files. Everything is AES-256 encrypted client-side before it touches IPFS.' },
+    { n: '01', title: 'You seal it', body: 'Deposit ETH, write a final message, upload files. Everything is locked with a key only you hold, before it leaves your device.' },
     { n: '02', title: 'You check in', body: 'Ping the vault every few months to prove you’re still here. One transaction resets the clock — that’s the whole ritual.' },
-    { n: '03', title: 'Silence starts the countdown', body: 'Miss your inactivity window and Chainlink Automation opens a grace period on its own — no one has to notice, or ask.' },
+    { n: '03', title: 'Silence starts the countdown', body: 'Miss your inactivity window and a grace period starts automatically — no one has to notice, or ask.' },
     { n: '04', title: 'Your people receive it', body: 'If the grace period lapses without a ping, your named beneficiaries can claim their share. If you ping in time, nothing happens at all.' },
   ]
   return (
@@ -145,27 +107,6 @@ function HowItWorksSection() {
 }
 
 /* ─── 04 · TRUST / PROOF BAR ─────────────────────────────────── */
-function TrustSection() {
-  const PROOFS = [
-    { label: 'AES-256', sub: 'Encrypted in your browser, before upload — we never hold a decryption key.' },
-    { label: 'On-chain', sub: 'Vault logic lives on Ethereum. It runs the same whether we’re around or not.' },
-    { label: 'IPFS', sub: 'Files are content-addressed and pinned, not sitting on a server we could take down.' },
-    { label: 'Chainlink', sub: 'Automation nodes trigger your grace period — no human has to be watching.' },
-  ]
-  return (
-    <section className="relative py-24 px-6 md:px-14 lg:px-20" style={{ background: '#051F20', borderTop: '1px solid rgba(142,182,155,0.08)' }}>
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-        {PROOFS.map((p, i) => (
-          <Reveal key={p.label} delay={i * 0.08} y={14}>
-            <p className="font-sora font-bold text-lg mb-2" style={{ color: '#8EB69B' }}>{p.label}</p>
-            <p className="font-inter text-xs leading-relaxed" style={{ color: 'rgba(142,182,155,0.55)' }}>{p.sub}</p>
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  )
-}
-
 /* ─── 05 · FINAL CTA ─────────────────────────────────────────── */
 function FinalCtaSection({ onPrimary, onSecondary, primaryLabel, secondaryLabel }) {
   return (
@@ -206,9 +147,7 @@ export default function LandingSections({ onPrimary, onSecondary, primaryLabel, 
   return (
     <>
       <ProblemSection />
-      <MissionSection />
       <HowItWorksSection />
-      <TrustSection />
       <FinalCtaSection
         onPrimary={onPrimary}
         onSecondary={onSecondary}
