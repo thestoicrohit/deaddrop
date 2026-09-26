@@ -545,6 +545,16 @@ function MembersTab({ circleId, members, isMember, isAdmin, circles }) {
         </p>
       )}
 
+      {isMember && (
+        <button
+          onClick={() => { if (window.confirm('Leave this circle? You will lose access to its shared files.')) circles.leaveCircle(circleId) }}
+          className="w-full mt-3 text-sm font-inter py-2 rounded-xl transition-opacity hover:opacity-70"
+          style={{ color: '#8EB69B', border: '1px solid rgba(142,182,155,0.25)' }}
+        >
+          Leave circle
+        </button>
+      )}
+
       {isMember ? (
         isAdmin && (
           <motion.button

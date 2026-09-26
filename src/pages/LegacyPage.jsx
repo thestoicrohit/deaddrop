@@ -569,6 +569,20 @@ export default function LegacyPage() {
                       ✓ {depositedETHFmt} ETH currently locked in vault
                     </p>
                   )}
+                  {dd.depositedETH > 0n && (
+                    <button
+                      onClick={() => {
+                        if (!depositAmt || Number(depositAmt) <= 0) { toast.error('Enter the ETH amount to withdraw.'); return }
+                        dd.withdrawDeposit(depositAmt)
+                        setDepositAmt('')
+                      }}
+                      disabled={dd.isPending || dd.isConfirming}
+                      className="font-inter text-xs mt-2 underline disabled:opacity-50"
+                      style={{ color: '#8EB69B' }}
+                    >
+                      Withdraw the amount above back to my wallet
+                    </button>
+                  )}
                 </SectionCard>
               )}
 
