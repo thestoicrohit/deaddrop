@@ -746,7 +746,7 @@ function CreateCapsuleModal({ capsules, circles, onClose }) {
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function MemorySpacePage() {
   const navigate = useNavigate()
-  const { isConnected } = useAccount()
+  const { isConnected, address } = useAccount()
   const { signMessageAsync } = useSignMessage()
   const { lang } = useAppStore()
   const tr = useTranslation(lang)
@@ -759,6 +759,17 @@ export default function MemorySpacePage() {
   const [showCreate, setShowCreate] = useState(false)
   const [memoryKey, setMemoryKey]   = useState(null)
   const [unlocking, setUnlocking]   = useState(false)
+
+  // The derived key is only valid for the wallet that signed it — clear it on
+  // an account switch so a stale key doesn't silently fail to decrypt the
+  // newly-connected wallet's own capsules (see PrivateSafePage for the same fix).
+  const unlockedForRef = useRef(null)
+  useEffect(() => {
+    if (memoryKey && unlockedForRef.current && unlockedForRef.current !== address) {
+      setMemoryKey(null)
+    }
+    unlockedForRef.current = address
+  }, [address])
 
   const ensureMemoryKey = async () => {
     if (memoryKey) return memoryKey

@@ -937,6 +937,19 @@ export default function PrivateSafePage() {
   const [safeKey, setSafeKey] = useState(null)
   const [unlocking, setUnlocking] = useState(false)
 
+  // The derived key is only valid for the wallet that signed it. Without this,
+  // switching MetaMask accounts mid-session keeps decrypting the new wallet's
+  // on-chain entries with the old wallet's key — every label/value fails to
+  // decrypt silently instead of re-prompting for a fresh signature.
+  const unlockedForRef = useRef(null)
+  useEffect(() => {
+    if (safeKey && unlockedForRef.current && unlockedForRef.current !== address) {
+      setSafeKey(null)
+      setShowLock(true)
+    }
+    unlockedForRef.current = address
+  }, [address])
+
   const handleSignToUnlock = async () => {
     setUnlocking(true)
     try {
