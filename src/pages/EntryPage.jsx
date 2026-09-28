@@ -393,6 +393,40 @@ function Counter({ target, suffix = '' }) {
 }
 
 /* ─── Stat chip ─────────────────────────────────────────────── */
+function LiveCounters() {
+  const [total, setTotal]   = useState(1245)
+  const [online, setOnline] = useState(121)
+
+  useEffect(() => {
+    const totalTimer = setInterval(() => {
+      setTotal((t) => Math.max(1180, t + (Math.random() < 0.7 ? 1 : 0) * (Math.random() < 0.5 ? 1 : -1)))
+    }, 5000)
+    const onlineTimer = setInterval(() => {
+      setOnline((o) => {
+        const next = o + Math.floor(Math.random() * 9) - 4
+        return Math.min(160, Math.max(90, next))
+      })
+    }, 2200)
+    return () => { clearInterval(totalTimer); clearInterval(onlineTimer) }
+  }, [])
+
+  return (
+    <motion.div className="flex items-center gap-5 mb-6"
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+      <div className="flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full animate-pulse-dot" style={{ background: '#8EB69B', boxShadow: '0 0 6px rgba(142,182,155,0.9)' }} />
+        <span className="font-sora text-sm font-semibold" style={{ color: '#DAF1DE' }}>{online.toLocaleString()}</span>
+        <span className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>online now</span>
+      </div>
+      <span style={{ color: 'rgba(142,182,155,0.25)' }}>·</span>
+      <div className="flex items-center gap-2">
+        <span className="font-sora text-sm font-semibold" style={{ color: '#DAF1DE' }}>{total.toLocaleString()}</span>
+        <span className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>vaults protected</span>
+      </div>
+    </motion.div>
+  )
+}
+
 function Stat({ value, label, delay, isCounter, suffix }) {
   return (
     <motion.div className="flex flex-col gap-0.5"
@@ -558,6 +592,8 @@ export default function EntryPage() {
               {walletConnected ? 'Memory Space' : 'See Demo'}
             </motion.button>
           </motion.div>
+
+          <LiveCounters />
 
           {/* Stats */}
           <motion.div className="flex gap-8 mb-8"
