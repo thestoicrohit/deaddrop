@@ -11,6 +11,7 @@ import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
 import SideDecorCanvas from '@/components/ui/SideDecorCanvas'
+import { DEMO_CIRCLES, DEMO_NOTICE } from '@/lib/demoData'
 
 const TYPE_COLORS = {
   Family:     '#DAF1DE',
@@ -69,7 +70,7 @@ function AvatarStack({ members }) {
 // circle" function, so neither action is offered here.
 function ProfileCard({ circle, fileCount, memoryCount, lastActivityTs, onClick, onEdit }) {
   const { address } = useAccount()
-  const { data: members } = useCircleMembers(circle.id)
+  const { data: members } = useCircleMembers(circle.demo ? null : circle.id)
   const memberList = members || []
   const isAdmin = memberList.some(
     (m) => m.wallet?.toLowerCase() === address?.toLowerCase() && Number(m.role) === CIRCLE_ROLE.ADMIN
@@ -433,18 +434,18 @@ export default function ProfilesPage() {
     return map
   }, [activity])
 
-  const handleOpenProfile = (circle) => navigate(`/profiles/${circle.id.toString()}`)
-
-  if (!isConnected) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="font-sora text-xl mb-4" style={{ color: '#8EB69B' }}>Connect your wallet to view your circles.</p>
-          <button onClick={() => navigate('/connect')} className="btn-primary">Connect Wallet</button>
-        </div>
-      </div>
-    )
+  const handleOpenProfile = (circle) => {
+    if (circle.demo) { toast('Sample circle — connect a wallet to create real ones.', { icon: '🔗' }); return }
+    navigate(`/profiles/${circle.id.toString()}`)
   }
+
+  const requireWallet = (action) => {
+    if (!isConnected) { toast('Connect a wallet to ' + action + '.', { icon: '🔗' }); navigate('/connect'); return false }
+    return true
+  }
+
+  const displayCircles = isConnected ? owner.circles : DEMO_CIRCLES.map((c) => ({ ...c, demo: true, createdAt: Math.floor(Date.now() / 1000) - 86400 * 2 }))
+
 
   return (
     <div className="relative min-h-screen" style={{ paddingTop: '80px' }}>
@@ -485,7 +486,7 @@ export default function ProfilesPage() {
               {tr('profiles.title')}
             </h1>
             <p className="font-inter text-sm mt-1" style={{ color: '#8EB69B' }}>
-              {owner.circles.length} active circle{owner.circles.length !== 1 ? 's' : ''} — encrypted &amp; on-chain
+              {isConnected ? `${owner.circles.length} active circle${owner.circles.length !== 1 ? 's' : ''} — encrypted & on-chain` : DEMO_NOTICE}
             </p>
           </motion.div>
 
@@ -496,36 +497,36 @@ export default function ProfilesPage() {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             <button
-              onClick={() => setShowJoin(true)}
+              onClick={() => { if (requireWallet("join a circle")) setShowJoin(true) }}
               className="btn-outline text-sm px-4 py-2 hidden sm:block"
               style={{ color: '#8EB69B', borderColor: 'rgba(142,182,155,0.4)' }}
             >
               {tr('profiles.join')}
             </button>
-            <button onClick={() => setShowCreate(true)} className="btn-primary text-sm px-4 py-2">
+            <button onClick={() => { if (requireWallet("create a circle")) setShowCreate(true) }} className="btn-primary text-sm px-4 py-2">
               + {tr('profiles.create')}
             </button>
           </motion.div>
         </div>
 
         {/* Grid */}
-        {owner.isLoading ? (
+        {isConnected && owner.isLoading ? (
           <div className="text-center py-24">
             <p className="font-sora text-lg" style={{ color: '#8EB69B' }}>Loading your circles…</p>
           </div>
-        ) : owner.circles.length === 0 ? (
+        ) : displayCircles.length === 0 ? (
           <motion.div className="text-center py-24" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="text-5xl mb-4">🏡</div>
             <p className="font-sora text-lg" style={{ color: '#8EB69B' }}>
               {tr('profiles.empty')}
             </p>
-            <button onClick={() => setShowCreate(true)} className="btn-primary mt-6">
+            <button onClick={() => { if (requireWallet("create a circle")) setShowCreate(true) }} className="btn-primary mt-6">
               Create your first circle
             </button>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {owner.circles.map((circle, i) => {
+            {displayCircles.map((circle, i) => {
               const key = circle.id.toString()
               return (
                 <motion.div
@@ -550,13 +551,13 @@ export default function ProfilesPage() {
             <motion.div
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: owner.circles.length * 0.08, duration: 0.5 }}
+              transition={{ delay: displayCircles.length * 0.08, duration: 0.5 }}
               whileHover={{
                 borderColor: 'rgba(142,182,155,0.55)',
                 boxShadow: '0 12px 40px rgba(142,182,155,0.1)',
                 scale: 1.015,
               }}
-              onClick={() => setShowCreate(true)}
+              onClick={() => { if (requireWallet("create a circle")) setShowCreate(true) }}
               className="glass-card p-6 cursor-pointer flex flex-col items-center justify-center gap-3 group min-h-[180px]"
               style={{ border: '2px dashed rgba(218,241,222,0.18)' }}
             >

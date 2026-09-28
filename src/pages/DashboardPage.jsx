@@ -393,7 +393,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: statusColor }} />
             <span className="font-inter text-xs uppercase tracking-widest" style={{ color: statusColor }}>
-              {isConnected ? statusLabel : 'Wallet not connected'}
+              {isConnected ? statusLabel : 'Preview mode'}
             </span>
           </div>
           <h1 className="font-sora font-bold text-3xl md:text-4xl shimmer-text mb-1">
@@ -404,29 +404,30 @@ export default function DashboardPage() {
           </p>
         </motion.div>
 
-        {!isConnected ? (
+        {!isConnected && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-            className="glass-card p-8 text-center"
+            initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="glass-card px-5 py-4 mb-8 flex items-center justify-between gap-4 flex-wrap"
           >
-            <span className="text-3xl block mb-3">🔐</span>
-            <h3 className="font-sora font-semibold text-lg mb-2" style={{ color: '#DAF1DE' }}>
-              Connect your wallet to continue
-            </h3>
-            <p className="font-inter text-sm mb-5" style={{ color: '#8EB69B' }}>
-              Your capsules, circles, safe, and legacy settings all live on-chain — there's no local
-              or demo mode to fall back on.
-            </p>
+            <div className="flex items-center gap-3">
+              <span className="text-lg">👀</span>
+              <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                You're browsing in preview mode — connect a wallet whenever you're ready to actually store something on-chain.
+              </p>
+            </div>
             <motion.button
               onClick={() => navigate('/connect')}
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-              className="btn-primary text-sm"
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="btn-outline text-xs px-4 py-2 flex-shrink-0"
             >
               Connect wallet →
             </motion.button>
           </motion.div>
-        ) : (
-          <>
+        )}
+
+        <>
             {/* Onboarding checklist */}
             <AnimatePresence>
               {showChecklist && (
@@ -668,7 +669,6 @@ export default function DashboardPage() {
               )}
             </motion.div>
           </>
-        )}
 
       </div>
     </div>

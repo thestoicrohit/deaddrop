@@ -190,8 +190,47 @@ contract DeadDropCircles {
         }
         circleMembers[circleId].pop();
         delete memberIndex[circleId][wallet];
+        _removeMembershipRecord(wallet, circleId);
 
         emit MemberRemoved(circleId, wallet);
+    }
+
+    /// @notice Leave a circle yourself. Any member — including an Admin —
+    ///         may call this; there was previously no self-service way out
+    ///         (removeMember explicitly refuses to remove the caller). If
+    ///         you're a circle's only Admin, promote someone else first:
+    ///         leaving hands off no role, and a circle left with zero
+    ///         Admins can no longer add/remove members or be updated
+    ///         (existing files and remaining members are unaffected).
+    function leaveCircle(uint256 circleId) external circleExists(circleId) onlyMember(circleId) {
+        uint256 idx = memberIndex[circleId][msg.sender];
+
+        uint256 lastIdx = circleMembers[circleId].length - 1;
+        if (idx - 1 != lastIdx) {
+            Member memory moved = circleMembers[circleId][lastIdx];
+            circleMembers[circleId][idx - 1] = moved;
+            memberIndex[circleId][moved.wallet] = idx;
+        }
+        circleMembers[circleId].pop();
+        delete memberIndex[circleId][msg.sender];
+        _removeMembershipRecord(msg.sender, circleId);
+
+        emit MemberRemoved(circleId, msg.sender);
+    }
+
+    /// @dev Swap-and-pop `circleId` out of `membershipOf[wallet]`. Shared by
+    ///      removeMember and leaveCircle so getMyCircles() never returns a
+    ///      circle the wallet is no longer actually a member of.
+    function _removeMembershipRecord(address wallet, uint256 circleId) private {
+        uint256[] storage list = membershipOf[wallet];
+        uint256 len = list.length;
+        for (uint256 i = 0; i < len; i++) {
+            if (list[i] == circleId) {
+                list[i] = list[len - 1];
+                list.pop();
+                break;
+            }
+        }
     }
 
     /// @notice Upload a file reference (encrypted blob already pinned to IPFS by the frontend).

@@ -52,6 +52,8 @@ const COVER_GRADIENTS = [
   'linear-gradient(135deg, #0a1525, #0B2B26)',
 ]
 
+import { DEMO_CAPSULES, DEMO_NOTICE } from '@/lib/demoData'
+
 // ── helpers ──────────────────────────────────────────────────────────────────
 function tsToDate(ts) {
   return new Date(Number(ts || 0) * 1000)
@@ -134,6 +136,25 @@ function FilePreview({ file, onClose }) {
 }
 
 // ── Capsule card ──────────────────────────────────────────────────────────────
+function DemoCapsuleCard({ capsule }) {
+  const meta = CAPSULE_TYPE_META[capsule.capsuleType] || CAPSULE_TYPE_META[0]
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      className="glass-card p-5 mb-4 break-inside-avoid cursor-pointer relative overflow-hidden"
+      onClick={() => toast('Sample capsule \u2014 connect a wallet to seal real ones.', { icon: '\uD83D\uDD17' })}
+      style={{ background: COVER_GRADIENTS[0] }}
+    >
+      <span className="text-2xl">{meta.icon}</span>
+      <p className="font-sora font-semibold text-sm mt-3" style={{ color: '#DAF1DE' }}>{capsule.title}</p>
+      <p className="font-inter text-xs mt-1" style={{ color: '#8EB69B' }}>{capsule.preview}</p>
+      <span className="font-inter text-[10px] uppercase tracking-widest mt-3 inline-block" style={{ color: 'rgba(142,182,155,0.6)' }}>Sample &middot; {meta.label}</span>
+    </motion.div>
+  )
+}
+
 function CapsuleCard({ capsule, capsules, onClick }) {
   const { address } = useAccount()
   const meta = CAPSULE_TYPE_META[Number(capsule.capsuleType)] || CAPSULE_TYPE_META[CAPSULE_TYPE.PRIVATE]
@@ -746,7 +767,7 @@ function CreateCapsuleModal({ capsules, circles, onClose }) {
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function MemorySpacePage() {
   const navigate = useNavigate()
-  const { isConnected } = useAccount()
+  const { isConnected, address } = useAccount()
   const { signMessageAsync } = useSignMessage()
   const { lang } = useAppStore()
   const tr = useTranslation(lang)
@@ -759,6 +780,17 @@ export default function MemorySpacePage() {
   const [showCreate, setShowCreate] = useState(false)
   const [memoryKey, setMemoryKey]   = useState(null)
   const [unlocking, setUnlocking]   = useState(false)
+
+  // The derived key is only valid for the wallet that signed it — clear it on
+  // an account switch so a stale key doesn't silently fail to decrypt the
+  // newly-connected wallet's own capsules (see PrivateSafePage for the same fix).
+  const unlockedForRef = useRef(null)
+  useEffect(() => {
+    if (memoryKey && unlockedForRef.current && unlockedForRef.current !== address) {
+      setMemoryKey(null)
+    }
+    unlockedForRef.current = address
+  }, [address])
 
   const ensureMemoryKey = async () => {
     if (memoryKey) return memoryKey
@@ -781,16 +813,13 @@ export default function MemorySpacePage() {
     return capsules.myCapsules.filter((c) => Number(c.capsuleType) === filter)
   }, [capsules.myCapsules, filter])
 
-  if (!isConnected) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="font-sora text-xl mb-4" style={{ color: '#8EB69B' }}>Connect your wallet to view your memory capsules.</p>
-          <button onClick={() => navigate('/connect')} className="btn-primary">Connect Wallet</button>
-        </div>
-      </div>
-    )
+  const requireWallet = (action) => {
+    if (!isConnected) { toast('Connect a wallet to ' + action + '.', { icon: '\uD83D\uDD17' }); navigate('/connect'); return false }
+    return true
   }
+
+  const displayDemo = !isConnected
+  const demoFiltered = filter == null ? DEMO_CAPSULES : DEMO_CAPSULES.filter((c) => c.capsuleType === filter)
 
   return (
     <div className="relative min-h-screen" style={{ paddingTop: '80px' }}>
@@ -812,10 +841,10 @@ export default function MemorySpacePage() {
               <span className="font-inter text-xs uppercase tracking-widest" style={{ color: '#8EB69B' }}>Memory Space</span>
             </div>
             <h1 className="font-sora font-bold text-3xl md:text-4xl shimmer-text">{tr('memory.title')}</h1>
-            <p className="font-inter text-sm mt-1" style={{ color: '#8EB69B' }}>{tr('memory.subtitle')}</p>
+            <p className="font-inter text-sm mt-1" style={{ color: '#8EB69B' }}>{displayDemo ? DEMO_NOTICE : tr('memory.subtitle')}</p>
           </motion.div>
 
-          <motion.button onClick={() => setShowCreate(true)} className="btn-primary text-sm px-4 py-2"
+          <motion.button onClick={() => { if (requireWallet('create a capsule')) setShowCreate(true) }} className="btn-primary text-sm px-4 py-2"
             initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
             + {tr('memory.createCapsule')}
           </motion.button>
@@ -837,13 +866,19 @@ export default function MemorySpacePage() {
         </div>
 
         {/* Grid */}
-        {filtered.length === 0 ? (
+        {displayDemo ? (
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-4">
+            {demoFiltered.map((capsule) => (
+              <DemoCapsuleCard key={capsule.id} capsule={capsule} />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <motion.div className="text-center py-24" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="text-5xl mb-4">🕊️</div>
             <p className="font-sora text-lg" style={{ color: '#8EB69B' }}>
               {capsules.myCapsules.length === 0 ? 'No memory capsules yet.' : 'No capsules match this filter.'}
             </p>
-            <button onClick={() => setShowCreate(true)} className="btn-primary mt-6">Create your first capsule</button>
+            <button onClick={() => { if (requireWallet('create a capsule')) setShowCreate(true) }} className="btn-primary mt-6">Create your first capsule</button>
           </motion.div>
         ) : (
           <div className="columns-1 md:columns-2 lg:columns-3 gap-4">

@@ -82,6 +82,13 @@ describe("DeadDropCircles", function () {
       expect(await circles.isMemberOf(1, bob.address)).to.be.true; // survives swap
     });
 
+    it("removes the circle from getMyCircles when an admin removes a member", async function () {
+      await circles.connect(owner).addMember(1, alice.address, "Alice", 0);
+      await circles.connect(owner).removeMember(1, alice.address);
+      const mine = await circles.getMyCircles(alice.address);
+      expect(mine.length).to.equal(0);
+    });
+
     it("admin cannot remove themselves via removeMember", async function () {
       await expect(circles.connect(owner).removeMember(1, owner.address))
         .to.be.revertedWith("Use leaveCircle to remove yourself");
@@ -92,6 +99,36 @@ describe("DeadDropCircles", function () {
       const mine = await circles.getMyCircles(bob.address);
       expect(mine.length).to.equal(1);
       expect(mine[0]).to.equal(1n);
+    });
+
+    it("lets a member leave a circle via leaveCircle", async function () {
+      await circles.connect(bob).joinCircle(1, "Bob");
+      await expect(circles.connect(bob).leaveCircle(1))
+        .to.emit(circles, "MemberRemoved").withArgs(1n, bob.address);
+
+      expect(await circles.isMemberOf(1, bob.address)).to.be.false;
+      const members = await circles.getMembers(1);
+      expect(members.length).to.equal(1); // only the owner/admin remains
+    });
+
+    it("lets even the sole admin leave via leaveCircle (removeMember's own escape hatch)", async function () {
+      // This is the exact case removeMember refuses to handle — confirm the
+      // dedicated function actually lets the creator/only-admin walk away.
+      await expect(circles.connect(owner).leaveCircle(1)).to.not.be.reverted;
+      expect(await circles.isMemberOf(1, owner.address)).to.be.false;
+      expect(await circles.memberCount(1)).to.equal(0);
+    });
+
+    it("removes the circle from getMyCircles after leaving", async function () {
+      await circles.connect(bob).joinCircle(1, "Bob");
+      await circles.connect(bob).leaveCircle(1);
+      const mine = await circles.getMyCircles(bob.address);
+      expect(mine.length).to.equal(0);
+    });
+
+    it("reverts leaveCircle for a non-member", async function () {
+      await expect(circles.connect(stranger).leaveCircle(1))
+        .to.be.revertedWith("Not a member of this circle");
     });
   });
 

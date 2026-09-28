@@ -151,10 +151,12 @@ export default function LegacyPage() {
   }
 
   const handleCreateVault = () => {
+    if (!isConnected) { toast.error('Connect your wallet to create a vault.'); navigate('/connect'); return }
     dd.createVault(thresholdLabelToDays(threshold), gracePeriod)
   }
 
   const handleDeposit = () => {
+    if (!isConnected) { toast.error('Connect your wallet to deposit.'); navigate('/connect'); return }
     if (!depositAmt || Number(depositAmt) <= 0) { toast.error('Enter an ETH amount.'); return }
     dd.depositETH(depositAmt)
     setDepositAmt('')
@@ -284,29 +286,7 @@ export default function LegacyPage() {
           </p>
         </motion.div>
 
-        {!isConnected ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-            className="glass-card p-8 text-center"
-          >
-            <span className="text-3xl block mb-3">🔐</span>
-            <h3 className="font-sora font-semibold text-lg mb-2" style={{ color: '#DAF1DE' }}>
-              Connect your wallet to continue
-            </h3>
-            <p className="font-inter text-sm mb-5" style={{ color: '#8EB69B' }}>
-              Legacy settings, beneficiaries, and your final message all live on-chain — there's no local
-              or demo mode to fall back on.
-            </p>
-            <motion.button
-              onClick={() => navigate('/connect')}
-              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-              className="btn-primary text-sm"
-            >
-              Connect wallet →
-            </motion.button>
-          </motion.div>
-        ) : (
-          <>
+        <>
             {/* ── Create Vault on-chain (shown when vault not yet created) ── */}
             {!hasOnChain && (
               <motion.div
@@ -335,6 +315,9 @@ export default function LegacyPage() {
                       </motion.button>
                       <TxBadge isPending={dd.isPending} isConfirming={dd.isConfirming} txHash={dd.txHash} />
                     </div>
+                    <p className="font-inter text-xs mt-3" style={{ color: 'rgba(218,150,120,0.85)' }}>
+                      ⚠️ {tr('legacy.noRecovery')}
+                    </p>
                   </div>
                 </div>
               </motion.div>
@@ -569,6 +552,20 @@ export default function LegacyPage() {
                       ✓ {depositedETHFmt} ETH currently locked in vault
                     </p>
                   )}
+                  {dd.depositedETH > 0n && (
+                    <button
+                      onClick={() => {
+                        if (!depositAmt || Number(depositAmt) <= 0) { toast.error('Enter the ETH amount to withdraw.'); return }
+                        dd.withdrawDeposit(depositAmt)
+                        setDepositAmt('')
+                      }}
+                      disabled={dd.isPending || dd.isConfirming}
+                      className="font-inter text-xs mt-2 underline disabled:opacity-50"
+                      style={{ color: '#8EB69B' }}
+                    >
+                      Withdraw the amount above back to my wallet
+                    </button>
+                  )}
                 </SectionCard>
               )}
 
@@ -744,7 +741,6 @@ export default function LegacyPage() {
               </motion.div>
             </div>
           </>
-        )}
       </div>
     </div>
   )

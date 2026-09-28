@@ -12,7 +12,7 @@
 
 export const CIRCLES_ADDRESS = import.meta.env.VITE_CIRCLES_ADDRESS || null
 
-// DeadDropCircles.sol ABI — 15 functions, 6 events
+// DeadDropCircles.sol ABI — 16 functions, 6 events
 export const CIRCLES_ABI = [
   {
     "anonymous": false,
@@ -461,6 +461,19 @@ export const CIRCLES_ABI = [
       }
     ],
     "name": "joinCircle",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "circleId",
+        "type": "uint256"
+      }
+    ],
+    "name": "leaveCircle",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

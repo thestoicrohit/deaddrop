@@ -152,6 +152,17 @@ function SharedVault({ circleId, isMember, members, files, circles }) {
   const [decryptingId, setDecryptingId] = useState(null)
   const [preview, setPreview]         = useState(null)
 
+  // The derived keypair is only valid for the wallet that signed it — clear
+  // it on an account switch so decrypt/unwrap calls don't keep using the
+  // previous wallet's private key against the new wallet's identity.
+  const identityForRef = useRef(null)
+  useEffect(() => {
+    if (identity && identityForRef.current && identityForRef.current !== address) {
+      setIdentity(null)
+    }
+    identityForRef.current = address
+  }, [address])
+
   const list = files || []
 
   async function ensureIdentity() {
@@ -532,6 +543,16 @@ function MembersTab({ circleId, members, isMember, isAdmin, circles }) {
         <p className="text-center font-inter text-sm py-6" style={{ color: '#8EB69B' }}>
           No members yet.
         </p>
+      )}
+
+      {isMember && (
+        <button
+          onClick={() => { if (window.confirm('Leave this circle? You will lose access to its shared files.')) circles.leaveCircle(circleId) }}
+          className="w-full mt-3 text-sm font-inter py-2 rounded-xl transition-opacity hover:opacity-70"
+          style={{ color: '#8EB69B', border: '1px solid rgba(142,182,155,0.25)' }}
+        >
+          Leave circle
+        </button>
       )}
 
       {isMember ? (

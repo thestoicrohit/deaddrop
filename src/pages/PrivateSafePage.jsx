@@ -14,6 +14,7 @@ import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
 import SideDecorCanvas from '@/components/ui/SideDecorCanvas'
+import { DEMO_SAFE_SECTIONS, DEMO_NOTICE } from '@/lib/demoData'
 
 // ── Tiny UID (local-only, for unsaved form rows before they exist on-chain) ──
 const uid = () => Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4)
@@ -214,6 +215,26 @@ function VaultLock({ onUnlock }) {
 }
 
 // ── Collapsible section card ──────────────────────────────────────────────────
+function DemoSafeList({ items }) {
+  return (
+    <div className="space-y-2 px-5 pb-5">
+      {items.map((it) => (
+        <div key={it.label} className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'rgba(11,43,38,0.3)' }}>
+          <span className="font-inter text-sm" style={{ color: '#DAF1DE' }}>{it.label}</span>
+          <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>{it.hint}</span>
+        </div>
+      ))}
+      <button
+        onClick={() => toast('Sample entry \u2014 connect a wallet to store real ones.', { icon: '\uD83D\uDD17' })}
+        className="w-full text-sm font-inter py-2 rounded-lg mt-1 transition-opacity hover:opacity-70"
+        style={{ color: '#8EB69B', border: '1px dashed rgba(142,182,155,0.3)' }}
+      >
+        + Add entry
+      </button>
+    </div>
+  )
+}
+
 function SafeSection({ icon, title, children, delay = 0 }) {
   const [expanded, setExpanded] = useState(false)
 
@@ -937,6 +958,19 @@ export default function PrivateSafePage() {
   const [safeKey, setSafeKey] = useState(null)
   const [unlocking, setUnlocking] = useState(false)
 
+  // The derived key is only valid for the wallet that signed it. Without this,
+  // switching MetaMask accounts mid-session keeps decrypting the new wallet's
+  // on-chain entries with the old wallet's key — every label/value fails to
+  // decrypt silently instead of re-prompting for a fresh signature.
+  const unlockedForRef = useRef(null)
+  useEffect(() => {
+    if (safeKey && unlockedForRef.current && unlockedForRef.current !== address) {
+      setSafeKey(null)
+      setShowLock(true)
+    }
+    unlockedForRef.current = address
+  }, [address])
+
   const handleSignToUnlock = async () => {
     setUnlocking(true)
     try {
@@ -962,15 +996,26 @@ export default function PrivateSafePage() {
   return (
     <div className="relative min-h-screen" style={{ paddingTop: '64px' }}>
       {!isConnected ? (
-        <div className="relative z-10 max-w-md mx-auto px-4 py-24 text-center">
-          <div className="glass-card p-8 text-center">
-            <span className="text-4xl mb-3 inline-block">🔐</span>
-            <h2 className="font-sora font-semibold text-lg mb-2" style={{ color: '#DAF1DE' }}>Connect your wallet to continue</h2>
-            <p className="font-inter text-sm mb-5" style={{ color: '#8EB69B' }}>
-              Your Private Safe is encrypted per-wallet — connect to unlock it.
-            </p>
+        <div className="relative z-10 max-w-3xl mx-auto px-4 py-8">
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: '#8EB69B' }} />
+              <span className="font-inter text-xs uppercase tracking-widest" style={{ color: '#8EB69B' }}>Sample safe</span>
+            </div>
+            <h1 className="font-sora font-bold text-3xl shimmer-text mb-2">{tr('safe.title')}</h1>
+            <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>{DEMO_NOTICE}</p>
+          </div>
+          <div className="space-y-4">
+            <SafeSection icon="🔐" title="Keys" delay={0.05}><DemoSafeList items={DEMO_SAFE_SECTIONS.keys} /></SafeSection>
+            <SafeSection icon="📄" title="Documents" delay={0.1}><DemoSafeList items={DEMO_SAFE_SECTIONS.docs} /></SafeSection>
+            <SafeSection icon="💌" title="Letters" delay={0.15}><DemoSafeList items={DEMO_SAFE_SECTIONS.letters} /></SafeSection>
+            <SafeSection icon="🎙️" title="Voice notes" delay={0.2}><DemoSafeList items={DEMO_SAFE_SECTIONS.voice} /></SafeSection>
+            <SafeSection icon="📸" title="Photos" delay={0.25}><DemoSafeList items={DEMO_SAFE_SECTIONS.photos} /></SafeSection>
+            <SafeSection icon="🗝️" title="Passwords" delay={0.3}><DemoSafeList items={DEMO_SAFE_SECTIONS.passwords} /></SafeSection>
+          </div>
+          <div className="mt-8 text-center">
             <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate('/connect')} className="btn-primary text-sm px-5 py-2.5">
-              Connect wallet →
+              Connect wallet to store your own →
             </motion.button>
           </div>
         </div>
@@ -1003,6 +1048,9 @@ export default function PrivateSafePage() {
                 <motion.button whileTap={{ scale: 0.97 }} onClick={handleSignToUnlock} disabled={unlocking} className="btn-primary text-sm px-5 py-2.5">
                   {unlocking ? 'Waiting for signature…' : 'Sign to unlock →'}
                 </motion.button>
+                <p className="font-inter text-xs mt-4" style={{ color: 'rgba(218,150,120,0.85)' }}>
+                  ⚠️ {tr('safe.noRecovery')}
+                </p>
               </div>
             </motion.div>
           )}

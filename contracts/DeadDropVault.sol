@@ -53,13 +53,30 @@ contract DeadDropVault is AutomationCompatibleInterface {
         string     metadataCID;          // IPFS CID for encrypted vault metadata
         string     finalMessageCID;      // IPFS CID for final message
         uint256    confirmationCount;    // multiSig confirmation counter
+        uint256    confirmationEpoch;    // bumped whenever prior confirmations must be invalidated
     }
 
     // ── Storage ───────────────────────────────────────────────────────────────
     mapping(address => VaultCore)                     private vaults;
     mapping(address => Beneficiary[])                 private beneficiaryList;
-    mapping(address => mapping(address => bool))      private multiSigConfirmed;
+    // Stores the epoch a beneficiary confirmed in, rather than a bare bool, so
+    // ping() (cancelling a grace period) and setBeneficiaries() can invalidate
+    // every prior confirmation for a vault in O(1) by bumping confirmationEpoch,
+    // instead of needing to iterate/clear an unbounded mapping. A confirmation
+    // only counts if its stored epoch matches the vault's *current* epoch.
+    mapping(address => mapping(address => uint256))   private multiSigConfirmedEpoch;
     address[]                                         public  vaultOwners;
+
+    // Pull-payment ledger: when a legacy is released, each beneficiary's share is
+    // *credited* here rather than pushed. Beneficiaries then call withdraw() to
+    // pull their own funds. This prevents a single beneficiary whose address
+    // reverts on receiving ETH from blocking the release for everyone else.
+    // Keyed by beneficiary address and accumulated across every vault they're in.
+    mapping(address => uint256)                       public  pendingWithdrawals;
+
+    // Reentrancy guard (1 = not entered, 2 = entered). A plain integer flag
+    // keeps the contract dependency-free (no OpenZeppelin import).
+    uint256 private _reentrancyStatus = 1;
 
     // ── Events ────────────────────────────────────────────────────────────────
     event VaultCreated       (address indexed owner, uint256 threshold, uint256 gracePeriod);
@@ -71,6 +88,9 @@ contract DeadDropVault is AutomationCompatibleInterface {
     event GracePeriodCancelled(address indexed owner);
     event MultiSigConfirmed  (address indexed owner, address indexed confirmer, uint256 count);
     event LegacyReleased     (address indexed owner, uint256 totalETH);
+    event ShareCredited      (address indexed owner, address indexed beneficiary, uint256 amount);
+    event Withdrawn          (address indexed beneficiary, uint256 amount);
+    event OwnerWithdrew      (address indexed owner, uint256 amount);
 
     // ── Modifiers ─────────────────────────────────────────────────────────────
     modifier vaultExists(address owner) {
@@ -81,6 +101,13 @@ contract DeadDropVault is AutomationCompatibleInterface {
     modifier onlyVaultOwner() {
         require(vaults[msg.sender].exists, "No vault for this address. Call createVault first");
         _;
+    }
+
+    modifier nonReentrant() {
+        require(_reentrancyStatus == 1, "Reentrant call");
+        _reentrancyStatus = 2;
+        _;
+        _reentrancyStatus = 1;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -104,6 +131,11 @@ contract DeadDropVault is AutomationCompatibleInterface {
         v.inactivityThreshold = _thresholdDays * 1 days;
         v.gracePeriodDuration = _graceDays     * 1 days;
         v.multiSig            = false;
+        // Start at 1, not 0 — multiSigConfirmedEpoch defaults to 0 for anyone
+        // who has never confirmed, so epoch 0 would look identical to "already
+        // confirmed in epoch 0" and wrongly block a beneficiary's first-ever
+        // confirmation.
+        v.confirmationEpoch   = 1;
 
         vaultOwners.push(msg.sender);
         emit VaultCreated(msg.sender, _thresholdDays * 1 days, _graceDays * 1 days);
@@ -121,6 +153,7 @@ contract DeadDropVault is AutomationCompatibleInterface {
         if (v.state == VaultState.GracePeriod) {
             v.state               = VaultState.Active;
             v.confirmationCount   = 0;
+            v.confirmationEpoch  += 1; // invalidate every prior multiSig confirmation
             emit GracePeriodCancelled(msg.sender);
         }
 
@@ -129,7 +162,10 @@ contract DeadDropVault is AutomationCompatibleInterface {
     }
 
     /**
-     * @notice Update vault configuration. Can be called any time while Active.
+     * @notice Update vault configuration. Only while Active — once a grace
+     *         period has started, settings (including gracePeriodDuration)
+     *         are locked so they can't be stretched out from under waiting
+     *         beneficiaries. Ping (or wait for release) to change them again.
      * @param _thresholdDays   New inactivity threshold in days.
      * @param _graceDays       New grace period in days.
      * @param _multiSig        Require 2 beneficiary confirmations before release.
@@ -147,6 +183,7 @@ contract DeadDropVault is AutomationCompatibleInterface {
         require(_graceDays     >= 7,  "Grace period must be >= 7 days");
 
         VaultCore storage v   = vaults[msg.sender];
+        require(v.state == VaultState.Active, "Vault must be Active to update settings");
         v.inactivityThreshold = _thresholdDays * 1 days;
         v.gracePeriodDuration = _graceDays     * 1 days;
         v.multiSig            = _multiSig;
@@ -157,7 +194,10 @@ contract DeadDropVault is AutomationCompatibleInterface {
     }
 
     /**
-     * @notice Set or replace the entire beneficiary list.
+     * @notice Set or replace the entire beneficiary list. Only while Active
+     *         — locked once a grace period has started so the list (and the
+     *         multiSig quorum it defines) can't shift under beneficiaries
+     *         who are already waiting on a release.
      *         All existing beneficiaries are cleared before the new list is saved.
      * @param _wallets    Beneficiary wallet addresses.
      * @param _sharesBPS  Share of the estate in basis points (must sum to 10000).
@@ -172,12 +212,21 @@ contract DeadDropVault is AutomationCompatibleInterface {
         require(_wallets.length == _sharesBPS.length, "Arrays must be same length");
         require(_wallets.length == _names.length,     "Arrays must be same length");
 
+        VaultCore storage v = vaults[msg.sender];
+        require(v.state == VaultState.Active, "Vault must be Active to change beneficiaries");
+
         uint256 total = 0;
         for (uint256 i = 0; i < _sharesBPS.length; i++) {
             require(_wallets[i] != address(0), "Zero address not allowed");
             total += _sharesBPS[i];
         }
         require(total == 10000, "Shares must sum to 10000 (100%)");
+
+        // Defense in depth: even though the Active-only guard above already
+        // prevents a mid-grace-period swap, always invalidate any leftover
+        // confirmations when the beneficiary set itself changes.
+        v.confirmationCount  = 0;
+        v.confirmationEpoch += 1;
 
         delete beneficiaryList[msg.sender];
         for (uint256 i = 0; i < _wallets.length; i++) {
@@ -193,12 +242,37 @@ contract DeadDropVault is AutomationCompatibleInterface {
 
     /**
      * @notice Deposit ETH into the vault. This ETH will be split among beneficiaries
-     *         when the legacy releases.
+     *         when the legacy releases. Beneficiaries must be set first — otherwise
+     *         a released legacy would have no one able to claim it, and ETH sent in
+     *         would have no path back out (see withdrawDeposit for the owner's own
+     *         recovery path while still Active).
      */
     function depositETH() external payable onlyVaultOwner {
         require(msg.value > 0, "Must send ETH");
+        require(beneficiaryList[msg.sender].length > 0, "Set beneficiaries before depositing");
         vaults[msg.sender].depositedETH += msg.value;
         emit ETHDeposited(msg.sender, msg.value);
+    }
+
+    /**
+     * @notice Owner-side escape hatch: withdraw some or all of your own
+     *         deposited ETH back out, any time the vault is still Active.
+     *         Locked once a grace period starts so beneficiaries who are
+     *         already waiting on a release can't have the funds pulled out
+     *         from under them.
+     * @param amount Amount in wei to withdraw (must be <= current deposit).
+     */
+    function withdrawDeposit(uint256 amount) external onlyVaultOwner nonReentrant {
+        VaultCore storage v = vaults[msg.sender];
+        require(v.state == VaultState.Active, "Can only withdraw while Active");
+        require(amount > 0 && amount <= v.depositedETH, "Invalid amount");
+
+        v.depositedETH -= amount;
+
+        (bool ok, ) = payable(msg.sender).call{value: amount}("");
+        require(ok, "Withdrawal failed");
+
+        emit OwnerWithdrew(msg.sender, amount);
     }
 
     /**
@@ -221,11 +295,20 @@ contract DeadDropVault is AutomationCompatibleInterface {
     }
 
     /**
-     * @notice Beneficiary calls this to claim the legacy ETH once the grace period
-     *         has fully expired. If multiSig is enabled, requires 2 confirmations.
-     * @param owner The vault owner whose legacy to claim.
+     * @notice Beneficiary calls this to release the legacy once the grace period
+     *         has fully expired. If multiSig is enabled, requires up to 2
+     *         confirmations (capped at the beneficiary count so a single-
+     *         beneficiary vault can never deadlock).
+     *
+     * @dev Uses the pull-payment pattern: rather than pushing ETH to every
+     *      beneficiary in one transaction (where a single reverting recipient
+     *      would block the whole release), this credits each beneficiary's share
+     *      to `pendingWithdrawals`. Each beneficiary then calls withdraw() to
+     *      pull their own funds. `nonReentrant` is defense-in-depth; the function
+     *      already follows checks-effects-interactions (no external calls here).
+     * @param owner The vault owner whose legacy to release.
      */
-    function claimLegacy(address owner) external vaultExists(owner) {
+    function claimLegacy(address owner) external vaultExists(owner) nonReentrant {
         VaultCore storage v = vaults[owner];
         require(v.state == VaultState.GracePeriod, "Vault must be in GracePeriod state");
         require(
@@ -241,16 +324,23 @@ contract DeadDropVault is AutomationCompatibleInterface {
         }
         require(isBen, "Caller is not a registered beneficiary");
 
-        // MultiSig: need 2 beneficiary confirmations before releasing
+        // MultiSig: require confirmations before releasing. Cap the requirement
+        // at the beneficiary count so a vault with a single beneficiary (or any
+        // count < 2) can never lock its funds waiting for a confirmation that
+        // can never arrive.
         if (v.multiSig) {
-            require(!multiSigConfirmed[owner][msg.sender], "Already confirmed by this address");
-            multiSigConfirmed[owner][msg.sender] = true;
+            require(
+                multiSigConfirmedEpoch[owner][msg.sender] != v.confirmationEpoch,
+                "Already confirmed by this address"
+            );
+            multiSigConfirmedEpoch[owner][msg.sender] = v.confirmationEpoch;
             v.confirmationCount++;
             emit MultiSigConfirmed(owner, msg.sender, v.confirmationCount);
-            if (v.confirmationCount < 2) return; // Waiting for second confirmation
+            uint256 required = bens.length < 2 ? bens.length : 2;
+            if (v.confirmationCount < required) return; // Waiting for next confirmation
         }
 
-        // ── Release ────────────────────────────────────────────────────────────
+        // ── Release (credit only — no external calls) ────────────────────────────
         v.state = VaultState.Released;
         uint256 totalETH = v.depositedETH;
         v.depositedETH   = 0;
@@ -258,12 +348,30 @@ contract DeadDropVault is AutomationCompatibleInterface {
         for (uint256 i = 0; i < bens.length; i++) {
             uint256 share = (totalETH * bens[i].shareBPS) / 10000;
             if (share > 0) {
-                (bool ok, ) = bens[i].wallet.call{value: share}("");
-                require(ok, "ETH transfer to beneficiary failed");
+                pendingWithdrawals[bens[i].wallet] += share;
+                emit ShareCredited(owner, bens[i].wallet, share);
             }
         }
 
         emit LegacyReleased(owner, totalETH);
+    }
+
+    /**
+     * @notice Withdraw all ETH credited to the caller from any released legacies.
+     *         Each beneficiary pulls their own funds, so one address that reverts
+     *         on receipt can never block another beneficiary's withdrawal.
+     */
+    function withdraw() external nonReentrant {
+        uint256 amount = pendingWithdrawals[msg.sender];
+        require(amount > 0, "Nothing to withdraw");
+
+        // Effects before interaction (checks-effects-interactions).
+        pendingWithdrawals[msg.sender] = 0;
+
+        (bool ok, ) = payable(msg.sender).call{value: amount}("");
+        require(ok, "ETH withdrawal failed");
+
+        emit Withdrawn(msg.sender, amount);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -274,15 +382,30 @@ contract DeadDropVault is AutomationCompatibleInterface {
      * @notice Called off-chain by Chainlink Automation nodes every block.
      *         Returns upkeepNeeded=true (and the first eligible owner address
      *         encoded as performData) when any Active vault has exceeded its
-     *         inactivity threshold. `checkData` is unused.
+     *         inactivity threshold.
+     *
+     * @dev `vaultOwners` only ever grows, so scanning the whole array in one
+     *      call would eventually exceed the gas bound and silently stop the
+     *      automation for *every* vault. To stay scalable, `checkData` may
+     *      encode a `(uint256 start, uint256 end)` index window — register one
+     *      upkeep per window so each scan stays bounded. An empty `checkData`
+     *      preserves the original behaviour and scans the full array.
      */
-    function checkUpkeep(bytes calldata /* checkData */)
+    function checkUpkeep(bytes calldata checkData)
         external
         view
         override
         returns (bool upkeepNeeded, bytes memory performData)
     {
-        for (uint256 i = 0; i < vaultOwners.length; i++) {
+        uint256 start = 0;
+        uint256 end   = vaultOwners.length;
+        if (checkData.length > 0) {
+            (uint256 s, uint256 e) = abi.decode(checkData, (uint256, uint256));
+            start = s;
+            end   = e < vaultOwners.length ? e : vaultOwners.length;
+        }
+
+        for (uint256 i = start; i < end; i++) {
             address owner = vaultOwners[i];
             VaultCore storage v = vaults[owner];
             if (

@@ -129,6 +129,16 @@ export function useCircles() {
     write('removeMember', [circleId, wallet], { successMsg: 'Member removed.' })
   }
 
+  // Self-service leave — the caller removes themselves, admins included.
+  // (removeMember explicitly refuses to remove the caller; this is the
+  // dedicated escape hatch it points to.)
+  function leaveCircle(circleId) {
+    write('leaveCircle', [circleId], {
+      successMsg: 'You left the circle.',
+      onSuccess:  refetchAll,
+    })
+  }
+
   // `cid` must already be the IPFS CID of an AES-256-GCM encrypted blob — see
   // src/lib/crypto.js (encryptBlob) and src/lib/ipfs.js (uploadBlob).
   function uploadFile(circleId, name, cid, fileType, size) {
@@ -162,6 +172,7 @@ export function useCircles() {
     addMember,
     joinCircle,
     removeMember,
+    leaveCircle,
     uploadFile,
     removeFile,
   }

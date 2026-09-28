@@ -5,16 +5,38 @@
 // AES-256-GCM ciphertext (see src/lib/crypto.js) — Pinata is a *public*
 // pinning service, so plaintext must never be uploaded directly.
 //
-// Setup: create a free account at https://pinata.cloud, generate an API
-// key with "Admin" scope (Pinata dashboard → API Keys → New Key), and put
-// the JWT it gives you into .env as VITE_PINATA_JWT. Until that's set,
-// every function here throws IPFSNotConfiguredError so calling code can
-// show a clear message instead of a confusing network failure.
+// ⚠️ SECURITY — the Pinata JWT ships to the browser.
+//   Vite inlines every `VITE_*` variable into the client bundle, so whatever
+//   key you put in VITE_PINATA_JWT is extractable from the deployed JavaScript
+//   by anyone. Therefore:
+//     • Create a key SCOPED to only `pinFileToIPFS` + `pinJSONToIPFS`
+//       (Pinata dashboard → API Keys → New Key → uncheck Admin, enable just
+//       those two endpoints). NEVER use an Admin-scope key here — an Admin key
+//       would let anyone who reads the bundle list, unpin, and delete all of
+//       your pinned content.
+//     • For production, prefer routing uploads through a small backend proxy
+//       that holds the secret server-side, or use short-lived signed JWTs, so
+//       no long-lived credential ever reaches the client at all.
+//   Until VITE_PINATA_JWT is set, every function here throws
+//   IPFSNotConfiguredError so calling code can show a clear message instead of
+//   a confusing network failure.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PINATA_JWT     = import.meta.env.VITE_PINATA_JWT || ''
 const PINATA_GATEWAY  = import.meta.env.VITE_PINATA_GATEWAY || 'https://gateway.pinata.cloud/ipfs'
 const PINATA_API_BASE = 'https://api.pinata.cloud'
+
+// Reject oversized uploads client-side. A scoped key can still be abused to
+// burn the account's storage quota, so cap individual blobs (encrypted content
+// for this app is small — letters, photos, short voice notes). Tune as needed.
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024 // 25 MB
+
+function byteLengthOf(data) {
+  if (data instanceof Blob)        return data.size
+  if (data instanceof ArrayBuffer) return data.byteLength
+  if (ArrayBuffer.isView(data))    return data.byteLength
+  return null // unknown — skip the check rather than guess
+}
 
 export class IPFSNotConfiguredError extends Error {
   constructor() {
@@ -43,6 +65,14 @@ function authHeaders(extra = {}) {
  */
 export async function uploadBlob(data, filename = 'deaddrop-blob.enc') {
   requireConfigured()
+
+  const size = byteLengthOf(data)
+  if (size !== null && size > MAX_UPLOAD_BYTES) {
+    throw new Error(
+      `File is too large to upload (${(size / 1024 / 1024).toFixed(1)} MB). ` +
+      `Maximum is ${MAX_UPLOAD_BYTES / 1024 / 1024} MB.`
+    )
+  }
 
   const blob = data instanceof Blob ? data : new Blob([data])
   const form = new FormData()

@@ -5,6 +5,9 @@ node_modules/
 dist/
 build/
 
+# Local lead capture (dev-only, contains real emails — never commit)
+data/
+
 # Environment variables
 .env
 .env.local
@@ -52,3 +55,6 @@ cache/
 # real testnet/mainnet records (e.g. deployments/sepolia.json) are kept.
 deployments/hardhat.json
 deployments/localhost.json
+
+# Session scratch artifacts
+scratch/
