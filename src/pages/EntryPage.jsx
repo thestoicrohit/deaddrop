@@ -349,6 +349,7 @@ function EntryNavbar({ onConnect }) {
         </motion.div>
         <span className="font-sora font-bold text-sm tracking-tight" style={{ color: '#DAF1DE' }}>DeadDrop</span>
         <span className="hidden sm:block text-[9px] font-inter tracking-[0.22em] uppercase ml-1" style={{ color: 'rgba(142,182,155,0.35)' }}>Digital Legacy Vault</span>
+        <span className="text-[9px] font-sora font-bold tracking-widest uppercase ml-2 px-1.5 py-0.5 rounded" style={{ color: '#D1601F', background: 'rgba(209,96,31,0.12)', border: '1px solid rgba(209,96,31,0.3)' }}>Beta</span>
       </div>
 
       <nav className="hidden md:flex items-center gap-0.5">

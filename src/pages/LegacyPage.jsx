@@ -315,6 +315,9 @@ export default function LegacyPage() {
                       </motion.button>
                       <TxBadge isPending={dd.isPending} isConfirming={dd.isConfirming} txHash={dd.txHash} />
                     </div>
+                    <p className="font-inter text-xs mt-3" style={{ color: 'rgba(218,150,120,0.85)' }}>
+                      ⚠️ {tr('legacy.noRecovery')}
+                    </p>
                   </div>
                 </div>
               </motion.div>

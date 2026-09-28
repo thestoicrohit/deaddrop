@@ -28,6 +28,7 @@ export const t = {
       title: 'Private Safe',
       subtitle: 'Only you can enter. Everything here is encrypted.',
       warning: 'This vault disappears with you unless you assign a legacy beneficiary.',
+      noRecovery: "There's no password reset. If you lose this wallet, everything you store here is gone for good.",
       assignLegacy: 'Assign Legacy Beneficiary',
       sections: {
         keys: 'Crypto Keys & Seed Phrases',
@@ -45,6 +46,7 @@ export const t = {
     },
     legacy: {
       title: 'Your legacy, on your terms.',
+      noRecovery: "There's no password reset. If you lose access to this wallet, your vault and everything in it are unrecoverable.",
     },
     ai: {
       title: 'Vault Assistant',
@@ -85,6 +87,7 @@ export const t = {
       title: 'प्राइवेट सेफ',
       subtitle: 'केवल आप ही प्रवेश कर सकते हैं। सब एन्क्रिप्टेड है।',
       warning: 'यह वॉल्ट आपके साथ गायब हो जाएगा जब तक आप कोई उत्तराधिकारी नहीं बताते।',
+      noRecovery: 'कोई पासवर्ड रीसेट नहीं है। अगर आप यह वॉलेट खो देते हैं, तो यहां रखी हर चीज़ हमेशा के लिए खो जाएगी।',
       assignLegacy: 'विरासत उत्तराधिकारी नियुक्त करें',
       sections: {
         keys: 'क्रिप्टो कीज़ और सीड फ्रेज़',
@@ -102,6 +105,7 @@ export const t = {
     },
     legacy: {
       title: 'आपकी विरासत, आपकी शर्तों पर।',
+      noRecovery: 'कोई पासवर्ड रीसेट नहीं है। अगर आप इस वॉलेट का एक्सेस खो देते हैं, तो आपका वॉल्ट और उसमें मौजूद सब कुछ अप्राप्य हो जाएगा।',
     },
     ai: {
       title: 'वॉल्ट सहायक',

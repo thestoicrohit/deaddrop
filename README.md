@@ -2,15 +2,26 @@
 
 > *"What happens to everything you built, saved, and loved — when you're no longer here?"*
 
+**Status: public beta, Ethereum Sepolia testnet only. Free — there is no
+payment system.** Read [PRELAUNCH.md](PRELAUNCH.md) before pointing real
+funds or real personal data at this — it's a running checklist of what's
+verified versus what's still a known gap (key recovery, an independent
+audit, legal pages beyond the current draft).
+
 DeadDrop is a fully decentralised Web3 application that lets you store your digital legacy — crypto, memories, documents, letters, passwords — encrypted on IPFS, and release it automatically to your chosen beneficiaries when you stop being active. No lawyers. No banks. No middlemen. Just code running on Ethereum.
+
+You can click through every page — Circles, Memory Space, Private Safe,
+Inheritance — with sample data and no wallet connected at all. A wallet is
+only ever requested at the exact moment you try to write something real
+(create a circle, deposit ETH, save a Safe entry).
 
 ---
 
 ## The Problem
 
-Every year:
-- **$50B+** in cryptocurrency sits permanently locked because owners died without leaving access
-- **2B+ photos** are lost when cloud subscriptions lapse after death
+Every year, by industry estimates:
+- **~$50B+** in cryptocurrency sits permanently locked because owners died without leaving access
+- **Billions of photos** are lost when cloud subscriptions lapse after death
 - Families are left with no access to accounts, seed phrases, or important documents
 
 Traditional solutions (wills, password managers, cloud backups) all have the same flaw: they depend on a company or a person to execute. Companies shut down. People forget. Lawyers take months.
@@ -63,7 +74,8 @@ Active → GracePeriod → Released
 | `ping()` | Owner | Resets the inactivity clock. If called during a grace period, cancels it and returns vault to Active state. |
 | `updateSettings(thresholdDays, graceDays, multiSig, metadataCID, finalMessageCID)` | Owner | Updates all vault configuration. CIDs point to IPFS-stored encrypted metadata and final message. |
 | `setBeneficiaries(wallets[], sharesBPS[], names[])` | Owner | Sets the full beneficiary list. Shares must sum to exactly 10,000 basis points (100%). Clears and replaces any existing list. |
-| `depositETH()` | Owner | Locks ETH into the vault. This ETH is split among beneficiaries on release. |
+| `depositETH()` | Owner | Locks ETH into the vault. Requires beneficiaries to already be set. This ETH is split among beneficiaries on release. |
+| `withdrawDeposit(amount)` | Owner | Recovers deposited ETH while the vault is still Active — the owner isn't locked out of their own deposit before anything has been triggered. |
 | `triggerGracePeriod(ownerAddr)` | Anyone | Moves vault to GracePeriod if owner hasn't pinged past their threshold. Also called automatically by Chainlink. |
 | `claimLegacy(ownerAddr)` | Beneficiary | Releases ETH to all beneficiaries by their share percentage. Supports optional multi-sig (requires 2 beneficiary confirmations). |
 | `checkUpkeep(checkData)` | Chainlink node (off-chain) | Scans all vaults. Returns `true` and the first overdue owner's address when any Active vault has exceeded its threshold. |
@@ -114,6 +126,7 @@ Circles are on-chain groups — Family, Friends, Work, University, or custom. Ea
 | `addMember(circleId, wallet, name, role)` | Adds a wallet to the circle with a role (Member=0, Admin=1). Admin only. |
 | `joinCircle(circleId, name)` | Any wallet can join an existing circle as a member. |
 | `removeMember(circleId, wallet)` | Removes a member. Admin only. Cannot remove the last admin. |
+| `leaveCircle(circleId)` | Any member can remove themselves. |
 | `uploadFile(circleId, name, fileType, cid, sizeMB)` | Logs an encrypted file's IPFS CID to the circle. Actual bytes are on IPFS; only the CID lives on-chain. |
 | `removeFile(circleId, fileId)` | Removes a file record from the circle. Admin only. |
 
@@ -277,6 +290,20 @@ Without Chainlink: anyone can still call `triggerGracePeriod(ownerAddr)` manuall
 
 ---
 
+## Security Notes
+
+A few deliberate properties and hardening choices worth understanding before deploying:
+
+- **ETH release uses the pull-payment pattern.** `claimLegacy(owner)` doesn't push ETH to beneficiaries — it *credits* each beneficiary's share to an on-chain ledger and flips the vault to `Released`. Each beneficiary then calls `withdraw()` to pull their own funds. This means a single beneficiary whose address reverts on receiving ETH (a misconfigured contract wallet, or a deliberate griefer) **cannot block anyone else's inheritance**. A `nonReentrant` guard backs both functions as defense-in-depth.
+- **Multi-sig can't deadlock a small vault.** The confirmation requirement is capped at the beneficiary count, so enabling multi-sig on a single-beneficiary vault still releases on one confirmation rather than waiting forever for a second that can never come.
+- **Chainlink `checkUpkeep` is paginated.** `vaultOwners` only grows, so an unbounded scan would eventually exceed the gas bound and silently stop automation for everyone. `checkData` may encode a `(start, end)` index window; register one upkeep per window to keep each scan bounded. An empty `checkData` preserves the original full-scan behaviour.
+- **The Pinata JWT ships to the browser.** Vite inlines every `VITE_*` variable into the client bundle, so `VITE_PINATA_JWT` is extractable from the deployed JS. **Use a key scoped to `pinFileToIPFS`/`pinJSONToIPFS` only**, never an Admin-scope key. For production, prefer a backend upload proxy or short-lived signed JWTs so no long-lived credential reaches the client. `src/lib/ipfs.js` also caps individual upload size to limit quota abuse.
+- **Lose your wallet → lose your keys.** Encryption keys are derived fresh each session from a wallet signature and never persisted. There is no recovery path by design — the same guarantee that makes self-custody crypto self-sovereign. The Private Safe PIN is a UI convenience only; it is **not** part of the encryption key.
+- **Circles are public-membership on-chain.** `joinCircle` is callable directly by anyone — the "invite code" is enforced only in the frontend. Treat circle membership as open unless you add on-chain gating. Reading file lists is public regardless (only the encrypted CIDs are stored on-chain).
+- **`DeadDropCapsules.deleteCapsule` doesn't prune `ownerCapsules`.** The id stays in the owner's list forever (flagged `exists: false`); the frontend filters it out, but it's unbounded storage growth worth cleaning up before scale.
+- **IPFS persistence depends on who's paying to pin.** If the Pinata account behind `VITE_PINATA_JWT` lapses, previously-uploaded encrypted blobs stop being fetchable (the CID still "exists" in principle, but nothing keeps serving it). See [PRELAUNCH.md](PRELAUNCH.md) §4 for the plan here.
+- **No key recovery yet.** Lose the connected wallet and every encrypted Safe entry, capsule, and final message becomes permanently unreadable — there is no password reset, by design and currently by necessity. See [PRELAUNCH.md](PRELAUNCH.md) §5.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -290,7 +317,7 @@ Without Chainlink: anyone can still call `triggerGracePeriod(ownerAddr)` manuall
 | Web3 | wagmi v2 + viem |
 | Wallet | MetaMask (injected) + WalletConnect |
 | Smart Contracts | Solidity 0.8 + Hardhat |
-| Tests | Chai + ethers.js — 79 tests across 6 contracts |
+| Tests | Chai + ethers.js — 106 tests across 6 contracts, plus 14 crypto checks |
 | Storage | IPFS via Pinata |
 | Encryption | AES-256-GCM + ECIES (Web Crypto API) |
 | Automation | Chainlink Automation (Custom Logic upkeep) |
@@ -306,8 +333,11 @@ git clone https://github.com/your-org/deaddrop.git
 cd deaddrop
 npm install
 
-# Run all 79 tests
-npm test
+# Run all 106 contract tests
+npm run test:contract
+
+# Run the 14 in-browser crypto checks (AES-256-GCM + ECIES)
+npm run test:crypto
 
 # Start the frontend (no contracts needed for UI exploration)
 npm run dev
@@ -344,13 +374,13 @@ node scripts/gen-contract-modules.mjs
 | `VITE_CAPSULES_ADDRESS` | DeadDropCapsules deployed address |
 | `VITE_SAFE_ADDRESS` | DeadDropSafe deployed address |
 | `VITE_CREDENTIALS_ADDRESS` | DeadDropCredentials deployed address |
-| `VITE_PINATA_JWT` | Pinata JWT for IPFS uploads |
+| `VITE_PINATA_JWT` | Pinata JWT for IPFS uploads. **Use a key scoped to `pinFileToIPFS`/`pinJSONToIPFS` only — never an Admin-scope key.** This value ships in the client bundle (see Security Notes). |
 | `VITE_ALCHEMY_KEY` | Alchemy key for frontend RPC |
 | `VITE_DEPLOY_BLOCK` | Block number of first deploy (speeds up activity feed) |
 
 ---
 
-## Contract Tests — 79 total
+## Contract Tests — 106 total
 
 | Contract | Tests cover |
 |---|---|

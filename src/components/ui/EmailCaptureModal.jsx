@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppStore } from '@/store/useAppStore'
 import toast from 'react-hot-toast'
@@ -136,6 +136,14 @@ export default function EmailCaptureModal({ open, onClose, destination = '/dashb
             >
               Already have a wallet? Connect it instead →
             </button>
+
+            <p className="text-center font-inter text-[11px] mt-4" style={{ color: 'rgba(142,182,155,0.4)' }}>
+              By continuing you agree to our{' '}
+              <Link to="/terms" onClick={() => onClose?.()} className="underline hover:opacity-80">Terms</Link>
+              {' '}and{' '}
+              <Link to="/privacy" onClick={() => onClose?.()} className="underline hover:opacity-80">Privacy Policy</Link>.
+              {' '}Beta software on Ethereum Sepolia testnet — no password reset if you lose a connected wallet.
+            </p>
           </motion.div>
         </motion.div>
       )}

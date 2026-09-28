@@ -369,6 +369,7 @@ export default function Navbar() {
               />
             </div>
             <span className="font-sora font-bold text-base tracking-tight hidden sm:block" style={{ color: '#DAF1DE' }}>DeadDrop</span>
+            <span className="hidden sm:inline-block text-[9px] font-sora font-bold tracking-widest uppercase ml-2 px-1.5 py-0.5 rounded" style={{ color: '#D1601F', background: 'rgba(209,96,31,0.12)', border: '1px solid rgba(209,96,31,0.3)' }}>Beta</span>
           </Link>
 
           {/* Desktop nav */}

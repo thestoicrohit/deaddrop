@@ -22,6 +22,7 @@ import MemorySpacePage from '@/pages/MemorySpacePage'
 import LegacyPage from '@/pages/LegacyPage'
 import ClaimPage from '@/pages/ClaimPage'
 import OrganizationsPage from '@/pages/OrganizationsPage'
+import LegalPage from '@/pages/LegalPage'
 import DashboardPage from '@/pages/DashboardPage'
 import ActivityPage from '@/pages/ActivityPage'
 
@@ -69,6 +70,8 @@ function AppRoutes() {
           <Route path="/dashboard" element={<PageWrapper><DashboardPage /></PageWrapper>} />
           <Route path="/activity" element={<PageWrapper><ActivityPage /></PageWrapper>} />
           <Route path="/organizations" element={<PageWrapper><OrganizationsPage /></PageWrapper>} />
+          <Route path="/privacy" element={<PageWrapper><LegalPage /></PageWrapper>} />
+          <Route path="/terms" element={<PageWrapper><LegalPage /></PageWrapper>} />
         </Routes>
       </AnimatePresence>
 

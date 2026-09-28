@@ -1048,6 +1048,9 @@ export default function PrivateSafePage() {
                 <motion.button whileTap={{ scale: 0.97 }} onClick={handleSignToUnlock} disabled={unlocking} className="btn-primary text-sm px-5 py-2.5">
                   {unlocking ? 'Waiting for signature…' : 'Sign to unlock →'}
                 </motion.button>
+                <p className="font-inter text-xs mt-4" style={{ color: 'rgba(218,150,120,0.85)' }}>
+                  ⚠️ {tr('safe.noRecovery')}
+                </p>
               </div>
             </motion.div>
           )}
