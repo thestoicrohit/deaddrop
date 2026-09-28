@@ -55,3 +55,6 @@ cache/
 # real testnet/mainnet records (e.g. deployments/sepolia.json) are kept.
 deployments/hardhat.json
 deployments/localhost.json
+
+# Session scratch artifacts
+scratch/
