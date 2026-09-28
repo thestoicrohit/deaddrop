@@ -190,7 +190,12 @@ contract DeadDropCredentials {
         emit Transfer(from, to, tokenId);
     }
 
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external {
+    // `public`, not `external`: the 3-arg overload below must call this
+    // directly (not via `this.`) so `msg.sender` is preserved. Calling
+    // `this.safeTransferFrom(...)` would make a new external message whose
+    // msg.sender is this contract's own address, so transferFrom's
+    // authorization check would fail for every real caller.
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public {
         transferFrom(from, to, tokenId);
         if (to.code.length > 0) {
             (bool ok, bytes memory ret) = to.call(
@@ -206,7 +211,7 @@ contract DeadDropCredentials {
     }
 
     function safeTransferFrom(address from, address to, uint256 tokenId) external {
-        this.safeTransferFrom(from, to, tokenId, "");
+        safeTransferFrom(from, to, tokenId, "");
     }
 
     function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
