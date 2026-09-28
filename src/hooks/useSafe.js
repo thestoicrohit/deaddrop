@@ -19,6 +19,7 @@ import {
 } from 'wagmi'
 import { SAFE_ADDRESS, SAFE_ABI } from '@/lib/contracts/safe'
 import toast from 'react-hot-toast'
+import { notDeployedMsg } from '@/lib/notDeployed'
 
 function shortHash(hash) {
   return hash ? `${hash.slice(0, 10)}…` : ''
@@ -56,7 +57,7 @@ export function useSafe() {
 
   function write(functionName, args, opts = {}) {
     if (!SAFE_ADDRESS) {
-      toast.error('Safe contract not deployed yet — run: npm run deploy:sepolia')
+      toast.error(notDeployedMsg('Safe'))
       return
     }
     if (!address) {

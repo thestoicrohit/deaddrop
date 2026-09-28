@@ -19,6 +19,7 @@ import {
 } from 'wagmi'
 import { KEY_REGISTRY_ADDRESS, KEY_REGISTRY_ABI } from '@/lib/contracts/keyRegistry'
 import toast from 'react-hot-toast'
+import { notDeployedMsg } from '@/lib/notDeployed'
 
 function shortHash(hash) {
   return hash ? `${hash.slice(0, 10)}…` : ''
@@ -58,7 +59,7 @@ export function useKeyRegistry() {
   // deriveIdentityKeyPair()/getIdentityPublicKey() in crypto.js.
   function registerPublicKey(pubKeyHex, opts = {}) {
     if (!KEY_REGISTRY_ADDRESS) {
-      toast.error('Key registry contract not deployed yet — run: npm run deploy:sepolia')
+      toast.error(notDeployedMsg('Key registry'))
       return
     }
     if (!address) {

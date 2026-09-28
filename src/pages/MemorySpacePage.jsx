@@ -13,6 +13,7 @@ import { MEMORY_MESSAGE, deriveMemoryKey, encryptBlob, decryptBlob } from '@/lib
 import { uploadBlob, fetchBlob, isIPFSConfigured } from '@/lib/ipfs'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
+import { notDeployedMsg } from '@/lib/notDeployed'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -829,7 +830,7 @@ export default function MemorySpacePage() {
 
         {!capsules.contractReady && (
           <div className="mb-6 p-3 rounded-xl text-center font-inter text-sm" style={{ background: 'rgba(209,96,31,0.12)', color: '#D1601F' }}>
-            Capsules contract not deployed yet — run <code>npm run deploy:sepolia</code>.
+            {notDeployedMsg('Capsules')}
           </div>
         )}
 

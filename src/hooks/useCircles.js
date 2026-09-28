@@ -16,6 +16,7 @@ import {
 } from 'wagmi'
 import { CIRCLES_ADDRESS, CIRCLES_ABI } from '@/lib/contracts/circles'
 import toast from 'react-hot-toast'
+import { notDeployedMsg } from '@/lib/notDeployed'
 
 function shortHash(hash) {
   return hash ? `${hash.slice(0, 10)}…` : ''
@@ -76,7 +77,7 @@ export function useCircles() {
   // ── shared write helper ─────────────────────────────────────────────────────
   function write(functionName, args, opts = {}) {
     if (!CIRCLES_ADDRESS) {
-      toast.error('Circles contract not deployed yet — run: npm run deploy:sepolia')
+      toast.error(notDeployedMsg('Circles'))
       return
     }
     if (!address) {

@@ -9,6 +9,7 @@ import { useCapsules } from '@/hooks/useCapsules'
 import { useActivity } from '@/hooks/useActivity'
 import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
+import { notDeployedMsg } from '@/lib/notDeployed'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
 import SideDecorCanvas from '@/components/ui/SideDecorCanvas'
 import { DEMO_CIRCLES, DEMO_NOTICE } from '@/lib/demoData'
@@ -465,7 +466,7 @@ export default function ProfilesPage() {
 
         {!circles.contractReady && (
           <div className="mb-6 p-3 rounded-xl text-center font-inter text-sm" style={{ background: 'rgba(209,96,31,0.12)', color: '#D1601F' }}>
-            Circles contract not deployed yet — run <code>npm run deploy:sepolia</code>.
+            {notDeployedMsg('Circles')}
           </div>
         )}
 

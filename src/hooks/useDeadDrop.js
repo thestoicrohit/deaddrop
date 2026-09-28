@@ -7,6 +7,7 @@ import {
 import { parseEther }       from 'viem'
 import { VAULT_ADDRESS as CONTRACT_ADDRESS, VAULT_ABI as DEADDROP_ABI } from '@/lib/contracts/vault'
 import toast from 'react-hot-toast'
+import { notDeployedMsg } from '@/lib/notDeployed'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 function shortHash(hash) {
@@ -178,7 +179,7 @@ export function useDeadDrop() {
   // ── shared write helper ────────────────────────────────────────────────────
   function write(functionName, args, opts = {}) {
     if (!CONTRACT_ADDRESS) {
-      toast.error('Contract not deployed yet — run: npm run deploy:sepolia')
+      toast.error(notDeployedMsg('Vault'))
       return
     }
     if (!address) {

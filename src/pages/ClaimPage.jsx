@@ -11,6 +11,7 @@ import { useAllSafeEntries }            from '@/hooks/useSafe'
 import AuroraBackground                 from '@/components/ui/AuroraBackground'
 import { format }                       from 'date-fns'
 import toast                            from 'react-hot-toast'
+import { notDeployedMsg } from '@/lib/notDeployed'
 
 // ── Vault reads for an arbitrary owner address ─────────────────────────────────
 function useVaultLookup(ownerAddr) {
@@ -123,7 +124,7 @@ function VerificationStep({ onVerify }) {
           </button>
           {!VAULT_ADDRESS && (
             <p className="font-inter text-xs" style={{ color: '#D1601F' }}>
-              ⚠ Contract not deployed yet. Run <code className="font-mono">npm run deploy:sepolia</code>.
+              ⚠ {notDeployedMsg('Vault')}
             </p>
           )}
         </motion.div>

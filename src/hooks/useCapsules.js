@@ -15,6 +15,7 @@ import {
 } from 'wagmi'
 import { CAPSULES_ADDRESS, CAPSULES_ABI } from '@/lib/contracts/capsules'
 import toast from 'react-hot-toast'
+import { notDeployedMsg } from '@/lib/notDeployed'
 
 function shortHash(hash) {
   return hash ? `${hash.slice(0, 10)}…` : ''
@@ -77,7 +78,7 @@ export function useCapsules() {
 
   function write(functionName, args, opts = {}) {
     if (!CAPSULES_ADDRESS) {
-      toast.error('Capsules contract not deployed yet — run: npm run deploy:sepolia')
+      toast.error(notDeployedMsg('Capsules'))
       return
     }
     if (!address) {

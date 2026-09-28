@@ -17,6 +17,7 @@ import {
 } from 'wagmi'
 import { CREDENTIALS_ADDRESS, CREDENTIALS_ABI } from '@/lib/contracts/credentials'
 import toast from 'react-hot-toast'
+import { notDeployedMsg } from '@/lib/notDeployed'
 
 function shortHash(hash) {
   return hash ? `${hash.slice(0, 10)}…` : ''
@@ -88,7 +89,7 @@ export function useCredentials() {
 
   function write(functionName, args, opts = {}) {
     if (!CREDENTIALS_ADDRESS) {
-      toast.error('Credentials contract not deployed yet — run: npm run deploy:sepolia')
+      toast.error(notDeployedMsg('Credentials'))
       return
     }
     if (!address) {

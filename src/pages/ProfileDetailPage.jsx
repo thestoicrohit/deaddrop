@@ -18,6 +18,7 @@ import {
 import { uploadBlob, uploadJSON, fetchBlob, fetchJSON, isIPFSConfigured } from '@/lib/ipfs'
 import { formatDistanceToNow, format } from 'date-fns'
 import toast from 'react-hot-toast'
+import { notDeployedMsg } from '@/lib/notDeployed'
 
 const TYPE_COLORS = {
   Family:     '#DAF1DE',
@@ -673,7 +674,7 @@ export default function ProfileDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <p className="font-sora text-xl mb-4" style={{ color: '#8EB69B' }}>Circles contract not deployed yet.</p>
+          <p className="font-sora text-xl mb-4" style={{ color: '#8EB69B' }}>{notDeployedMsg('Circles')}</p>
           <button onClick={() => navigate('/profiles')} className="btn-primary">Back to Circles</button>
         </div>
       </div>

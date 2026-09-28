@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { formatDistanceToNow, format } from 'date-fns'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
 import { useActivity, describeActivity } from '@/hooks/useActivity'
+import { notDeployedMsg } from '@/lib/notDeployed'
 
 const FILTERS = [
   { key: 'all',         label: 'All' },
@@ -95,7 +96,7 @@ export default function ActivityPage() {
             className="glass-card p-6 mb-6 text-center"
           >
             <p className="font-inter text-sm" style={{ color: '#D1601F' }}>
-              ⚠ No contracts deployed yet. Run <code className="font-mono">npm run deploy:sepolia</code> then set the contract addresses in your <code className="font-mono">.env</code>.
+              ⚠ {notDeployedMsg('Vault')}
             </p>
           </motion.div>
         )}
