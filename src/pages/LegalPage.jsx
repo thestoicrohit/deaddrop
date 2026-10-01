@@ -13,11 +13,10 @@ const PRIVACY = {
       is encrypted in your browser before it ever leaves your device. Final messages, Safe entries, and
       Memory capsule content are AES-256 ciphertext by the time they reach IPFS or the blockchain. We do
       not hold a copy of your decryption key and cannot read your content, even if asked to.`],
-    ['Where your email is stored', `While the app runs in local development, submitted emails are
-      written to a spreadsheet on the developer's own machine, inside this project's folder — not
-      uploaded anywhere. In the deployed beta, email capture is not yet wired to a permanent store (see
-      PRELAUNCH.md in the repo); treat any email you submit on the live beta as informational only until
-      that's resolved.`],
+    ['Where your email is stored', `On the live site, the email (and first name, if given) you submit
+      is saved — along with the time and the page you signed up from — to a private Google Sheet that
+      only the DeadDrop maintainer can open. It is used only to contact you about DeadDrop, never sold
+      or shared. Ask us (see Contact below) and we'll delete it.`],
     ['On-chain and IPFS data', `Wallet addresses, timestamps, and encrypted blobs written to Ethereum
       Sepolia or IPFS cannot be truly deleted once published — that's how public, content-addressed
       systems work. "Delete" in the app stops us from showing something; it does not erase it from a
@@ -66,18 +65,18 @@ export default function LegalPage() {
       <div className="relative z-10 max-w-2xl mx-auto px-4 pb-24">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
           <div className="flex items-center gap-3 mb-2">
-            <Link to="/privacy" className="font-inter text-xs uppercase tracking-widest" style={{ color: doc !== 'terms' ? '#DAF1DE' : 'rgba(142,182,155,0.5)' }}>Privacy</Link>
-            <span style={{ color: 'rgba(142,182,155,0.3)' }}>·</span>
-            <Link to="/terms" className="font-inter text-xs uppercase tracking-widest" style={{ color: doc === 'terms' ? '#DAF1DE' : 'rgba(142,182,155,0.5)' }}>Terms</Link>
+            <Link to="/privacy" className="font-inter text-xs uppercase tracking-widest" style={{ color: doc !== 'terms' ? 'var(--c-5)' : 'rgba(var(--c-4-rgb),0.5)' }}>Privacy</Link>
+            <span style={{ color: 'rgba(var(--c-4-rgb),0.3)' }}>·</span>
+            <Link to="/terms" className="font-inter text-xs uppercase tracking-widest" style={{ color: doc === 'terms' ? 'var(--c-5)' : 'rgba(var(--c-4-rgb),0.5)' }}>Terms</Link>
           </div>
-          <h1 className="font-sora font-bold text-3xl mb-1" style={{ color: '#DAF1DE' }}>{content.title}</h1>
-          <p className="font-inter text-xs mb-8" style={{ color: 'rgba(142,182,155,0.5)' }}>{content.updated}</p>
+          <h1 className="font-sora font-bold text-3xl mb-1" style={{ color: 'var(--c-5)' }}>{content.title}</h1>
+          <p className="font-inter text-xs mb-8" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>{content.updated}</p>
 
           <div className="space-y-6">
             {content.sections.map(([heading, body]) => (
               <div key={heading}>
-                <h2 className="font-sora font-semibold text-sm mb-1.5" style={{ color: '#8EB69B' }}>{heading}</h2>
-                <p className="font-inter text-sm leading-relaxed" style={{ color: 'rgba(218,241,222,0.75)' }}>{body}</p>
+                <h2 className="font-sora font-semibold text-sm mb-1.5" style={{ color: 'var(--c-4)' }}>{heading}</h2>
+                <p className="font-inter text-sm leading-relaxed" style={{ color: 'rgba(var(--c-5-rgb),0.75)' }}>{body}</p>
               </div>
             ))}
           </div>

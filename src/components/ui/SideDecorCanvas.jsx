@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react'
+import { useAppStore } from '@/store/useAppStore'
+import { palette, tameForLight } from '@/lib/themePalette'
 
 /**
  * SideDecorCanvas — decorative canvas art for inner page edges.
@@ -8,7 +10,9 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
   const canvasRef = useRef(null)
   const rafRef = useRef(null)
 
+  const theme = useAppStore((s) => s.theme)
   useEffect(() => {
+    const P = palette(theme)
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -18,15 +22,16 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
     canvas.width = W * dpr
     canvas.height = H * dpr
     const ctx = canvas.getContext('2d')
+    tameForLight(ctx, P, 0.5)
     ctx.scale(dpr, dpr)
 
     let time = 0
 
     // ── Shared helpers ──
-    const sage  = [142, 182, 155]
-    const mint  = [218, 241, 222]
-    const forest = [35, 83, 71]
-    const moss  = [11, 43, 38]
+    const sage  = P.sageArr
+    const mint  = P.mintArr
+    const forest = P.forestArr
+    const moss  = P.mossArr
 
     // ─── HAND (left or right) ─────────────────────────────────
     if (type === 'hand-left' || type === 'hand-right') {
@@ -93,20 +98,20 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
 
         // Glowing arc
         const arcAlpha = 0.60 + Math.sin(time * 0.8) * 0.15
-        ctx.strokeStyle = `rgba(218,241,222,${arcAlpha})`
+        ctx.strokeStyle = `rgba(${P.mint},${arcAlpha})`
         ctx.lineWidth = 1.8
         ctx.shadowBlur = 28
-        ctx.shadowColor = 'rgba(142,182,155,0.9)'
+        ctx.shadowColor = `rgba(${P.sage},0.9)`
         ctx.beginPath()
         ctx.arc(cx, cy, RING_R, ringAngle, ringAngle + Math.PI * 1.55)
         ctx.stroke()
         ctx.shadowBlur = 0
 
         // Second partial arc (thinner)
-        ctx.strokeStyle = `rgba(142,182,155,${arcAlpha * 0.7})`
+        ctx.strokeStyle = `rgba(${P.sage},${arcAlpha * 0.7})`
         ctx.lineWidth = 1.0
         ctx.shadowBlur = 14
-        ctx.shadowColor = 'rgba(142,182,155,0.7)'
+        ctx.shadowColor = `rgba(${P.sage},0.7)`
         ctx.beginPath()
         ctx.arc(cx, cy, RING_R * 0.78, ringAngle + Math.PI, ringAngle + Math.PI * 1.9)
         ctx.stroke()
@@ -171,7 +176,7 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
       const cy = H * 0.5
       const R = Math.min(W, H) * 0.38
 
-      const COLORS = [[142,182,155],[218,241,222],[35,83,71]]
+      const COLORS = [P.sageArr,P.mintArr,P.forestArr]
       const PHI = (1 + Math.sqrt(5)) / 2
       const N = 180
 
@@ -196,8 +201,8 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
       let rotY = 0
 
       const rings = [
-        { tilt: 20, speed: 0.008,  r: R * 1.15, rgb: '142,182,155', alpha: 0.4 },
-        { tilt: 65, speed: -0.005, r: R * 1.04, rgb: '218,241,222', alpha: 0.28 },
+        { tilt: 20, speed: 0.008,  r: R * 1.15, rgb: P.sage, alpha: 0.4 },
+        { tilt: 65, speed: -0.005, r: R * 1.04, rgb: P.mint, alpha: 0.28 },
       ]
       const ringAngles = [0, 0]
 
@@ -222,7 +227,7 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
 
         // Ambient glow
         const amb = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.3)
-        amb.addColorStop(0, 'rgba(35,83,71,0.12)')
+        amb.addColorStop(0, `rgba(${P.forest},0.12)`)
         amb.addColorStop(1, 'transparent')
         ctx.fillStyle = amb
         ctx.beginPath(); ctx.arc(cx, cy, R * 1.3, 0, Math.PI * 2); ctx.fill()
@@ -265,7 +270,7 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
               ctx.beginPath()
               ctx.moveTo(projected[i].x, projected[i].y)
               ctx.lineTo(projected[j].x, projected[j].y)
-              ctx.strokeStyle = `rgba(142,182,155,${alpha})`
+              ctx.strokeStyle = `rgba(${P.sage},${alpha})`
               ctx.lineWidth = 0.4; ctx.stroke()
             }
           }
@@ -289,7 +294,7 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
         // Core pulse
         const cA = 0.35 + Math.sin(time * 0.9) * 0.12
         const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.16)
-        cg.addColorStop(0, `rgba(218,241,222,${cA * 1.3})`); cg.addColorStop(1, 'transparent')
+        cg.addColorStop(0, `rgba(${P.mint},${cA * 1.3})`); cg.addColorStop(1, 'transparent')
         ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, cy, R * 0.16, 0, Math.PI * 2); ctx.fill()
 
         time += 0.012
@@ -360,7 +365,7 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
     }
 
     return () => cancelAnimationFrame(rafRef.current)
-  }, [type])
+  }, [type, theme])
 
   return (
     <canvas

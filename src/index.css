@@ -3,36 +3,42 @@
 @tailwind utilities;
 
 @layer base {
+  /* Palette tokens. Components use var(--c-N) / rgba(var(--c-N-rgb), a);
+     light mode swaps the scale end-for-end so every pairing keeps its contrast.
+     Keep in sync with src/lib/themePalette.js (canvas drawing). */
   :root {
-    /* Dark theme — Deep Forest Green */
-    --bg-primary: #051F20;
-    --bg-secondary: #163832;
-    --bg-card: rgba(11, 43, 38, 0.55);
-    --border-card: rgba(142, 182, 155, 0.18);
-    --border-glow: rgba(218, 241, 222, 0.35);
-    --text-primary: #DAF1DE;
-    --text-secondary: #8EB69B;
-    --text-muted: #235347;
-    --text-heading: #DAF1DE;
-    --navbar-bg: rgba(5, 31, 32, 0.93);
-    --btn-primary-bg: #0B2B26;
-    --btn-primary-border: rgba(142, 182, 155, 0.45);
+    --c-0: #051F20;  --c-0-rgb: 5,31,32;        /* deep background */
+    --c-1: #0B2B26;  --c-1-rgb: 11,43,38;       /* card / button */
+    --c-2: #163832;  --c-2-rgb: 22,56,50;
+    --c-3: #235347;  --c-3-rgb: 35,83,71;       /* muted */
+    --c-4: #8EB69B;  --c-4-rgb: 142,182,155;    /* secondary text, borders */
+    --c-5: #DAF1DE;  --c-5-rgb: 218,241,222;    /* primary text */
+    color-scheme: dark;
   }
 
   .light {
-    /* Light theme — Mid Forest Green, lifted */
-    --bg-primary: #235347;
-    --bg-secondary: #163832;
-    --bg-card: rgba(35, 83, 71, 0.7);
-    --border-card: rgba(142, 182, 155, 0.3);
-    --border-glow: rgba(218, 241, 222, 0.45);
-    --text-primary: #DAF1DE;
-    --text-secondary: #8EB69B;
-    --text-muted: #8EB69B;
-    --text-heading: #DAF1DE;
-    --navbar-bg: rgba(22, 56, 50, 0.95);
-    --btn-primary-bg: #163832;
-    --btn-primary-border: rgba(218, 241, 222, 0.4);
+    --c-0: #F4F9F5;  --c-0-rgb: 244,249,245;
+    --c-1: #E6F0E8;  --c-1-rgb: 230,240,232;
+    --c-2: #D4E4D8;  --c-2-rgb: 212,228,216;
+    --c-3: #7F9F8A;  --c-3-rgb: 127,159,138;
+    --c-4: #3D6B57;  --c-4-rgb: 61,107,87;
+    --c-5: #0B2B26;  --c-5-rgb: 11,43,38;
+    color-scheme: light;
+  }
+
+  :root, .light {
+    --bg-primary: var(--c-0);
+    --bg-secondary: var(--c-2);
+    --bg-card: rgba(var(--c-1-rgb), 0.55);
+    --border-card: rgba(var(--c-4-rgb), 0.18);
+    --border-glow: rgba(var(--c-5-rgb), 0.35);
+    --text-primary: var(--c-5);
+    --text-secondary: var(--c-4);
+    --text-muted: var(--c-3);
+    --text-heading: var(--c-5);
+    --navbar-bg: rgba(var(--c-0-rgb), 0.93);
+    --btn-primary-bg: var(--c-1);
+    --btn-primary-border: rgba(var(--c-4-rgb), 0.45);
   }
 
   * { box-sizing: border-box; }
@@ -54,9 +60,9 @@
   }
 
   ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: #051F20; }
-  ::-webkit-scrollbar-thumb { background: #0B2B26; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #8EB69B; }
+  ::-webkit-scrollbar-track { background: var(--c-0); }
+  ::-webkit-scrollbar-thumb { background: var(--c-1); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--c-4); }
 }
 
 @layer components {
@@ -72,13 +78,13 @@
   }
   .glass-card:hover {
     border-color: var(--border-glow);
-    box-shadow: 0 0 32px rgba(142,182,155,0.1), inset 0 1px 0 rgba(218,241,222,0.06);
+    box-shadow: 0 0 32px rgba(var(--c-4-rgb),0.1), inset 0 1px 0 rgba(var(--c-5-rgb),0.06);
   }
 
   /* ── Vault card ── */
   .vault-card {
-    background: rgba(11, 43, 38, 0.85);
-    border: 1px solid rgba(142, 182, 155, 0.22);
+    background: rgba(var(--c-1-rgb), 0.85);
+    border: 1px solid rgba(var(--c-4-rgb), 0.22);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-radius: 14px;
@@ -87,62 +93,62 @@
 
   /* ── Buttons ── */
   .btn-primary {
-    background: linear-gradient(135deg, #0B2B26, #051F20);
-    color: #DAF1DE;
+    background: linear-gradient(135deg, var(--c-1), var(--c-0));
+    color: var(--c-5);
     font-family: 'Sora', sans-serif;
     font-weight: 600;
     padding: 0.75rem 2rem;
     border-radius: 10px;
-    border: 1px solid rgba(142, 182, 155, 0.4);
+    border: 1px solid rgba(var(--c-4-rgb), 0.4);
     cursor: pointer;
     transition: all 0.3s ease;
     letter-spacing: 0.01em;
   }
   .btn-primary:hover {
-    background: linear-gradient(135deg, #163832, #0B2B26);
-    border-color: rgba(218, 241, 222, 0.55);
-    box-shadow: 0 0 24px rgba(142,182,155,0.25), 0 0 8px rgba(218,241,222,0.1);
+    background: linear-gradient(135deg, var(--c-2), var(--c-1));
+    border-color: rgba(var(--c-5-rgb), 0.55);
+    box-shadow: 0 0 24px rgba(var(--c-4-rgb),0.25), 0 0 8px rgba(var(--c-5-rgb),0.1);
     transform: translateY(-2px);
   }
   .btn-primary:active { transform: translateY(0); }
 
   .btn-outline {
     background: transparent;
-    color: #DAF1DE;
+    color: var(--c-5);
     font-family: 'Sora', sans-serif;
     font-weight: 600;
     padding: 0.75rem 2rem;
     border-radius: 10px;
-    border: 1px solid rgba(218, 241, 222, 0.3);
+    border: 1px solid rgba(var(--c-5-rgb), 0.3);
     cursor: pointer;
     transition: all 0.3s ease;
   }
   .btn-outline:hover {
-    background: rgba(218, 241, 222, 0.06);
-    border-color: rgba(218, 241, 222, 0.6);
-    box-shadow: 0 0 20px rgba(142,182,155,0.18);
+    background: rgba(var(--c-5-rgb), 0.06);
+    border-color: rgba(var(--c-5-rgb), 0.6);
+    box-shadow: 0 0 20px rgba(var(--c-4-rgb),0.18);
     transform: translateY(-2px);
   }
 
   .btn-cobalt {
-    background: linear-gradient(135deg, #235347, #163832);
-    color: #DAF1DE;
+    background: linear-gradient(135deg, var(--c-3), var(--c-2));
+    color: var(--c-5);
     font-family: 'Sora', sans-serif;
     font-weight: 600;
     padding: 0.75rem 2rem;
     border-radius: 10px;
-    border: 1px solid rgba(142,182,155,0.35);
+    border: 1px solid rgba(var(--c-4-rgb),0.35);
     cursor: pointer;
     transition: all 0.3s ease;
   }
   .btn-cobalt:hover {
-    box-shadow: 0 0 24px rgba(142,182,155,0.3);
+    box-shadow: 0 0 24px rgba(var(--c-4-rgb),0.3);
     transform: translateY(-2px);
   }
 
   /* ── Shimmer text ── */
   .shimmer-text {
-    background: linear-gradient(90deg, #DAF1DE 0%, #8EB69B 30%, #DAF1DE 55%, #235347 80%, #DAF1DE 100%);
+    background: linear-gradient(90deg, var(--c-5) 0%, var(--c-4) 30%, var(--c-5) 55%, var(--c-3) 80%, var(--c-5) 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -156,9 +162,9 @@
     inset: 0;
     z-index: 0;
     background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(11,43,38,0.8) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 80% at 100% 50%, rgba(22,56,50,0.45) 0%, transparent 60%),
-      #051F20;
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(var(--c-1-rgb),0.8) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 80% at 100% 50%, rgba(var(--c-2-rgb),0.45) 0%, transparent 60%),
+      var(--c-0);
     animation: aurora 20s ease infinite;
   }
 
@@ -167,16 +173,16 @@
     inset: 0;
     z-index: 0;
     background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(35,83,71,0.8) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 80% at 100% 50%, rgba(22,56,50,0.5) 0%, transparent 60%),
-      #235347;
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(var(--c-3-rgb),0.8) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 80% at 100% 50%, rgba(var(--c-2-rgb),0.5) 0%, transparent 60%),
+      var(--c-3);
     animation: aurora 20s ease infinite;
   }
 
   /* ── Input ── */
   .vault-input {
-    background: rgba(5, 31, 32, 0.5);
-    border: 1px solid rgba(142, 182, 155, 0.2);
+    background: rgba(var(--c-0-rgb), 0.5);
+    border: 1px solid rgba(var(--c-4-rgb), 0.2);
     color: var(--text-primary);
     border-radius: 10px;
     padding: 0.75rem 1rem;
@@ -187,16 +193,16 @@
     transition: all 0.3s ease;
   }
   .vault-input:focus {
-    border-color: rgba(142, 182, 155, 0.55);
-    box-shadow: 0 0 0 3px rgba(142,182,155,0.08);
+    border-color: rgba(var(--c-4-rgb), 0.55);
+    box-shadow: 0 0 0 3px rgba(var(--c-4-rgb),0.08);
   }
   .vault-input::placeholder { color: var(--text-muted); }
 
   /* ── Badges ── */
   .badge-cobalt {
-    background: rgba(142,182,155,0.12);
-    color: #8EB69B;
-    border: 1px solid rgba(142,182,155,0.3);
+    background: rgba(var(--c-4-rgb),0.12);
+    color: var(--c-4);
+    border: 1px solid rgba(var(--c-4-rgb),0.3);
     font-size: 0.68rem;
     font-weight: 600;
     padding: 2px 8px;
@@ -206,9 +212,9 @@
     text-transform: uppercase;
   }
   .badge-yellow {
-    background: rgba(218,241,222,0.1);
-    color: #DAF1DE;
-    border: 1px solid rgba(218,241,222,0.25);
+    background: rgba(var(--c-5-rgb),0.1);
+    color: var(--c-5);
+    border: 1px solid rgba(var(--c-5-rgb),0.25);
     font-size: 0.68rem;
     font-weight: 600;
     padding: 2px 8px;
@@ -218,9 +224,9 @@
     text-transform: uppercase;
   }
   .badge-satsuma {
-    background: rgba(35,83,71,0.25);
-    color: #8EB69B;
-    border: 1px solid rgba(142,182,155,0.3);
+    background: rgba(var(--c-3-rgb),0.25);
+    color: var(--c-4);
+    border: 1px solid rgba(var(--c-4-rgb),0.3);
     font-size: 0.68rem;
     font-weight: 600;
     padding: 2px 8px;
@@ -230,9 +236,9 @@
     text-transform: uppercase;
   }
   .badge-amber {
-    background: rgba(142,182,155,0.12);
-    color: #8EB69B;
-    border: 1px solid rgba(142,182,155,0.25);
+    background: rgba(var(--c-4-rgb),0.12);
+    color: var(--c-4);
+    border: 1px solid rgba(var(--c-4-rgb),0.25);
     font-size: 0.68rem;
     font-weight: 600;
     padding: 2px 8px;
@@ -244,7 +250,7 @@
 
   /* ── Skeleton ── */
   .skeleton {
-    background: linear-gradient(90deg, rgba(11,43,38,0.5) 25%, rgba(35,83,71,0.35) 50%, rgba(11,43,38,0.5) 75%);
+    background: linear-gradient(90deg, rgba(var(--c-1-rgb),0.5) 25%, rgba(var(--c-3-rgb),0.35) 50%, rgba(var(--c-1-rgb),0.5) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 8px;
@@ -252,7 +258,7 @@
 
   /* ── Waveform bar ── */
   .waveform-bar {
-    background: #8EB69B;
+    background: var(--c-4);
     border-radius: 2px;
     animation: waveform 1.2s ease-in-out infinite;
   }
@@ -265,7 +271,7 @@
   .orbit-ring {
     position: absolute;
     border-radius: 50%;
-    border: 1px solid rgba(142, 182, 155, 0.1);
+    border: 1px solid rgba(var(--c-4-rgb), 0.1);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);

@@ -21,11 +21,11 @@ import toast from 'react-hot-toast'
 import { notDeployedMsg } from '@/lib/notDeployed'
 
 const TYPE_COLORS = {
-  Family:     '#DAF1DE',
-  Friends:    '#8EB69B',
+  Family:     'var(--c-5)',
+  Friends:    'var(--c-4)',
   University: '#4a9e6a',
   Work:       '#D1601F',
-  Custom:     '#8EB69B',
+  Custom:     'var(--c-4)',
 }
 
 const CAPSULE_TYPE_META = {
@@ -88,39 +88,39 @@ function FilePreview({ file, onClose }) {
 
   return (
     <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0" style={{ background: 'rgba(5,31,32,0.94)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
+      <div className="absolute inset-0" style={{ background: 'rgba(var(--c-0-rgb),0.94)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
       <motion.div className="relative z-10 w-full max-w-lg" initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
         <div className="glass-card overflow-hidden">
-          <div className="w-full flex items-center justify-center" style={{ minHeight: '200px', background: 'rgba(5,31,32,0.6)' }}>
+          <div className="w-full flex items-center justify-center" style={{ minHeight: '200px', background: 'rgba(var(--c-0-rgb),0.6)' }}>
             {isImage && file.url ? (
               <img src={file.url} alt={file.name} className="max-w-full max-h-80 object-contain" />
             ) : (
               <div className="flex flex-col items-center gap-3 py-12">
                 <span className="text-5xl">{file.type === 'pdf' ? '📄' : '📁'}</span>
-                <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.6)' }}>Preview not available</p>
+                <p className="font-inter text-sm" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Preview not available</p>
               </div>
             )}
           </div>
           <div className="p-5">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="font-sora font-semibold text-base truncate" style={{ color: '#DAF1DE' }}>{file.name}</h3>
-                <p className="font-inter text-xs mt-0.5" style={{ color: '#8EB69B' }}>
+                <h3 className="font-sora font-semibold text-base truncate" style={{ color: 'var(--c-5)' }}>{file.name}</h3>
+                <p className="font-inter text-xs mt-0.5" style={{ color: 'var(--c-4)' }}>
                   {file.size || 'Unknown size'} · {file.type?.toUpperCase() || 'FILE'}
                 </p>
               </div>
-              <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(11,43,38,0.7)', color: '#8EB69B' }}>✕</button>
+              <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(var(--c-1-rgb),0.7)', color: 'var(--c-4)' }}>✕</button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {file.date && (
-                <div className="p-3 rounded-xl" style={{ background: 'rgba(11,43,38,0.4)' }}>
-                  <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Uploaded</p>
-                  <p className="font-sora font-semibold text-sm mt-0.5" style={{ color: '#DAF1DE' }}>{format(new Date(file.date), 'dd MMM yyyy')}</p>
+                <div className="p-3 rounded-xl" style={{ background: 'rgba(var(--c-1-rgb),0.4)' }}>
+                  <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Uploaded</p>
+                  <p className="font-sora font-semibold text-sm mt-0.5" style={{ color: 'var(--c-5)' }}>{format(new Date(file.date), 'dd MMM yyyy')}</p>
                 </div>
               )}
-              <div className="p-3 rounded-xl" style={{ background: 'rgba(11,43,38,0.4)' }}>
-                <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Storage</p>
-                <p className="font-sora font-semibold text-sm mt-0.5" style={{ color: '#8EB69B' }}>IPFS · end-to-end encrypted</p>
+              <div className="p-3 rounded-xl" style={{ background: 'rgba(var(--c-1-rgb),0.4)' }}>
+                <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Storage</p>
+                <p className="font-sora font-semibold text-sm mt-0.5" style={{ color: 'var(--c-4)' }}>IPFS · end-to-end encrypted</p>
               </div>
             </div>
             <div className="flex gap-3 mt-4">
@@ -273,7 +273,7 @@ function SharedVault({ circleId, isMember, members, files, circles }) {
   if (!isMember) {
     return (
       <div className="text-center py-14">
-        <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+        <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
           Join this circle (see the Members tab) to access its shared, end-to-end encrypted vault.
         </p>
       </div>
@@ -283,9 +283,9 @@ function SharedVault({ circleId, isMember, members, files, circles }) {
   return (
     <div className="space-y-4">
       {!keyReg.hasPublicKey && (
-        <div className="p-4 rounded-xl flex items-center gap-3 flex-wrap" style={{ background: 'rgba(11,43,38,0.3)', border: '1px solid rgba(142,182,155,0.2)' }}>
+        <div className="p-4 rounded-xl flex items-center gap-3 flex-wrap" style={{ background: 'rgba(var(--c-1-rgb),0.3)', border: '1px solid rgba(var(--c-4-rgb),0.2)' }}>
           <span className="text-lg">🔑</span>
-          <p className="font-inter text-sm flex-1" style={{ color: '#DAF1DE' }}>
+          <p className="font-inter text-sm flex-1" style={{ color: 'var(--c-5)' }}>
             Enable secure sharing — a free signature lets other members encrypt files just for you.
           </p>
           <button onClick={handleRegisterKey} disabled={registering || keyReg.isPending || keyReg.isConfirming} className="btn-primary text-sm px-4 py-2 whitespace-nowrap">
@@ -298,16 +298,16 @@ function SharedVault({ circleId, isMember, members, files, circles }) {
 
       <motion.div
         className="w-full py-10 rounded-xl border-2 border-dashed flex flex-col items-center gap-3 cursor-pointer transition-all"
-        style={{ borderColor: 'rgba(218,241,222,0.25)' }}
+        style={{ borderColor: 'rgba(var(--c-5-rgb),0.25)' }}
         whileHover={{ borderColor: 'rgba(218,241,222,0.5)', background: 'rgba(218,241,222,0.03)' }}
         onClick={() => fileInputRef.current?.click()}
       >
-        <span className="text-3xl" style={{ color: '#DAF1DE' }}>☁️</span>
+        <span className="text-3xl" style={{ color: 'var(--c-5)' }}>☁️</span>
         <div className="text-center">
-          <p className="font-sora text-sm font-semibold" style={{ color: '#DAF1DE' }}>
+          <p className="font-sora text-sm font-semibold" style={{ color: 'var(--c-5)' }}>
             {uploading ? 'Encrypting and uploading…' : 'Drop files here or click to upload'}
           </p>
-          <p className="font-inter text-xs mt-1" style={{ color: '#8EB69B' }}>
+          <p className="font-inter text-xs mt-1" style={{ color: 'var(--c-4)' }}>
             End-to-end encrypted to every registered member · {list.length} file{list.length !== 1 ? 's' : ''} in vault
           </p>
         </div>
@@ -334,13 +334,13 @@ function SharedVault({ circleId, isMember, members, files, circles }) {
                     {file.fileType === 'pdf' ? '📄' : ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(file.fileType) ? '🖼️' : '📁'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-inter text-sm font-medium truncate" style={{ color: '#DAF1DE' }}>{file.name}</p>
-                    <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+                    <p className="font-inter text-sm font-medium truncate" style={{ color: 'var(--c-5)' }}>{file.name}</p>
+                    <p className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
                       {formatSize(file.size)} · {format(tsToDate(file.uploadedAt), 'dd MMM yyyy')}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="badge-cobalt">encrypted</span>
-                      <span className="font-inter text-xs truncate" style={{ color: '#8EB69B' }}>
+                      <span className="font-inter text-xs truncate" style={{ color: 'var(--c-4)' }}>
                         {shortAddr(file.uploader)}
                       </span>
                     </div>
@@ -351,7 +351,7 @@ function SharedVault({ circleId, isMember, members, files, circles }) {
                     onClick={() => openFile(file)}
                     disabled={decryptingId === idKey}
                     className="text-xs px-3 py-1 rounded-lg transition-all hover:opacity-80"
-                    style={{ background: 'rgba(142,182,155,0.2)', color: '#8EB69B' }}
+                    style={{ background: 'rgba(var(--c-4-rgb),0.2)', color: 'var(--c-4)' }}
                   >
                     {decryptingId === idKey ? 'Decrypting…' : 'View'}
                   </button>
@@ -369,7 +369,7 @@ function SharedVault({ circleId, isMember, members, files, circles }) {
         </div>
       ) : (
         <div className="text-center py-10">
-          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+          <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
             No files yet. Upload your first file above.
           </p>
         </div>
@@ -402,13 +402,13 @@ function MemorySpaceTab({ circleId }) {
             whileHover={{ y: -2 }}
             onClick={() => navigate('/memory')}
           >
-            <div className="w-full h-24 rounded-lg mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#051F20,#0B2B26)' }}>
+            <div className="w-full h-24 rounded-lg mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,var(--c-0),var(--c-1))' }}>
               <span className="text-3xl opacity-60">{meta.icon}</span>
             </div>
-            <h3 className="font-sora font-semibold text-sm mb-1" style={{ color: '#DAF1DE' }}>
+            <h3 className="font-sora font-semibold text-sm mb-1" style={{ color: 'var(--c-5)' }}>
               {capsule.title}
             </h3>
-            <p className="font-inter text-xs mb-3 line-clamp-2" style={{ color: '#8EB69B' }}>
+            <p className="font-inter text-xs mb-3 line-clamp-2" style={{ color: 'var(--c-4)' }}>
               {capsule.contentPreview}
             </p>
             <div className="flex items-center justify-between">
@@ -423,7 +423,7 @@ function MemorySpaceTab({ circleId }) {
         )
       })}
       {shown.length === 0 && (
-        <p className="font-inter text-sm col-span-3 text-center py-10" style={{ color: '#8EB69B' }}>
+        <p className="font-inter text-sm col-span-3 text-center py-10" style={{ color: 'var(--c-4)' }}>
           No capsules linked to this circle yet.
         </p>
       )}
@@ -446,7 +446,7 @@ function AddMemberModal({ circleId, circles, onClose }) {
 
   return (
     <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0" style={{ background: 'rgba(5,31,32,0.88)', backdropFilter: 'blur(12px)' }} onClick={onClose} />
+      <div className="absolute inset-0" style={{ background: 'rgba(var(--c-0-rgb),0.88)', backdropFilter: 'blur(12px)' }} onClick={onClose} />
       <motion.div
         className="glass-card p-8 w-full max-w-md relative z-10"
         initial={{ scale: 0.88, opacity: 0, y: 20 }}
@@ -454,7 +454,7 @@ function AddMemberModal({ circleId, circles, onClose }) {
         exit={{ scale: 0.88, opacity: 0, y: 20 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       >
-        <h2 className="font-sora font-bold text-xl mb-6" style={{ color: '#DAF1DE' }}>
+        <h2 className="font-sora font-bold text-xl mb-6" style={{ color: 'var(--c-5)' }}>
           Add a Member
         </h2>
         <div className="space-y-3">
@@ -467,9 +467,9 @@ function AddMemberModal({ circleId, circles, onClose }) {
                 onClick={() => setRole(r)}
                 className="flex-1 py-2 rounded-lg text-sm font-sora transition-all"
                 style={{
-                  background: role === r ? 'rgba(142,182,155,0.15)' : 'rgba(11,43,38,0.1)',
-                  border: `1px solid ${role === r ? 'rgba(218,241,222,0.35)' : 'rgba(218,241,222,0.1)'}`,
-                  color: role === r ? '#DAF1DE' : '#8EB69B',
+                  background: role === r ? 'rgba(var(--c-4-rgb),0.15)' : 'rgba(var(--c-1-rgb),0.1)',
+                  border: `1px solid ${role === r ? 'rgba(var(--c-5-rgb),0.35)' : 'rgba(var(--c-5-rgb),0.1)'}`,
+                  color: role === r ? 'var(--c-5)' : 'var(--c-4)',
                 }}
               >
                 {label}
@@ -509,31 +509,31 @@ function MembersTab({ circleId, members, isMember, isAdmin, circles }) {
         >
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center font-sora font-bold flex-shrink-0"
-            style={{ background: `hsl(${i * 60 + 200}, 40%, 25%)`, color: '#DAF1DE' }}
+            style={{ background: `hsl(${i * 60 + 200}, 40%, 25%)`, color: 'var(--c-5)' }}
           >
             {(m.name || m.wallet || '?').charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>
+              <span className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>
                 {m.name || shortAddr(m.wallet)}
               </span>
             </div>
-            <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+            <p className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
               {shortAddr(m.wallet)} · Joined {formatDistanceToNow(tsToDate(m.joinedAt), { addSuffix: true })}
             </p>
           </div>
           <span
             className="text-xs font-sora font-semibold px-2 py-1 rounded-full flex-shrink-0"
             style={{
-              background: Number(m.role) === CIRCLE_ROLE.ADMIN ? 'rgba(218,241,222,0.15)' : 'rgba(11,43,38,0.3)',
-              color:      Number(m.role) === CIRCLE_ROLE.ADMIN ? '#DAF1DE' : '#8EB69B',
+              background: Number(m.role) === CIRCLE_ROLE.ADMIN ? 'rgba(var(--c-5-rgb),0.15)' : 'rgba(var(--c-1-rgb),0.3)',
+              color:      Number(m.role) === CIRCLE_ROLE.ADMIN ? 'var(--c-5)' : 'var(--c-4)',
             }}
           >
             {Number(m.role) === CIRCLE_ROLE.ADMIN ? 'Admin' : 'Member'}
           </span>
           {isAdmin && (
-            <button onClick={() => circles.removeMember(circleId, m.wallet)} className="text-sm px-1 flex-shrink-0 transition-opacity hover:opacity-60" style={{ color: '#8EB69B' }}>
+            <button onClick={() => circles.removeMember(circleId, m.wallet)} className="text-sm px-1 flex-shrink-0 transition-opacity hover:opacity-60" style={{ color: 'var(--c-4)' }}>
               ✕
             </button>
           )}
@@ -541,7 +541,7 @@ function MembersTab({ circleId, members, isMember, isAdmin, circles }) {
       ))}
 
       {list.length === 0 && (
-        <p className="text-center font-inter text-sm py-6" style={{ color: '#8EB69B' }}>
+        <p className="text-center font-inter text-sm py-6" style={{ color: 'var(--c-4)' }}>
           No members yet.
         </p>
       )}
@@ -550,7 +550,7 @@ function MembersTab({ circleId, members, isMember, isAdmin, circles }) {
         <button
           onClick={() => { if (window.confirm('Leave this circle? You will lose access to its shared files.')) circles.leaveCircle(circleId) }}
           className="w-full mt-3 text-sm font-inter py-2 rounded-xl transition-opacity hover:opacity-70"
-          style={{ color: '#8EB69B', border: '1px solid rgba(142,182,155,0.25)' }}
+          style={{ color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.25)' }}
         >
           Leave circle
         </button>
@@ -594,12 +594,12 @@ function TimelineTab({ circleId }) {
   return (
     <div className="space-y-3">
       {isLoading && (
-        <p className="text-center font-inter text-sm py-6" style={{ color: '#8EB69B' }}>
+        <p className="text-center font-inter text-sm py-6" style={{ color: 'var(--c-4)' }}>
           Loading on-chain activity…
         </p>
       )}
       {!isLoading && events.length === 0 && (
-        <p className="text-center font-inter text-sm py-6" style={{ color: '#8EB69B' }}>
+        <p className="text-center font-inter text-sm py-6" style={{ color: 'var(--c-4)' }}>
           No activity yet. Start by uploading a file or inviting a member.
         </p>
       )}
@@ -611,14 +611,14 @@ function TimelineTab({ circleId }) {
           transition={{ delay: i * 0.06 }}
           className="flex gap-4 glass-card p-4"
         >
-          <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0" style={{ background: 'rgba(11,43,38,0.4)' }}>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0" style={{ background: 'rgba(var(--c-1-rgb),0.4)' }}>
             {EVENT_ICON[event.eventName] || '📌'}
           </div>
           <div className="flex-1">
-            <p className="font-inter text-sm" style={{ color: '#DAF1DE' }}>
+            <p className="font-inter text-sm" style={{ color: 'var(--c-5)' }}>
               {describeActivity(event)}
             </p>
-            <p className="font-inter text-xs mt-1" style={{ color: '#8EB69B' }}>
+            <p className="font-inter text-xs mt-1" style={{ color: 'var(--c-4)' }}>
               {event.timestamp != null
                 ? formatDistanceToNow(new Date(Number(event.timestamp) * 1000), { addSuffix: true })
                 : `Block #${event.blockNumber}`}
@@ -663,7 +663,7 @@ export default function ProfileDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <p className="font-sora text-xl mb-4" style={{ color: '#8EB69B' }}>Connect your wallet to view this circle.</p>
+          <p className="font-sora text-xl mb-4" style={{ color: 'var(--c-4)' }}>Connect your wallet to view this circle.</p>
           <button onClick={() => navigate('/connect')} className="btn-primary">Connect Wallet</button>
         </div>
       </div>
@@ -674,7 +674,7 @@ export default function ProfileDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <p className="font-sora text-xl mb-4" style={{ color: '#8EB69B' }}>{notDeployedMsg('Circles')}</p>
+          <p className="font-sora text-xl mb-4" style={{ color: 'var(--c-4)' }}>{notDeployedMsg('Circles')}</p>
           <button onClick={() => navigate('/profiles')} className="btn-primary">Back to Circles</button>
         </div>
       </div>
@@ -684,7 +684,7 @@ export default function ProfileDetailPage() {
   if (loadingCircle) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="font-sora text-xl" style={{ color: '#8EB69B' }}>Loading circle…</p>
+        <p className="font-sora text-xl" style={{ color: 'var(--c-4)' }}>Loading circle…</p>
       </div>
     )
   }
@@ -693,14 +693,14 @@ export default function ProfileDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <p className="font-sora text-xl mb-4" style={{ color: '#8EB69B' }}>Profile not found.</p>
+          <p className="font-sora text-xl mb-4" style={{ color: 'var(--c-4)' }}>Profile not found.</p>
           <button onClick={() => navigate('/profiles')} className="btn-primary">Back to Profiles</button>
         </div>
       </div>
     )
   }
 
-  const typeColor  = TYPE_COLORS[circle.circleType] || '#DAF1DE'
+  const typeColor  = TYPE_COLORS[circle.circleType] || 'var(--c-5)'
   const memberList = members || []
   const fileList   = files || []
   const isAdmin    = !!isMember && memberList.some(
@@ -722,7 +722,7 @@ export default function ProfileDetailPage() {
           <button
             onClick={() => navigate('/profiles')}
             className="text-xs font-inter mb-4 inline-flex items-center gap-1 transition-opacity hover:opacity-70"
-            style={{ color: '#8EB69B' }}
+            style={{ color: 'var(--c-4)' }}
           >
             ← Back to circles
           </button>
@@ -736,7 +736,7 @@ export default function ProfileDetailPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="font-sora font-bold text-2xl md:text-3xl" style={{ color: '#DAF1DE' }}>
+                <h1 className="font-sora font-bold text-2xl md:text-3xl" style={{ color: 'var(--c-5)' }}>
                   {circle.name}
                 </h1>
                 <span
@@ -747,7 +747,7 @@ export default function ProfileDetailPage() {
                 </span>
                 {!isMember && <span className="badge-cobalt text-xs">Not a member</span>}
               </div>
-              <p className="font-inter text-sm mt-1" style={{ color: '#8EB69B' }}>
+              <p className="font-inter text-sm mt-1" style={{ color: 'var(--c-4)' }}>
                 {circle.description}
               </p>
               <div className="flex items-center gap-4 mt-3 flex-wrap">
@@ -756,19 +756,19 @@ export default function ProfileDetailPage() {
                     <div
                       key={m.wallet || i}
                       className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-sora font-bold border-2"
-                      style={{ background: `hsl(${i * 60 + 200}, 40%, 25%)`, borderColor: 'rgba(13,5,7,0.8)', color: '#DAF1DE' }}
+                      style={{ background: `hsl(${i * 60 + 200}, 40%, 25%)`, borderColor: 'rgba(13,5,7,0.8)', color: 'var(--c-5)' }}
                     >
                       {(m.name || m.wallet || '?').charAt(0).toUpperCase()}
                     </div>
                   ))}
                 </div>
-                <span className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                <span className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                   {memberList.length} member{memberList.length !== 1 ? 's' : ''}
                 </span>
-                <span className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                <span className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                   Created {format(tsToDate(circle.createdAt), 'MMM yyyy')}
                 </span>
-                <span className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                <span className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                   {fileList.length} file{fileList.length !== 1 ? 's' : ''}
                 </span>
               </div>
@@ -780,7 +780,7 @@ export default function ProfileDetailPage() {
       {/* Tabs */}
       <div
         className="sticky top-16 z-30 px-6"
-        style={{ background: 'rgba(13,5,7,0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(218,241,222,0.08)' }}
+        style={{ background: 'rgba(13,5,7,0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(var(--c-5-rgb),0.08)' }}
       >
         <div className="max-w-6xl mx-auto flex overflow-x-auto">
           {TABS.map((tab) => (
@@ -789,8 +789,8 @@ export default function ProfileDetailPage() {
               onClick={() => setActiveTab(tab.id)}
               className="px-5 py-4 font-sora text-sm font-medium whitespace-nowrap transition-all relative"
               style={{
-                color:        activeTab === tab.id ? '#DAF1DE' : '#8EB69B',
-                borderBottom: activeTab === tab.id ? '2px solid #DAF1DE' : '2px solid transparent',
+                color:        activeTab === tab.id ? 'var(--c-5)' : 'var(--c-4)',
+                borderBottom: activeTab === tab.id ? '2px solid var(--c-5)' : '2px solid transparent',
               }}
             >
               {tab.label}

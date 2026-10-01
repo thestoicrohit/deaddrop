@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react'
+import { useAppStore } from '@/store/useAppStore'
+import { palette, tameForLight } from '@/lib/themePalette'
 
 /**
  * FlowingCanvas — dramatic live aurora / northern-lights background
@@ -14,7 +16,9 @@ export default function FlowingCanvas() {
   const canvasRef = useRef(null)
   const rafRef    = useRef(null)
 
+  const theme = useAppStore((s) => s.theme)
   useEffect(() => {
+    const P = palette(theme)
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -28,6 +32,7 @@ export default function FlowingCanvas() {
       canvas.width  = W * dpr
       canvas.height = H * dpr
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      tameForLight(ctx, P, 0.4) // resizing resets context state
     }
 
     const ctx = canvas.getContext('2d')
@@ -35,9 +40,9 @@ export default function FlowingCanvas() {
     window.addEventListener('resize', setSize)
 
     // ── Palette ──────────────────────────────────────────────────────────
-    const SAGE   = [142, 182, 155]
-    const MINT   = [218, 241, 222]
-    const FOREST = [35,  83,  71 ]
+    const SAGE   = P.sageArr
+    const MINT   = P.mintArr
+    const FOREST = P.forestArr
     const COLS   = [SAGE, MINT, SAGE, FOREST, MINT, SAGE, FOREST]
 
     // ── Layer 1: Aurora ribbon bands ─────────────────────────────────────
@@ -193,7 +198,7 @@ export default function FlowingCanvas() {
       cancelAnimationFrame(rafRef.current)
       window.removeEventListener('resize', setSize)
     }
-  }, [])
+  }, [theme])
 
   return (
     <canvas

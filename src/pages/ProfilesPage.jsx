@@ -15,11 +15,11 @@ import SideDecorCanvas from '@/components/ui/SideDecorCanvas'
 import { DEMO_CIRCLES, DEMO_NOTICE } from '@/lib/demoData'
 
 const TYPE_COLORS = {
-  Family:     '#DAF1DE',
-  Friends:    '#8EB69B',
+  Family:     'var(--c-5)',
+  Friends:    'var(--c-4)',
   University: '#4a9e6a',
   Work:       '#D1601F',
-  Custom:     '#8EB69B',
+  Custom:     'var(--c-4)',
 }
 
 const TYPE_RGB = {
@@ -43,8 +43,8 @@ function AvatarStack({ members }) {
           className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-sora font-bold border-2 relative"
           style={{
             background: `hsl(${i * 60 + 140}, 35%, 28%)`,
-            borderColor: 'rgba(5,31,32,0.9)',
-            color: '#DAF1DE',
+            borderColor: 'rgba(var(--c-0-rgb),0.9)',
+            color: 'var(--c-5)',
             zIndex: members.length - i,
           }}
         >
@@ -54,7 +54,7 @@ function AvatarStack({ members }) {
       {members.length > 4 && (
         <div
           className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-inter border-2"
-          style={{ background: 'rgba(11,43,38,0.7)', borderColor: 'rgba(5,31,32,0.9)', color: '#8EB69B' }}
+          style={{ background: 'rgba(var(--c-1-rgb),0.7)', borderColor: 'rgba(var(--c-0-rgb),0.9)', color: 'var(--c-4)' }}
         >
           +{members.length - 4}
         </div>
@@ -112,7 +112,7 @@ function ProfileCard({ circle, fileCount, memoryCount, lastActivityTs, onClick, 
         <div className="absolute top-3 right-3 z-20">
           <motion.button
             className="w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-            style={{ background: 'rgba(5,31,32,0.85)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.18)', fontSize: '11px' }}
+            style={{ background: 'rgba(var(--c-0-rgb),0.85)', color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.18)', fontSize: '11px' }}
             onClick={(e) => { e.stopPropagation(); onEdit(circle) }}
             title="Edit circle"
           >
@@ -125,7 +125,7 @@ function ProfileCard({ circle, fileCount, memoryCount, lastActivityTs, onClick, 
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>
+              <h3 className="font-sora font-semibold text-base" style={{ color: 'var(--c-5)' }}>
                 {circle.name}
               </h3>
             </div>
@@ -141,20 +141,20 @@ function ProfileCard({ circle, fileCount, memoryCount, lastActivityTs, onClick, 
             </span>
           </div>
           <div className="text-right">
-            <div className="font-inter text-xs" style={{ color: '#8EB69B' }}>{fileCount} files</div>
-            <div className="font-inter text-xs" style={{ color: '#8EB69B' }}>{memoryCount} memories</div>
+            <div className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>{fileCount} files</div>
+            <div className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>{memoryCount} memories</div>
           </div>
         </div>
 
-        <p className="font-inter text-sm mb-4 line-clamp-2" style={{ color: '#8EB69B' }}>
+        <p className="font-inter text-sm mb-4 line-clamp-2" style={{ color: 'var(--c-4)' }}>
           {circle.description}
         </p>
 
         <div className="flex items-center justify-between">
           <AvatarStack members={memberList} />
           <div className="text-right">
-            <div className="font-inter text-xs" style={{ color: '#8EB69B' }}>Last active</div>
-            <div className="font-inter text-xs capitalize" style={{ color: '#DAF1DE' }}>
+            <div className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>Last active</div>
+            <div className="font-inter text-xs capitalize" style={{ color: 'var(--c-5)' }}>
               {lastActiveLabel}
             </div>
           </div>
@@ -187,7 +187,7 @@ function CreateProfileModal({ onClose, circles }) {
     >
       <div
         className="absolute inset-0"
-        style={{ background: 'rgba(5,31,32,0.88)', backdropFilter: 'blur(12px)' }}
+        style={{ background: 'rgba(var(--c-0-rgb),0.88)', backdropFilter: 'blur(12px)' }}
         onClick={onClose}
       />
       <motion.div
@@ -197,13 +197,13 @@ function CreateProfileModal({ onClose, circles }) {
         exit={{ scale: 0.88, opacity: 0, y: 20 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       >
-        <h2 className="font-sora font-bold text-xl mb-6" style={{ color: '#DAF1DE' }}>
+        <h2 className="font-sora font-bold text-xl mb-6" style={{ color: 'var(--c-5)' }}>
           Create a new circle
         </h2>
 
         <div className="space-y-4">
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Circle Name</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Circle Name</label>
             <input
               className="vault-input"
               placeholder="e.g. Sharma Family"
@@ -215,7 +215,7 @@ function CreateProfileModal({ onClose, circles }) {
           </div>
 
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Your Name (visible to members)</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Your Name (visible to members)</label>
             <input
               className="vault-input"
               placeholder="e.g. Rohit"
@@ -226,7 +226,7 @@ function CreateProfileModal({ onClose, circles }) {
           </div>
 
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Description (optional)</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Description (optional)</label>
             <input
               className="vault-input"
               placeholder="What's this circle for?"
@@ -236,7 +236,7 @@ function CreateProfileModal({ onClose, circles }) {
           </div>
 
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Type</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Type</label>
             <div className="grid grid-cols-2 gap-2">
               {Object.entries(TYPE_COLORS).map(([t, c]) => (
                 <button
@@ -244,9 +244,9 @@ function CreateProfileModal({ onClose, circles }) {
                   onClick={() => setType(t)}
                   className="py-2 px-4 rounded-lg text-sm font-sora font-semibold transition-all"
                   style={{
-                    background: type === t ? `rgba(${TYPE_RGB[t]},0.15)` : 'rgba(11,43,38,0.12)',
-                    border: `1px solid ${type === t ? c : 'rgba(218,241,222,0.1)'}`,
-                    color: type === t ? c : '#8EB69B',
+                    background: type === t ? `rgba(${TYPE_RGB[t]},0.15)` : 'rgba(var(--c-1-rgb),0.12)',
+                    border: `1px solid ${type === t ? c : 'rgba(var(--c-5-rgb),0.1)'}`,
+                    color: type === t ? c : 'var(--c-4)',
                   }}
                 >
                   {t}
@@ -280,27 +280,27 @@ function EditProfileModal({ circle, onClose, circles }) {
 
   return (
     <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0" style={{ background: 'rgba(5,31,32,0.88)', backdropFilter: 'blur(12px)' }} onClick={onClose} />
+      <div className="absolute inset-0" style={{ background: 'rgba(var(--c-0-rgb),0.88)', backdropFilter: 'blur(12px)' }} onClick={onClose} />
       <motion.div className="glass-card p-8 w-full max-w-md relative z-10"
         initial={{ scale: 0.88, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.88, opacity: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}>
-        <h2 className="font-sora font-bold text-xl mb-6" style={{ color: '#DAF1DE' }}>Edit circle</h2>
+        <h2 className="font-sora font-bold text-xl mb-6" style={{ color: 'var(--c-5)' }}>Edit circle</h2>
         <div className="space-y-4">
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Circle Name</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Circle Name</label>
             <input className="vault-input" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSave()} autoFocus />
           </div>
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Description</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Description</label>
             <input className="vault-input" value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Type</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Type</label>
             <div className="grid grid-cols-2 gap-2">
               {Object.entries(TYPE_COLORS).map(([t, c]) => (
                 <button key={t} onClick={() => setType(t)}
                   className="py-2 px-4 rounded-lg text-sm font-sora font-semibold transition-all"
-                  style={{ background: type === t ? `rgba(${TYPE_RGB[t]},0.15)` : 'rgba(11,43,38,0.12)', border: `1px solid ${type === t ? c : 'rgba(218,241,222,0.1)'}`, color: type === t ? c : '#8EB69B' }}>
+                  style={{ background: type === t ? `rgba(${TYPE_RGB[t]},0.15)` : 'rgba(var(--c-1-rgb),0.12)', border: `1px solid ${type === t ? c : 'rgba(var(--c-5-rgb),0.1)'}`, color: type === t ? c : 'var(--c-4)' }}>
                   {t}
                 </button>
               ))}
@@ -341,7 +341,7 @@ function JoinModal({ onClose, circles }) {
     >
       <div
         className="absolute inset-0"
-        style={{ background: 'rgba(5,31,32,0.88)', backdropFilter: 'blur(12px)' }}
+        style={{ background: 'rgba(var(--c-0-rgb),0.88)', backdropFilter: 'blur(12px)' }}
         onClick={onClose}
       />
       <motion.div
@@ -351,12 +351,12 @@ function JoinModal({ onClose, circles }) {
         exit={{ scale: 0.88, opacity: 0, y: 20 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       >
-        <h2 className="font-sora font-bold text-xl mb-6" style={{ color: '#DAF1DE' }}>
+        <h2 className="font-sora font-bold text-xl mb-6" style={{ color: 'var(--c-5)' }}>
           Join a circle
         </h2>
         <div className="space-y-4">
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>
               Circle ID
             </label>
             <input
@@ -369,7 +369,7 @@ function JoinModal({ onClose, circles }) {
             />
           </div>
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>
               Your Name
             </label>
             <input
@@ -478,15 +478,15 @@ export default function ProfilesPage() {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: '#8EB69B' }} />
-              <span className="font-inter text-xs uppercase tracking-widest" style={{ color: '#8EB69B' }}>
+              <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: 'var(--c-4)' }} />
+              <span className="font-inter text-xs uppercase tracking-widest" style={{ color: 'var(--c-4)' }}>
                 Legacy Circles
               </span>
             </div>
             <h1 className="font-sora font-bold text-3xl md:text-4xl shimmer-text">
               {tr('profiles.title')}
             </h1>
-            <p className="font-inter text-sm mt-1" style={{ color: '#8EB69B' }}>
+            <p className="font-inter text-sm mt-1" style={{ color: 'var(--c-4)' }}>
               {isConnected ? `${owner.circles.length} active circle${owner.circles.length !== 1 ? 's' : ''} — encrypted & on-chain` : DEMO_NOTICE}
             </p>
           </motion.div>
@@ -500,7 +500,7 @@ export default function ProfilesPage() {
             <button
               onClick={() => { if (requireWallet("join a circle")) setShowJoin(true) }}
               className="btn-outline text-sm px-4 py-2 hidden sm:block"
-              style={{ color: '#8EB69B', borderColor: 'rgba(142,182,155,0.4)' }}
+              style={{ color: 'var(--c-4)', borderColor: 'rgba(var(--c-4-rgb),0.4)' }}
             >
               {tr('profiles.join')}
             </button>
@@ -513,12 +513,12 @@ export default function ProfilesPage() {
         {/* Grid */}
         {isConnected && owner.isLoading ? (
           <div className="text-center py-24">
-            <p className="font-sora text-lg" style={{ color: '#8EB69B' }}>Loading your circles…</p>
+            <p className="font-sora text-lg" style={{ color: 'var(--c-4)' }}>Loading your circles…</p>
           </div>
         ) : displayCircles.length === 0 ? (
           <motion.div className="text-center py-24" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="text-5xl mb-4">🏡</div>
-            <p className="font-sora text-lg" style={{ color: '#8EB69B' }}>
+            <p className="font-sora text-lg" style={{ color: 'var(--c-4)' }}>
               {tr('profiles.empty')}
             </p>
             <button onClick={() => { if (requireWallet("create a circle")) setShowCreate(true) }} className="btn-primary mt-6">
@@ -560,16 +560,16 @@ export default function ProfilesPage() {
               }}
               onClick={() => { if (requireWallet("create a circle")) setShowCreate(true) }}
               className="glass-card p-6 cursor-pointer flex flex-col items-center justify-center gap-3 group min-h-[180px]"
-              style={{ border: '2px dashed rgba(218,241,222,0.18)' }}
+              style={{ border: '2px dashed rgba(var(--c-5-rgb),0.18)' }}
             >
               <motion.span
                 className="text-3xl transition-transform"
-                style={{ color: '#8EB69B', opacity: 0.45 }}
+                style={{ color: 'var(--c-4)', opacity: 0.45 }}
                 whileHover={{ opacity: 0.85, scale: 1.15 }}
               >
                 +
               </motion.span>
-              <span className="font-sora text-sm" style={{ color: '#8EB69B' }}>New circle</span>
+              <span className="font-sora text-sm" style={{ color: 'var(--c-4)' }}>New circle</span>
             </motion.div>
           </div>
         )}

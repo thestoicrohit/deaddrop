@@ -102,14 +102,14 @@ function VerificationStep({ onVerify }) {
     <div className="text-center space-y-6">
       <div
         className="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl"
-        style={{ background: 'rgba(11,43,38,0.3)', border: '2px solid rgba(218,241,222,0.2)' }}
+        style={{ background: 'rgba(var(--c-1-rgb),0.3)', border: '2px solid rgba(var(--c-5-rgb),0.2)' }}
       >
         🕊️
       </div>
 
       {!checked ? (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+          <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
             Enter the wallet address of the person who left you their legacy.
           </p>
           <input
@@ -133,9 +133,9 @@ function VerificationStep({ onVerify }) {
           <motion.div
             animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
             className="w-10 h-10 rounded-full border-2"
-            style={{ borderColor: '#8EB69B', borderTopColor: 'transparent' }}
+            style={{ borderColor: 'var(--c-4)', borderTopColor: 'transparent' }}
           />
-          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>Querying Sepolia…</p>
+          <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>Querying Sepolia…</p>
         </motion.div>
       ) : (
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-4">
@@ -149,16 +149,16 @@ function VerificationStep({ onVerify }) {
                   <div
                     className="px-3 py-1 rounded-full text-xs font-inter"
                     style={{
-                      background: vaultState === 1 ? 'rgba(209,96,31,0.15)' : 'rgba(142,182,155,0.1)',
-                      color:      vaultState === 1 ? '#D1601F' : '#8EB69B',
-                      border:     `1px solid ${vaultState === 1 ? 'rgba(209,96,31,0.3)' : 'rgba(142,182,155,0.2)'}`,
+                      background: vaultState === 1 ? 'rgba(209,96,31,0.15)' : 'rgba(var(--c-4-rgb),0.1)',
+                      color:      vaultState === 1 ? '#D1601F' : 'var(--c-4)',
+                      border:     `1px solid ${vaultState === 1 ? 'rgba(209,96,31,0.3)' : 'rgba(var(--c-4-rgb),0.2)'}`,
                     }}
                   >
                     State: {stateName || 'Unknown'}
                   </div>
                   {info?.depositedETH > 0n && (
                     <div className="px-3 py-1 rounded-full text-xs font-inter"
-                      style={{ background: 'rgba(142,182,155,0.1)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.2)' }}>
+                      style={{ background: 'rgba(var(--c-4-rgb),0.1)', color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.2)' }}>
                       {parseFloat(formatEther(info.depositedETH)).toFixed(4)} ETH locked
                     </div>
                   )}
@@ -171,12 +171,12 @@ function VerificationStep({ onVerify }) {
                 </p>
               )}
               {vaultState === 1 && (
-                <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                   This vault is in its grace period. The owner can still cancel by pinging.
                 </p>
               )}
               {vaultState === 2 && (
-                <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                   This legacy has been released. Continue to withdraw any share credited to your wallet.
                 </p>
               )}
@@ -201,7 +201,7 @@ function VerificationStep({ onVerify }) {
                 <p className="font-inter text-sm" style={{ color: '#D1601F' }}>
                   No vault found for {ownerAddr.slice(0, 8)}…{ownerAddr.slice(-6)} on Sepolia.
                 </p>
-                <p className="font-inter text-xs mt-1" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                <p className="font-inter text-xs mt-1" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
                   The owner may not have deployed their vault on-chain yet.
                 </p>
               </div>
@@ -271,22 +271,22 @@ function MemoryPortrait({ ownerAddr, circles, capsules, safeEntries, info, cids,
   const text = isLoading ? null : generatePortrait(ownerAddr, circles, capsules, safeEntries, info, cids)
 
   return (
-    <div className="glass-card p-6" style={{ borderColor: 'rgba(142,182,155,0.3)' }}>
+    <div className="glass-card p-6" style={{ borderColor: 'rgba(var(--c-4-rgb),0.3)' }}>
       <div className="flex items-center gap-3 mb-4">
         <span className="badge-cobalt">AI Memory Portrait</span>
-        <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>Generated from on-chain data</span>
+        <span className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>Generated from on-chain data</span>
       </div>
       {isLoading ? (
         <div className="flex items-center gap-2">
           <motion.div
             animate={{ rotate: 360 }} transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
             className="w-4 h-4 rounded-full border-2 border-t-transparent flex-shrink-0"
-            style={{ borderColor: '#8EB69B', borderTopColor: 'transparent' }}
+            style={{ borderColor: 'var(--c-4)', borderTopColor: 'transparent' }}
           />
-          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>Reading on-chain data…</p>
+          <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>Reading on-chain data…</p>
         </div>
       ) : (
-        <p className="font-inter text-sm leading-relaxed" style={{ color: '#DAF1DE' }}>
+        <p className="font-inter text-sm leading-relaxed" style={{ color: 'var(--c-5)' }}>
           "{text}"
         </p>
       )}
@@ -384,10 +384,10 @@ function ReleasePortal({ ownerAddr }) {
       {/* Header */}
       <div className="text-center">
         <div className="text-5xl mb-4">🕊️</div>
-        <h2 className="font-sora font-bold text-2xl mb-2" style={{ color: '#DAF1DE' }}>
+        <h2 className="font-sora font-bold text-2xl mb-2" style={{ color: 'var(--c-5)' }}>
           They left this for you.
         </h2>
-        <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+        <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
           From: {shortOwner}
           <br />Retrieved: {format(new Date(), 'dd MMMM yyyy')}
         </p>
@@ -396,17 +396,17 @@ function ReleasePortal({ ownerAddr }) {
       {/* On-chain status */}
       {info && (
         <div className="glass-card p-4 flex items-center gap-3 flex-wrap"
-          style={{ borderColor: 'rgba(142,182,155,0.2)' }}>
+          style={{ borderColor: 'rgba(var(--c-4-rgb),0.2)' }}>
           <div className="w-2.5 h-2.5 rounded-full shrink-0"
-            style={{ background: Number(info.state) === 1 ? '#D1601F' : Number(info.state) === 2 ? '#4a9e6a' : '#8EB69B' }} />
-          <span className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+            style={{ background: Number(info.state) === 1 ? '#D1601F' : Number(info.state) === 2 ? '#4a9e6a' : 'var(--c-4)' }} />
+          <span className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
             Contract state:{' '}
-            <span style={{ color: '#DAF1DE' }}>
+            <span style={{ color: 'var(--c-5)' }}>
               {Number(info.state) === 0 ? 'Active' : Number(info.state) === 1 ? 'Grace Period' : 'Released'}
             </span>
           </span>
           {depositedETH > 0n && (
-            <span className="font-inter text-sm ml-auto" style={{ color: '#DAF1DE' }}>
+            <span className="font-inter text-sm ml-auto" style={{ color: 'var(--c-5)' }}>
               {ethDisplay} ETH locked
             </span>
           )}
@@ -428,8 +428,8 @@ function ReleasePortal({ ownerAddr }) {
         ].map((s, i) => (
           <div key={i} className="glass-card p-4 text-center">
             <div className="text-2xl mb-1">{s.icon}</div>
-            <div className="font-sora font-bold text-xl" style={{ color: '#DAF1DE' }}>{s.value}</div>
-            <div className="font-inter text-xs" style={{ color: '#8EB69B' }}>{s.label}</div>
+            <div className="font-sora font-bold text-xl" style={{ color: 'var(--c-5)' }}>{s.value}</div>
+            <div className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -448,23 +448,23 @@ function ReleasePortal({ ownerAddr }) {
       {/* Circles */}
       {(loadingCircles ? true : circles.length > 0) && (
         <div>
-          <h3 className="font-sora font-semibold text-lg mb-4" style={{ color: '#DAF1DE' }}>Legacy Circles</h3>
+          <h3 className="font-sora font-semibold text-lg mb-4" style={{ color: 'var(--c-5)' }}>Legacy Circles</h3>
           {loadingCircles ? (
-            <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>Loading circles…</p>
+            <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>Loading circles…</p>
           ) : (
             <div className="space-y-3">
               {circles.map((circle) => (
                 <div key={circle.id} className="glass-card p-4 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
-                    style={{ background: 'rgba(11,43,38,0.4)' }}>
+                    style={{ background: 'rgba(var(--c-1-rgb),0.4)' }}>
                     🌐
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>{circle.name}</h4>
+                    <h4 className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>{circle.name}</h4>
                     {circle.description && (
-                      <p className="font-inter text-xs mt-0.5 truncate" style={{ color: '#8EB69B' }}>{circle.description}</p>
+                      <p className="font-inter text-xs mt-0.5 truncate" style={{ color: 'var(--c-4)' }}>{circle.description}</p>
                     )}
-                    <p className="font-inter text-xs mt-1" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                    <p className="font-inter text-xs mt-1" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
                       {circle.memberCount?.toString() ?? '0'} members · {circle.files?.length ?? 0} files
                     </p>
                   </div>
@@ -478,9 +478,9 @@ function ReleasePortal({ ownerAddr }) {
       {/* Memory Capsules */}
       {(loadingCapsules ? true : capsules.length > 0) && (
         <div>
-          <h3 className="font-sora font-semibold text-lg mb-4" style={{ color: '#DAF1DE' }}>Memory Capsules</h3>
+          <h3 className="font-sora font-semibold text-lg mb-4" style={{ color: 'var(--c-5)' }}>Memory Capsules</h3>
           {loadingCapsules ? (
-            <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>Loading capsules…</p>
+            <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>Loading capsules…</p>
           ) : (
             <div className="space-y-3">
               {capsules.map((capsule, i) => (
@@ -493,17 +493,17 @@ function ReleasePortal({ ownerAddr }) {
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl"
-                      style={{ background: 'rgba(11,43,38,0.4)' }}>
+                      style={{ background: 'rgba(var(--c-1-rgb),0.4)' }}>
                       {CAPSULE_ICON[capsule.capsuleType] || '🌸'}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>{capsule.title}</h4>
+                      <h4 className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>{capsule.title}</h4>
                       {capsule.contentPreview && (
-                        <p className="font-inter text-xs mt-0.5 truncate" style={{ color: '#8EB69B' }}>{capsule.contentPreview}</p>
+                        <p className="font-inter text-xs mt-0.5 truncate" style={{ color: 'var(--c-4)' }}>{capsule.contentPreview}</p>
                       )}
-                      <span className="text-xs mt-1" style={{ color: 'rgba(142,182,155,0.4)' }}>{capsule.capsuleType}</span>
+                      <span className="text-xs mt-1" style={{ color: 'rgba(var(--c-4-rgb),0.4)' }}>{capsule.capsuleType}</span>
                     </div>
-                    <span style={{ color: '#8EB69B' }}>{openCapsule === capsule.id ? '▲' : '▼'}</span>
+                    <span style={{ color: 'var(--c-4)' }}>{openCapsule === capsule.id ? '▲' : '▼'}</span>
                   </div>
                   <AnimatePresence>
                     {openCapsule === capsule.id && capsule.contentPreview && (
@@ -511,8 +511,8 @@ function ReleasePortal({ ownerAddr }) {
                         initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }} className="overflow-hidden"
                       >
-                        <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(218,241,222,0.1)' }}>
-                          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>{capsule.contentPreview}</p>
+                        <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(var(--c-5-rgb),0.1)' }}>
+                          <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>{capsule.contentPreview}</p>
                         </div>
                       </motion.div>
                     )}
@@ -527,11 +527,11 @@ function ReleasePortal({ ownerAddr }) {
       {/* Safe entries (count only — contents are encrypted) */}
       {safeEntries?.length > 0 && (
         <div className="glass-card p-4 flex items-center gap-3"
-          style={{ borderColor: 'rgba(142,182,155,0.2)' }}>
+          style={{ borderColor: 'rgba(var(--c-4-rgb),0.2)' }}>
           <span className="text-2xl">🔒</span>
           <div>
-            <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>Private Safe</p>
-            <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+            <p className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>Private Safe</p>
+            <p className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
               {safeEntries.length} encrypted entr{safeEntries.length === 1 ? 'y' : 'ies'} — decryption requires owner's key.
             </p>
           </div>
@@ -540,23 +540,23 @@ function ReleasePortal({ ownerAddr }) {
 
       {/* Final message CID hint */}
       {cids?.finalMessageCID && (
-        <div className="glass-card p-6" style={{ borderColor: 'rgba(142,182,155,0.25)' }}>
+        <div className="glass-card p-6" style={{ borderColor: 'rgba(var(--c-4-rgb),0.25)' }}>
           <div className="flex items-center gap-2 mb-3">
             <span className="text-xl">💌</span>
-            <h3 className="font-sora font-semibold" style={{ color: '#DAF1DE' }}>Final Message</h3>
+            <h3 className="font-sora font-semibold" style={{ color: 'var(--c-5)' }}>Final Message</h3>
           </div>
-          <p className="font-inter text-sm mb-3" style={{ color: '#8EB69B' }}>
+          <p className="font-inter text-sm mb-3" style={{ color: 'var(--c-4)' }}>
             An encrypted final message is stored on IPFS. Decryption requires the key derived from the owner's wallet signature.
           </p>
-          <p className="font-mono text-xs truncate" style={{ color: 'rgba(142,182,155,0.4)' }}>
+          <p className="font-mono text-xs truncate" style={{ color: 'rgba(var(--c-4-rgb),0.4)' }}>
             CID: {cids.finalMessageCID}
           </p>
         </div>
       )}
 
       {/* Claim ETH — two-step pull-payment flow: release → withdraw */}
-      <div className="glass-card p-6 text-center" style={{ borderColor: 'rgba(142,182,155,0.3)' }}>
-        <h3 className="font-sora font-bold text-xl mb-2" style={{ color: '#8EB69B' }}>Claim ETH from vault</h3>
+      <div className="glass-card p-6 text-center" style={{ borderColor: 'rgba(var(--c-4-rgb),0.3)' }}>
+        <h3 className="font-sora font-bold text-xl mb-2" style={{ color: 'var(--c-4)' }}>Claim ETH from vault</h3>
 
         {/* Withdrawal complete */}
         {lastAction === 'withdraw' && isTxDone && pending === 0n ? (
@@ -565,7 +565,7 @@ function ReleasePortal({ ownerAddr }) {
             <p className="font-sora font-semibold" style={{ color: '#4a9e6a' }}>Withdrawal complete. Check your wallet.</p>
             {txHash && (
               <a href={`https://sepolia.etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
-                className="font-inter text-xs underline" style={{ color: '#8EB69B' }}>
+                className="font-inter text-xs underline" style={{ color: 'var(--c-4)' }}>
                 View on Etherscan ↗
               </a>
             )}
@@ -574,8 +574,8 @@ function ReleasePortal({ ownerAddr }) {
         /* Step 2 — funds credited to this wallet, ready to pull */
         ) : pending > 0n ? (
           <div className="flex flex-col items-center gap-3">
-            <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
-              Your share of <span style={{ color: '#DAF1DE' }}>{pendingDisplay} ETH</span> has been released and is
+            <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
+              Your share of <span style={{ color: 'var(--c-5)' }}>{pendingDisplay} ETH</span> has been released and is
               waiting for you. Withdraw it to your wallet — this pulls only your share, so no other beneficiary can block you.
             </p>
             <button
@@ -589,7 +589,7 @@ function ReleasePortal({ ownerAddr }) {
             </button>
             {txHash && (
               <a href={`https://sepolia.etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
-                className="font-inter text-xs underline" style={{ color: '#8EB69B' }}>
+                className="font-inter text-xs underline" style={{ color: 'var(--c-4)' }}>
                 View transaction ↗
               </a>
             )}
@@ -597,7 +597,7 @@ function ReleasePortal({ ownerAddr }) {
 
         /* Already released, but nothing credited to this wallet */
         ) : isReleased ? (
-          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+          <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
             This legacy has already been released. No ETH is credited to your wallet to withdraw.
           </p>
 
@@ -605,12 +605,12 @@ function ReleasePortal({ ownerAddr }) {
         ) : (
           <>
             {depositedETH > 0n ? (
-              <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+              <p className="font-inter text-sm mb-4" style={{ color: 'var(--c-4)' }}>
                 {ethDisplay} ETH locked on Sepolia. Releasing credits each beneficiary's share on-chain; you then
                 withdraw your own share in a second step.
               </p>
             ) : (
-              <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+              <p className="font-inter text-sm mb-4" style={{ color: 'var(--c-4)' }}>
                 No ETH deposited in this vault.
               </p>
             )}
@@ -627,7 +627,7 @@ function ReleasePortal({ ownerAddr }) {
                 <p className="font-inter text-xs" style={{ color: '#D1601F' }}>⚠ Grace period has not ended yet.</p>
               )}
               {info?.multiSig && (
-                <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
                   🔐 Multi-sig is enabled — release requires confirmations from two beneficiaries.
                 </p>
               )}
@@ -640,7 +640,7 @@ function ReleasePortal({ ownerAddr }) {
               </button>
               {txHash && (
                 <a href={`https://sepolia.etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
-                  className="font-inter text-xs underline" style={{ color: '#8EB69B' }}>
+                  className="font-inter text-xs underline" style={{ color: 'var(--c-4)' }}>
                   View transaction ↗
                 </a>
               )}
@@ -670,10 +670,10 @@ export default function ClaimPage() {
             className="glass-card p-8"
           >
             <div className="text-center mb-8">
-              <h1 className="font-sora font-bold text-2xl mb-2" style={{ color: '#DAF1DE' }}>
+              <h1 className="font-sora font-bold text-2xl mb-2" style={{ color: 'var(--c-5)' }}>
                 {tr('claim.title')}
               </h1>
-              <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+              <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                 {tr('claim.subtitle')}
               </p>
             </div>

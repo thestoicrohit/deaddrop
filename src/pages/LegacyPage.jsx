@@ -35,11 +35,11 @@ function SectionCard({ title, icon, children, delay = 0 }) {
       <div className="flex items-center gap-3 mb-5">
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-          style={{ background: 'rgba(142,182,155,0.1)', border: '1px solid rgba(142,182,155,0.18)' }}
+          style={{ background: 'rgba(var(--c-4-rgb),0.1)', border: '1px solid rgba(var(--c-4-rgb),0.18)' }}
         >
           {icon}
         </div>
-        <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>{title}</h2>
+        <h2 className="font-sora font-semibold text-base" style={{ color: 'var(--c-5)' }}>{title}</h2>
       </div>
       {children}
     </motion.div>
@@ -52,7 +52,7 @@ function TxBadge({ isPending, isConfirming, txHash }) {
     <motion.div
       initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
       className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-inter"
-      style={{ background: 'rgba(142,182,155,0.1)', border: '1px solid rgba(142,182,155,0.2)', color: '#8EB69B' }}
+      style={{ background: 'rgba(var(--c-4-rgb),0.1)', border: '1px solid rgba(var(--c-4-rgb),0.2)', color: 'var(--c-4)' }}
     >
       {(isPending || isConfirming) ? (
         <>
@@ -273,13 +273,13 @@ export default function LegacyPage() {
           className="mb-8"
         >
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: '#8EB69B' }} />
-            <span className="font-inter text-xs uppercase tracking-widest" style={{ color: '#8EB69B' }}>
+            <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: 'var(--c-4)' }} />
+            <span className="font-inter text-xs uppercase tracking-widest" style={{ color: 'var(--c-4)' }}>
               {isConnected ? 'Ethereum Sepolia' : 'Wallet not connected'}
             </span>
           </div>
           <h1 className="font-sora font-bold text-3xl shimmer-text mb-2">{tr('legacy.title')}</h1>
-          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+          <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
             {isConnected
               ? 'Your legacy is recorded on Ethereum Sepolia. Every save is a real transaction.'
               : 'Connect your wallet to create and manage your on-chain legacy vault.'}
@@ -297,10 +297,10 @@ export default function LegacyPage() {
                 <div className="flex items-start gap-4">
                   <span className="text-2xl">⛓️</span>
                   <div className="flex-1">
-                    <h3 className="font-sora font-semibold text-base mb-1" style={{ color: '#DAF1DE' }}>
+                    <h3 className="font-sora font-semibold text-base mb-1" style={{ color: 'var(--c-5)' }}>
                       Register your vault on-chain
                     </h3>
-                    <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+                    <p className="font-inter text-sm mb-4" style={{ color: 'var(--c-4)' }}>
                       This one-time transaction registers your address on the DeadDropVault contract on Sepolia.
                       After this, all legacy settings are stored immutably on Ethereum.
                     </p>
@@ -331,13 +331,13 @@ export default function LegacyPage() {
                 style={{ background: 'rgba(74,158,106,0.08)', border: '1px solid rgba(74,158,106,0.2)' }}
               >
                 <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse shrink-0" />
-                <span className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                <span className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                   Vault registered on Sepolia ·{' '}
-                  <span style={{ color: '#DAF1DE' }}>
+                  <span style={{ color: 'var(--c-5)' }}>
                     {address?.slice(0, 6)}…{address?.slice(-4)}
                   </span>
                   {dd.depositedETH > 0n && (
-                    <> · <span style={{ color: '#DAF1DE' }}>{depositedETHFmt} ETH</span> deposited</>
+                    <> · <span style={{ color: 'var(--c-5)' }}>{depositedETHFmt} ETH</span> deposited</>
                   )}
                 </span>
                 {dd.txHash && (
@@ -346,7 +346,7 @@ export default function LegacyPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-auto text-xs font-inter transition-opacity hover:opacity-70 shrink-0"
-                    style={{ color: '#8EB69B' }}
+                    style={{ color: 'var(--c-4)' }}
                   >
                     View tx ↗
                   </a>
@@ -358,7 +358,7 @@ export default function LegacyPage() {
 
               {/* Inactivity threshold */}
               <SectionCard title="Inactivity Threshold" icon="⏳" delay={0.05}>
-                <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-sm mb-4" style={{ color: 'var(--c-4)' }}>
                   After this period of inactivity, the grace period begins.
                 </p>
                 <div className="flex gap-3 flex-wrap">
@@ -369,10 +369,10 @@ export default function LegacyPage() {
                       whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                       className="px-5 py-2 rounded-full font-sora text-sm font-semibold transition-all"
                       style={{
-                        background: threshold === t.value ? '#0B2B26' : 'rgba(11,43,38,0.2)',
-                        color:      threshold === t.value ? '#DAF1DE' : '#8EB69B',
-                        border:     `1px solid ${threshold === t.value ? 'rgba(218,241,222,0.4)' : 'rgba(218,241,222,0.1)'}`,
-                        boxShadow:  threshold === t.value ? '0 0 18px rgba(142,182,155,0.25)' : 'none',
+                        background: threshold === t.value ? 'var(--c-1)' : 'rgba(var(--c-1-rgb),0.2)',
+                        color:      threshold === t.value ? 'var(--c-5)' : 'var(--c-4)',
+                        border:     `1px solid ${threshold === t.value ? 'rgba(var(--c-5-rgb),0.4)' : 'rgba(var(--c-5-rgb),0.1)'}`,
+                        boxShadow:  threshold === t.value ? '0 0 18px rgba(var(--c-4-rgb),0.25)' : 'none',
                       }}
                     >
                       {t.label}
@@ -386,7 +386,7 @@ export default function LegacyPage() {
                 {(() => {
                   if (!hasOnChain) {
                     return (
-                      <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                      <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                         Create your on-chain vault above to start the inactivity clock.
                       </p>
                     )
@@ -397,18 +397,18 @@ export default function LegacyPage() {
                   const daysLeft      = nextPingDate ? Math.max(0, differenceInDays(nextPingDate, new Date())) : null
                   const totalDays     = dd.vaultInfo ? Math.max(1, Math.round(Number(dd.vaultInfo.inactivityThreshold) / 86400)) : 90
                   const pct           = daysLeft != null ? Math.min(1, daysLeft / totalDays) : 0
-                  const color         = daysLeft == null ? '#8EB69B' : daysLeft > 14 ? '#8EB69B' : daysLeft > 7 ? '#D1601F' : '#e05252'
+                  const color         = daysLeft == null ? 'var(--c-4)' : daysLeft > 14 ? 'var(--c-4)' : daysLeft > 7 ? '#D1601F' : '#e05252'
 
                   return (
                     <>
                       <div className="mb-5">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.7)' }}>Time until next required ping</span>
+                          <span className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.7)' }}>Time until next required ping</span>
                           <span className="font-sora font-bold text-sm" style={{ color }}>
                             {daysLeft === 0 ? 'Overdue!' : daysLeft != null ? `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left` : '—'}
                           </span>
                         </div>
-                        <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(142,182,155,0.1)' }}>
+                        <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(var(--c-4-rgb),0.1)' }}>
                           <motion.div
                             className="h-full rounded-full"
                             initial={{ width: 0 }}
@@ -431,13 +431,13 @@ export default function LegacyPage() {
 
                       <div className="grid grid-cols-2 gap-6 mb-4">
                         <div>
-                          <p className="font-inter text-xs mb-1" style={{ color: '#8EB69B' }}>Last ping</p>
-                          <p className="font-sora font-semibold" style={{ color: '#DAF1DE' }}>
+                          <p className="font-inter text-xs mb-1" style={{ color: 'var(--c-4)' }}>Last ping</p>
+                          <p className="font-sora font-semibold" style={{ color: 'var(--c-5)' }}>
                             {lastPingDate ? format(lastPingDate, 'dd MMM yyyy') : '—'}
                           </p>
                         </div>
                         <div>
-                          <p className="font-inter text-xs mb-1" style={{ color: '#8EB69B' }}>Next ping due</p>
+                          <p className="font-inter text-xs mb-1" style={{ color: 'var(--c-4)' }}>Next ping due</p>
                           <p className="font-sora font-semibold" style={{ color }}>
                             {nextPingDate ? format(nextPingDate, 'dd MMM yyyy') : '—'}
                           </p>
@@ -454,7 +454,7 @@ export default function LegacyPage() {
                         >
                           {dd.isPending ? 'Confirm in MetaMask…' : dd.isConfirming ? 'Confirming…' : "Ping — I'm here ✓"}
                         </motion.button>
-                        <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>→ sends a real Sepolia transaction</span>
+                        <span className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>→ sends a real Sepolia transaction</span>
                       </div>
                     </>
                   )
@@ -463,7 +463,7 @@ export default function LegacyPage() {
 
               {/* Beneficiaries */}
               <SectionCard title="Beneficiary Assignment" icon="🕊️" delay={0.15}>
-                <p className="font-inter text-xs mb-4" style={{ color: 'rgba(142,182,155,0.6)' }}>
+                <p className="font-inter text-xs mb-4" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>
                   Wallet addresses and shares are stored on-chain. Percentages must total 100%.
                 </p>
                 <div className="space-y-3">
@@ -496,7 +496,7 @@ export default function LegacyPage() {
                         <button
                           onClick={() => removeBeneficiary(i)}
                           className="text-sm px-2 transition-opacity hover:opacity-70 flex-shrink-0"
-                          style={{ color: '#8EB69B' }}
+                          style={{ color: 'var(--c-4)' }}
                         >✕</button>
                       </div>
                     </motion.div>
@@ -506,7 +506,7 @@ export default function LegacyPage() {
                     <button
                       onClick={addBeneficiary}
                       className="text-sm px-4 py-2 rounded-lg transition-all hover:opacity-90"
-                      style={{ background: 'rgba(142,182,155,0.12)', color: '#8EB69B' }}
+                      style={{ background: 'rgba(var(--c-4-rgb),0.12)', color: 'var(--c-4)' }}
                     >
                       + Add beneficiary
                     </button>
@@ -525,7 +525,7 @@ export default function LegacyPage() {
               {/* ETH Deposit */}
               {hasOnChain && (
                 <SectionCard title="Deposit ETH into Vault" icon="Ξ" delay={0.18}>
-                  <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+                  <p className="font-inter text-sm mb-4" style={{ color: 'var(--c-4)' }}>
                     ETH locked here is distributed to beneficiaries on legacy release. Use Sepolia test ETH.
                   </p>
                   <div className="flex items-center gap-3">
@@ -561,7 +561,7 @@ export default function LegacyPage() {
                       }}
                       disabled={dd.isPending || dd.isConfirming}
                       className="font-inter text-xs mt-2 underline disabled:opacity-50"
-                      style={{ color: '#8EB69B' }}
+                      style={{ color: 'var(--c-4)' }}
                     >
                       Withdraw the amount above back to my wallet
                     </button>
@@ -571,7 +571,7 @@ export default function LegacyPage() {
 
               {/* Grace period */}
               <SectionCard title="Grace Period" icon="⏱️" delay={0.2}>
-                <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-sm mb-4" style={{ color: 'var(--c-4)' }}>
                   After inactivity is detected, beneficiaries wait this many days before claiming.
                   You can still ping and cancel during this window.
                 </p>
@@ -580,9 +580,9 @@ export default function LegacyPage() {
                     type="range" min={7} max={60} value={gracePeriod}
                     onChange={(e) => setGracePeriod(Number(e.target.value))}
                     className="flex-1"
-                    style={{ accentColor: '#8EB69B' }}
+                    style={{ accentColor: 'var(--c-4)' }}
                   />
-                  <span className="font-sora font-bold text-xl w-16 text-center" style={{ color: '#DAF1DE' }}>
+                  <span className="font-sora font-bold text-xl w-16 text-center" style={{ color: 'var(--c-5)' }}>
                     {gracePeriod}d
                   </span>
                 </div>
@@ -592,23 +592,23 @@ export default function LegacyPage() {
               <SectionCard title="Multi-sig Release" icon="🔑" delay={0.25}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-inter text-sm" style={{ color: '#DAF1DE' }}>
+                    <p className="font-inter text-sm" style={{ color: 'var(--c-5)' }}>
                       Require 2 family members to confirm before release
                     </p>
-                    <p className="font-inter text-xs mt-1" style={{ color: '#8EB69B' }}>
+                    <p className="font-inter text-xs mt-1" style={{ color: 'var(--c-4)' }}>
                       Adds protection against fraudulent claims.
                     </p>
                   </div>
                   <button
                     onClick={() => setMultiSig(!multiSig)}
                     className="relative w-12 h-6 rounded-full transition-all duration-300 flex-shrink-0 ml-4"
-                    style={{ background: multiSig ? '#163832' : 'rgba(11,43,38,0.4)', border: '1px solid rgba(142,182,155,0.25)' }}
+                    style={{ background: multiSig ? 'var(--c-2)' : 'rgba(var(--c-1-rgb),0.4)', border: '1px solid rgba(var(--c-4-rgb),0.25)' }}
                   >
                     <motion.span
                       className="absolute top-1 w-4 h-4 rounded-full"
                       animate={{ left: multiSig ? '26px' : '4px' }}
                       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                      style={{ background: multiSig ? '#DAF1DE' : '#8EB69B' }}
+                      style={{ background: multiSig ? 'var(--c-5)' : 'var(--c-4)' }}
                     />
                   </button>
                 </div>
@@ -616,7 +616,7 @@ export default function LegacyPage() {
 
               {/* Encryption identity */}
               <SectionCard title="Encryption Identity" icon="🗝️" delay={0.28}>
-                <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-sm mb-4" style={{ color: 'var(--c-4)' }}>
                   Register a public encryption key so others — like the beneficiaries you list below — can
                   send you content (such as a final message) that only you can decrypt. This costs one
                   signature and one on-chain transaction, and never exposes your wallet's private key.
@@ -624,9 +624,9 @@ export default function LegacyPage() {
                 {keyReg.hasPublicKey ? (
                   <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(74,158,106,0.08)', border: '1px solid rgba(74,158,106,0.2)' }}>
                     <span className="text-lg">✓</span>
-                    <span className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                    <span className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                       Encryption key registered on-chain —{' '}
-                      <span style={{ color: '#DAF1DE' }}>others can now send you encrypted content.</span>
+                      <span style={{ color: 'var(--c-5)' }}>others can now send you encrypted content.</span>
                     </span>
                   </div>
                 ) : (
@@ -646,15 +646,15 @@ export default function LegacyPage() {
                 <div className="flex items-center gap-3 mb-3">
                   <span
                     className="w-3 h-3 rounded-full animate-pulse-dot"
-                    style={{ background: dd.isActive ? '#8EB69B' : dd.isGracePeriod ? '#D1601F' : '#235347' }}
+                    style={{ background: dd.isActive ? 'var(--c-4)' : dd.isGracePeriod ? '#D1601F' : 'var(--c-3)' }}
                   />
                   <span className="badge-cobalt">
                     {!hasOnChain ? 'No vault yet' : dd.isActive ? 'Active — clock running' : dd.isGracePeriod ? 'Grace period in progress' : dd.isReleased ? 'Released' : 'Unknown'}
                   </span>
                 </div>
-                <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
                   DeadDrop doesn't run a centralized monitoring bot. Once your inactivity threshold passes,{' '}
-                  <code className="px-1 rounded" style={{ background: 'rgba(142,182,155,0.1)' }}>triggerGracePeriod()</code>{' '}
+                  <code className="px-1 rounded" style={{ background: 'rgba(var(--c-4-rgb),0.1)' }}>triggerGracePeriod()</code>{' '}
                   becomes callable on-chain by anyone — a beneficiary, a friend, or your own scheduled script.
                   That's what keeps the system trustless: no party needs special permission to start the
                   countdown once the chain itself proves you've gone silent.
@@ -663,7 +663,7 @@ export default function LegacyPage() {
 
               {/* Final message */}
               <SectionCard title="Final Message" icon="💌" delay={0.35}>
-                <p className="font-inter text-sm mb-3" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-sm mb-3" style={{ color: 'var(--c-4)' }}>
                   Encrypted client-side and delivered to your beneficiaries when the legacy releases.
                   Only beneficiaries who've registered an encryption key (above) can decrypt it.
                 </p>
@@ -680,36 +680,36 @@ export default function LegacyPage() {
                   value={finalMessage}
                   onChange={(e) => setFinalMessage(e.target.value)}
                 />
-                <p className="font-inter text-xs mt-2" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                <p className="font-inter text-xs mt-2" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
                   {finalMessage.length} characters
                 </p>
               </SectionCard>
 
               {/* Emergency contact */}
               <SectionCard title="Emergency Contact" icon="🚨" delay={0.38}>
-                <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-sm mb-4" style={{ color: 'var(--c-4)' }}>
                   This person is called first when the grace period begins — before any formal claim.
                 </p>
                 {ecSaved ? (
                   <div className="flex items-center justify-between p-3 rounded-xl mb-3"
                     style={{ background: 'rgba(74,158,106,0.08)', border: '1px solid rgba(74,158,106,0.2)' }}>
                     <div>
-                      <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>{emergencyContact.name}</p>
-                      <p className="font-inter text-xs mt-0.5" style={{ color: '#8EB69B' }}>{emergencyContact.contact}</p>
+                      <p className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>{emergencyContact.name}</p>
+                      <p className="font-inter text-xs mt-0.5" style={{ color: 'var(--c-4)' }}>{emergencyContact.contact}</p>
                     </div>
                     <button onClick={() => setEcSaved(false)} className="text-xs px-3 py-1 rounded-lg"
-                      style={{ background: 'rgba(142,182,155,0.1)', color: '#8EB69B' }}>
+                      style={{ background: 'rgba(var(--c-4-rgb),0.1)', color: 'var(--c-4)' }}>
                       Edit
                     </button>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     <div>
-                      <label className="block font-inter text-xs mb-1.5" style={{ color: '#8EB69B' }}>Name</label>
+                      <label className="block font-inter text-xs mb-1.5" style={{ color: 'var(--c-4)' }}>Name</label>
                       <input className="vault-input text-sm" placeholder="e.g. Priya Sharma" value={ecName} onChange={(e) => setEcName(e.target.value)} />
                     </div>
                     <div>
-                      <label className="block font-inter text-xs mb-1.5" style={{ color: '#8EB69B' }}>Phone or email</label>
+                      <label className="block font-inter text-xs mb-1.5" style={{ color: 'var(--c-4)' }}>Phone or email</label>
                       <input className="vault-input text-sm" placeholder="e.g. +91 98765 43210" value={ecContact} onChange={(e) => setEcContact(e.target.value)} />
                     </div>
                     <button onClick={handleSaveEC} className="btn-primary text-sm">Save emergency contact</button>
@@ -724,7 +724,7 @@ export default function LegacyPage() {
                 className="flex items-center justify-between flex-wrap gap-4"
               >
                 <div>
-                  <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                  <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
                     {hasOnChain ? 'Sends one or more Sepolia transactions.' : 'Create your vault above to save settings on-chain.'}
                   </p>
                   <TxBadge isPending={dd.isPending} isConfirming={dd.isConfirming} txHash={dd.txHash} />

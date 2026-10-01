@@ -27,7 +27,7 @@ import FlowingCanvas from '@/components/ui/FlowingCanvas'
 
 const ORG_TYPES = [
   { type: 'University', icon: '🎓', description: 'Issue verified degree certificates and transcripts as NFTs. Students keep their credentials forever — no registrar required.', features: ['Degree NFTs', 'Transcript Verification', 'Student ID Hashing', 'Alumni Network'], color: '#4a9e6a', prefix: 'DEG' },
-  { type: 'Company',    icon: '🏢', description: 'Issue equity documents, offer letters, and employment records as tamper-proof NFTs. Permanent. Unforgeable.', features: ['Equity Docs NFT', 'Offer Letters', 'Employee Records', 'Board Resolutions'], color: '#8EB69B', prefix: 'EMP' },
+  { type: 'Company',    icon: '🏢', description: 'Issue equity documents, offer letters, and employment records as tamper-proof NFTs. Permanent. Unforgeable.', features: ['Equity Docs NFT', 'Offer Letters', 'Employee Records', 'Board Resolutions'], color: 'var(--c-4)', prefix: 'EMP' },
 ]
 
 const CRED_TYPES = {
@@ -104,18 +104,18 @@ function IssueCredentialModal({ orgType, credentials, onClose }) {
   if (!credentials.isVerifiedIssuer) {
     return (
       <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        <div className="absolute inset-0" style={{ background: 'rgba(5,31,32,0.9)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
+        <div className="absolute inset-0" style={{ background: 'rgba(var(--c-0-rgb),0.9)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
         <motion.div className="glass-card p-8 w-full max-w-md relative z-10 text-center" initial={{ scale: 0.88, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.88, opacity: 0 }} transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}>
           <span className="text-4xl block mb-3">🔒</span>
-          <h2 className="font-sora font-bold text-lg mb-2" style={{ color: '#DAF1DE' }}>Not a verified issuer</h2>
-          <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>
+          <h2 className="font-sora font-bold text-lg mb-2" style={{ color: 'var(--c-5)' }}>Not a verified issuer</h2>
+          <p className="font-inter text-sm mb-4" style={{ color: 'var(--c-4)' }}>
             Your connected wallet isn't verified to issue {orgType.toLowerCase()} credentials yet. Share your address with the contract admin and ask them to verify it from the admin panel below.
           </p>
-          <p className="font-inter text-xs font-mono break-all p-3 rounded-lg mb-2" style={{ background: 'rgba(11,43,38,0.4)', color: '#DAF1DE' }}>
+          <p className="font-inter text-xs font-mono break-all p-3 rounded-lg mb-2" style={{ background: 'rgba(var(--c-1-rgb),0.4)', color: 'var(--c-5)' }}>
             {address || '—'}
           </p>
           {credentials.adminAddress && (
-            <p className="font-inter text-xs mb-4" style={{ color: 'rgba(142,182,155,0.6)' }}>
+            <p className="font-inter text-xs mb-4" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>
               Current admin: {shortAddr(credentials.adminAddress)}
             </p>
           )}
@@ -127,38 +127,38 @@ function IssueCredentialModal({ orgType, credentials, onClose }) {
 
   return (
     <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0" style={{ background: 'rgba(5,31,32,0.9)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
+      <div className="absolute inset-0" style={{ background: 'rgba(var(--c-0-rgb),0.9)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
       <motion.div className="glass-card p-8 w-full max-w-md relative z-10" initial={{ scale: 0.88, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.88, opacity: 0 }} transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}>
         <div className="flex items-center gap-3 mb-6">
           <span className="text-2xl">{org.icon}</span>
           <div>
-            <h2 className="font-sora font-bold text-lg" style={{ color: '#DAF1DE' }}>Issue Credential</h2>
-            <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>{orgType}</p>
+            <h2 className="font-sora font-bold text-lg" style={{ color: 'var(--c-5)' }}>Issue Credential</h2>
+            <p className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>{orgType}</p>
           </div>
         </div>
         <div className="space-y-4">
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Credential Type</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Credential Type</label>
             <div className="grid grid-cols-1 gap-1.5">
               {(CRED_TYPES[orgType] || []).map((t) => (
                 <button key={t} onClick={() => setCredType(t)}
                   className="text-left px-3 py-2 rounded-lg text-sm font-inter transition-all"
-                  style={{ background: credType === t ? `rgba(${org.color === '#4a9e6a' ? '74,158,106' : '142,182,155'},0.15)` : 'rgba(11,43,38,0.2)', border: `1px solid ${credType === t ? org.color : 'rgba(218,241,222,0.1)'}`, color: credType === t ? '#DAF1DE' : '#8EB69B' }}>
+                  style={{ background: credType === t ? `rgba(${org.color === '#4a9e6a' ? '74,158,106' : '142,182,155'},0.15)` : 'rgba(var(--c-1-rgb),0.2)', border: `1px solid ${credType === t ? org.color : 'rgba(var(--c-5-rgb),0.1)'}`, color: credType === t ? 'var(--c-5)' : 'var(--c-4)' }}>
                   {t}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Recipient Name</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Recipient Name</label>
             <input className="vault-input" placeholder="Full name" value={recipient} onChange={(e) => setRecipient(e.target.value)} autoFocus />
           </div>
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Recipient Wallet Address</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Recipient Wallet Address</label>
             <input className="vault-input font-mono text-sm" placeholder="0x…" value={wallet} onChange={(e) => setWallet(e.target.value)} />
           </div>
           <div>
-            <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Additional Details (optional)</label>
+            <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Additional Details (optional)</label>
             <input className="vault-input text-sm" placeholder="e.g. GPA 9.2, Year 2024…" value={details} onChange={(e) => setDetails(e.target.value)} />
           </div>
           <div className="flex gap-3 pt-2">
@@ -185,9 +185,9 @@ function ManageIssuersPanel({ credentials }) {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6 mb-16" style={{ borderLeft: '3px solid #8EB69B' }}>
-      <h2 className="font-sora font-bold text-lg mb-1" style={{ color: '#DAF1DE' }}>Admin · Manage issuers</h2>
-      <p className="font-inter text-xs mb-4" style={{ color: 'rgba(142,182,155,0.7)' }}>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6 mb-16" style={{ borderLeft: '3px solid var(--c-4)' }}>
+      <h2 className="font-sora font-bold text-lg mb-1" style={{ color: 'var(--c-5)' }}>Admin · Manage issuers</h2>
+      <p className="font-inter text-xs mb-4" style={{ color: 'rgba(var(--c-4-rgb),0.7)' }}>
         You deployed the credentials contract, so this wallet is its admin. Verify another wallet so it can issue credentials too.
       </p>
       <div className="flex gap-3 flex-wrap">
@@ -204,23 +204,23 @@ function CredentialRow({ cred, variant, onRevoke, index }) {
   const date = tsToDate(cred.issuedAt)
   return (
     <motion.div initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.06 }} className="glass-card p-5 flex items-center gap-4 group">
-      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: 'rgba(142,182,155,0.1)' }}>
+      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: 'rgba(var(--c-4-rgb),0.1)' }}>
         {credIcon(cred.credentialType)}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>{cred.title || cred.credentialType}</p>
+          <p className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>{cred.title || cred.credentialType}</p>
           {cred.revoked
             ? <span className="font-inter text-xs px-2 py-0.5 rounded-full" style={{ color: '#D1601F', background: 'rgba(209,96,31,0.12)' }}>Revoked</span>
             : <span className="badge-cobalt flex items-center gap-1">✓ On-chain</span>}
         </div>
-        <p className="font-inter text-xs mt-0.5 font-mono" style={{ color: '#8EB69B' }}>
+        <p className="font-inter text-xs mt-0.5 font-mono" style={{ color: 'var(--c-4)' }}>
           {variant === 'issued' ? `to ${shortAddr(cred.recipient)}` : `from ${shortAddr(cred.issuer)}`}
           {date && ` · ${format(date, 'dd MMM yyyy')}`}
         </p>
       </div>
       <div className="text-right flex-shrink-0 flex items-center gap-3">
-        <a href={getGatewayUrl(cred.metadataCID)} target="_blank" rel="noreferrer" className="font-inter text-xs underline transition-opacity hover:opacity-70" style={{ color: '#8EB69B' }}>
+        <a href={getGatewayUrl(cred.metadataCID)} target="_blank" rel="noreferrer" className="font-inter text-xs underline transition-opacity hover:opacity-70" style={{ color: 'var(--c-4)' }}>
           View
         </a>
         {variant === 'issued' && !cred.revoked && (
@@ -258,7 +258,7 @@ export default function OrganizationsPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <p className="font-sora text-xl mb-4" style={{ color: '#8EB69B' }}>Connect your wallet to issue or view credentials.</p>
+          <p className="font-sora text-xl mb-4" style={{ color: 'var(--c-4)' }}>Connect your wallet to issue or view credentials.</p>
           <button onClick={() => navigate('/connect')} className="btn-primary">Connect Wallet</button>
         </div>
       </div>
@@ -279,7 +279,7 @@ export default function OrganizationsPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-12 text-center">
           <h1 className="font-sora font-bold text-3xl md:text-5xl shimmer-text mb-4">For Organizations</h1>
-          <p className="font-sora font-semibold text-xl" style={{ color: '#8EB69B' }}>
+          <p className="font-sora font-semibold text-xl" style={{ color: 'var(--c-4)' }}>
             Your credentials. Permanent. Unforgeable. Yours.
           </p>
         </motion.div>
@@ -295,12 +295,12 @@ export default function OrganizationsPage() {
                   <span className="badge-cobalt" style={{ color: org.color, borderColor: `${org.color}40`, background: `${org.color}10` }}>Verified Institution</span>
                 </div>
               </div>
-              <p className="font-inter text-sm mb-6" style={{ color: '#8EB69B' }}>{org.description}</p>
+              <p className="font-inter text-sm mb-6" style={{ color: 'var(--c-4)' }}>{org.description}</p>
               <div className="grid grid-cols-2 gap-2 mb-6">
                 {org.features.map((f) => (
                   <div key={f} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: `${org.color}10`, border: `1px solid ${org.color}20` }}>
                     <span style={{ color: org.color, fontSize: '0.6rem' }}>⬡</span>
-                    <span className="font-inter text-xs" style={{ color: '#DAF1DE' }}>{f}</span>
+                    <span className="font-inter text-xs" style={{ color: 'var(--c-5)' }}>{f}</span>
                   </div>
                 ))}
               </div>
@@ -319,15 +319,15 @@ export default function OrganizationsPage() {
         {/* Issued by me */}
         <motion.section initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mb-16">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-sora font-bold text-2xl" style={{ color: '#DAF1DE' }}>
-              Issued Credentials {issuedByMe.length > 0 && <span className="text-base font-normal ml-2" style={{ color: '#8EB69B' }}>({issuedByMe.length})</span>}
+            <h2 className="font-sora font-bold text-2xl" style={{ color: 'var(--c-5)' }}>
+              Issued Credentials {issuedByMe.length > 0 && <span className="text-base font-normal ml-2" style={{ color: 'var(--c-4)' }}>({issuedByMe.length})</span>}
             </h2>
           </div>
 
           {issuedByMe.length === 0 ? (
             <div className="glass-card p-12 text-center">
               <span className="text-4xl block mb-3">🎓</span>
-              <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.6)' }}>
+              <p className="font-inter text-sm" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>
                 {credentials.isVerifiedIssuer ? 'No credentials issued yet. Use the cards above to mint one.' : "You haven't issued any credentials. Your wallet needs to be verified as an issuer first."}
               </p>
             </div>
@@ -343,15 +343,15 @@ export default function OrganizationsPage() {
         {/* Received by me */}
         <motion.section initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mb-16">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-sora font-bold text-2xl" style={{ color: '#DAF1DE' }}>
-              Credentials You've Received {credentials.myCredentials.length > 0 && <span className="text-base font-normal ml-2" style={{ color: '#8EB69B' }}>({credentials.myCredentials.length})</span>}
+            <h2 className="font-sora font-bold text-2xl" style={{ color: 'var(--c-5)' }}>
+              Credentials You've Received {credentials.myCredentials.length > 0 && <span className="text-base font-normal ml-2" style={{ color: 'var(--c-4)' }}>({credentials.myCredentials.length})</span>}
             </h2>
           </div>
 
           {credentials.myCredentials.length === 0 ? (
             <div className="glass-card p-12 text-center">
               <span className="text-4xl block mb-3">📬</span>
-              <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.6)' }}>Nothing here yet — credentials issued to your wallet will show up automatically.</p>
+              <p className="font-inter text-sm" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Nothing here yet — credentials issued to your wallet will show up automatically.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -363,14 +363,14 @@ export default function OrganizationsPage() {
         </motion.section>
 
         {/* CTA */}
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="glass-card p-10 text-center" style={{ borderColor: 'rgba(142,182,155,0.3)' }}>
-          <h2 className="font-sora font-bold text-2xl mb-3" style={{ color: '#8EB69B' }}>Issue credentials that last forever.</h2>
-          <p className="font-inter text-sm mb-6 max-w-lg mx-auto" style={{ color: '#8EB69B' }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="glass-card p-10 text-center" style={{ borderColor: 'rgba(var(--c-4-rgb),0.3)' }}>
+          <h2 className="font-sora font-bold text-2xl mb-3" style={{ color: 'var(--c-4)' }}>Issue credentials that last forever.</h2>
+          <p className="font-inter text-sm mb-6 max-w-lg mx-auto" style={{ color: 'var(--c-4)' }}>
             Students and employees keep their records even if your institution closes.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <button onClick={() => toast.success('Contact form opened.')} className="btn-cobalt text-base px-8">Partner with us</button>
-            <button onClick={() => navigate('/about')} className="btn-outline text-base px-8" style={{ color: '#8EB69B', borderColor: '#8EB69B' }}>Learn more</button>
+            <button onClick={() => navigate('/about')} className="btn-outline text-base px-8" style={{ color: 'var(--c-4)', borderColor: 'var(--c-4)' }}>Learn more</button>
           </div>
         </motion.div>
       </div>

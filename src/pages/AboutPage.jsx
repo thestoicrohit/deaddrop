@@ -60,7 +60,7 @@ function CounterCard({ value, label, prefix }) {
       <div className="font-sora font-bold text-4xl md:text-5xl mb-2 shimmer-text">
         {isInView ? fmt(count) : `${prefix}0`}
       </div>
-      <div className="font-inter text-sm" style={{ color: '#8EB69B' }}>{label}</div>
+      <div className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>{label}</div>
     </motion.div>
   )
 }
@@ -73,10 +73,10 @@ const HOW_IT_WORKS = [
 ]
 
 const PROFILE_TYPES = [
-  { name: 'Family',     desc: 'Your roots, preserved forever.',    color: '#DAF1DE', icon: '🏡' },
-  { name: 'Friends',    desc: 'The moments only you shared.',       color: '#8EB69B', icon: '🤝' },
+  { name: 'Family',     desc: 'Your roots, preserved forever.',    color: 'var(--c-5)', icon: '🏡' },
+  { name: 'Friends',    desc: 'The moments only you shared.',       color: 'var(--c-4)', icon: '🤝' },
   { name: 'University', desc: 'Credentials. Chapters. Proof.',      color: '#4a9e6a', icon: '🎓' },
-  { name: 'Work',       desc: 'Equity docs. Employment. Legacy.',   color: '#DAF1DE', icon: '💼' },
+  { name: 'Work',       desc: 'Equity docs. Employment. Legacy.',   color: 'var(--c-5)', icon: '💼' },
 ]
 
 const COMPARISON = [
@@ -125,30 +125,30 @@ export default function AboutPage() {
         <section className="flex flex-col items-center justify-center text-center px-6 py-28 min-h-[85vh]">
           <motion.div
             className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full"
-            style={{ background: 'rgba(142,182,155,0.08)', border: '1px solid rgba(142,182,155,0.2)' }}
+            style={{ background: 'rgba(var(--c-4-rgb),0.08)', border: '1px solid rgba(var(--c-4-rgb),0.2)' }}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse-dot" style={{ background: '#8EB69B' }} />
-            <span className="font-sora text-xs tracking-[0.2em] uppercase" style={{ color: '#8EB69B' }}>Digital Legacy</span>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse-dot" style={{ background: 'var(--c-4)' }} />
+            <span className="font-sora text-xs tracking-[0.2em] uppercase" style={{ color: 'var(--c-4)' }}>Digital Legacy</span>
           </motion.div>
 
           <motion.h1
             className="font-sora font-bold max-w-3xl leading-[1.08] tracking-[-0.025em] mb-6"
-            style={{ fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', color: '#DAF1DE' }}
+            style={{ fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', color: 'var(--c-5)' }}
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
             Your memories deserve{' '}
-            <span style={{ color: '#8EB69B' }}>better</span>{' '}
+            <span style={{ color: 'var(--c-4)' }}>better</span>{' '}
             than a terms of service.
           </motion.h1>
 
           <motion.p
             className="font-inter text-lg max-w-xl mb-10 leading-relaxed"
-            style={{ color: 'rgba(142,182,155,0.7)' }}
+            style={{ color: 'rgba(var(--c-4-rgb),0.7)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.35, duration: 0.6 }}
@@ -160,9 +160,9 @@ export default function AboutPage() {
             onClick={() => navigate('/connect')}
             className="font-sora font-semibold text-base px-10 py-4 rounded-xl flex items-center gap-3"
             style={{
-              background: 'rgba(142,182,155,0.12)',
-              color: '#DAF1DE',
-              border: '1px solid rgba(142,182,155,0.4)',
+              background: 'rgba(var(--c-4-rgb),0.12)',
+              color: 'var(--c-5)',
+              border: '1px solid rgba(var(--c-4-rgb),0.4)',
             }}
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -180,7 +180,7 @@ export default function AboutPage() {
         <section className="max-w-5xl mx-auto px-8 pb-28">
           <motion.h2
             className="font-sora font-semibold text-2xl text-center mb-12"
-            style={{ color: '#DAF1DE' }}
+            style={{ color: 'var(--c-5)' }}
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -201,7 +201,7 @@ export default function AboutPage() {
         <section className="max-w-5xl mx-auto px-8 pb-28">
           <motion.h2
             className="font-sora font-semibold text-2xl text-center mb-12"
-            style={{ color: '#DAF1DE' }}
+            style={{ color: 'var(--c-5)' }}
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
           >
             What you can store
@@ -217,10 +217,10 @@ export default function AboutPage() {
                 whileHover={{ y: -6, scale: 1.04, boxShadow: '0 12px 36px rgba(142,182,155,0.15)' }}
                 className="glass-card p-6 flex flex-col items-center gap-3 text-center cursor-default"
               >
-                <span className="text-3xl" style={{ filter: 'drop-shadow(0 0 10px rgba(142,182,155,0.5))' }}>
+                <span className="text-3xl" style={{ filter: 'drop-shadow(0 0 10px rgba(var(--c-4-rgb),0.5))' }}>
                   {item.icon}
                 </span>
-                <span className="font-sora text-sm font-medium" style={{ color: '#DAF1DE' }}>{item.label}</span>
+                <span className="font-sora text-sm font-medium" style={{ color: 'var(--c-5)' }}>{item.label}</span>
               </motion.div>
             ))}
           </div>
@@ -230,7 +230,7 @@ export default function AboutPage() {
         <section className="max-w-5xl mx-auto px-8 pb-28">
           <motion.h2
             className="font-sora font-semibold text-2xl text-center mb-14"
-            style={{ color: '#DAF1DE' }}
+            style={{ color: 'var(--c-5)' }}
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
           >
             How it works
@@ -238,7 +238,7 @@ export default function AboutPage() {
           <div className="relative">
             <div
               className="absolute top-8 left-0 right-0 h-px hidden md:block"
-              style={{ background: 'linear-gradient(90deg, transparent, rgba(142,182,155,0.25), rgba(142,182,155,0.25), transparent)' }}
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--c-4-rgb),0.25), rgba(var(--c-4-rgb),0.25), transparent)' }}
             />
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {HOW_IT_WORKS.map((step, i) => (
@@ -253,17 +253,17 @@ export default function AboutPage() {
                 >
                   <div
                     className="w-14 h-14 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 relative z-10"
-                    style={{ background: 'rgba(11,43,38,0.6)', border: '1.5px solid rgba(218,241,222,0.3)' }}
+                    style={{ background: 'rgba(var(--c-1-rgb),0.6)', border: '1.5px solid rgba(var(--c-5-rgb),0.3)' }}
                   >
                     {step.icon}
                   </div>
-                  <div className="font-sora font-bold text-xs mb-2 uppercase tracking-wider" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                  <div className="font-sora font-bold text-xs mb-2 uppercase tracking-wider" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
                     Step {step.step}
                   </div>
-                  <div className="font-sora font-semibold text-base mb-2" style={{ color: '#DAF1DE' }}>
+                  <div className="font-sora font-semibold text-base mb-2" style={{ color: 'var(--c-5)' }}>
                     {step.title}
                   </div>
-                  <div className="font-inter text-sm leading-relaxed" style={{ color: '#8EB69B' }}>
+                  <div className="font-inter text-sm leading-relaxed" style={{ color: 'var(--c-4)' }}>
                     {step.desc}
                   </div>
                 </motion.div>
@@ -276,7 +276,7 @@ export default function AboutPage() {
         <section className="max-w-5xl mx-auto px-8 pb-28">
           <motion.h2
             className="font-sora font-semibold text-2xl text-center mb-10"
-            style={{ color: '#DAF1DE' }}
+            style={{ color: 'var(--c-5)' }}
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
           >
             Your circles
@@ -295,7 +295,7 @@ export default function AboutPage() {
               >
                 <span className="text-3xl block mb-3">{p.icon}</span>
                 <div className="font-sora font-bold text-lg mb-1" style={{ color: p.color }}>{p.name}</div>
-                <div className="font-inter text-sm" style={{ color: '#8EB69B' }}>{p.desc}</div>
+                <div className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>{p.desc}</div>
               </motion.div>
             ))}
           </div>
@@ -305,7 +305,7 @@ export default function AboutPage() {
         <section className="max-w-4xl mx-auto px-8 pb-28">
           <motion.h2
             className="font-sora font-semibold text-2xl text-center mb-10"
-            style={{ color: '#DAF1DE' }}
+            style={{ color: 'var(--c-5)' }}
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
           >
             Why not Google or iCloud?
@@ -314,10 +314,10 @@ export default function AboutPage() {
             className="glass-card overflow-hidden"
             initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           >
-            <div className="grid grid-cols-3 p-4" style={{ background: 'rgba(11,43,38,0.4)', borderBottom: '1px solid rgba(218,241,222,0.08)' }}>
-              <span className="font-sora font-semibold text-sm" style={{ color: '#8EB69B' }}>Feature</span>
-              <span className="font-sora font-semibold text-sm text-center" style={{ color: '#8EB69B' }}>Cloud</span>
-              <span className="font-sora font-semibold text-sm text-center" style={{ color: '#DAF1DE' }}>DeadDrop</span>
+            <div className="grid grid-cols-3 p-4" style={{ background: 'rgba(var(--c-1-rgb),0.4)', borderBottom: '1px solid rgba(var(--c-5-rgb),0.08)' }}>
+              <span className="font-sora font-semibold text-sm" style={{ color: 'var(--c-4)' }}>Feature</span>
+              <span className="font-sora font-semibold text-sm text-center" style={{ color: 'var(--c-4)' }}>Cloud</span>
+              <span className="font-sora font-semibold text-sm text-center" style={{ color: 'var(--c-5)' }}>DeadDrop</span>
             </div>
             {COMPARISON.map((row, i) => (
               <motion.div
@@ -327,9 +327,9 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.04, duration: 0.4 }}
                 className="grid grid-cols-3 px-4 py-3"
-                style={{ borderBottom: i < COMPARISON.length - 1 ? '1px solid rgba(218,241,222,0.05)' : 'none' }}
+                style={{ borderBottom: i < COMPARISON.length - 1 ? '1px solid rgba(var(--c-5-rgb),0.05)' : 'none' }}
               >
-                <span className="font-inter text-sm" style={{ color: '#DAF1DE' }}>{row.feature}</span>
+                <span className="font-inter text-sm" style={{ color: 'var(--c-5)' }}>{row.feature}</span>
                 <span className="text-center text-base">❌</span>
                 <span className="text-center text-base">✅</span>
               </motion.div>
@@ -341,7 +341,7 @@ export default function AboutPage() {
         <section className="text-center px-6 py-28">
           <motion.h2
             className="font-sora font-bold max-w-2xl mx-auto mb-8"
-            style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', color: '#DAF1DE' }}
+            style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', color: 'var(--c-5)' }}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           >
             Start your vault today.
@@ -349,7 +349,7 @@ export default function AboutPage() {
           <motion.button
             onClick={() => navigate('/connect')}
             className="font-sora font-semibold text-lg px-12 py-4 rounded-xl"
-            style={{ background: 'rgba(142,182,155,0.12)', color: '#DAF1DE', border: '1px solid rgba(142,182,155,0.4)' }}
+            style={{ background: 'rgba(var(--c-4-rgb),0.12)', color: 'var(--c-5)', border: '1px solid rgba(var(--c-4-rgb),0.4)' }}
             initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
             whileHover={{ background: 'rgba(142,182,155,0.22)', boxShadow: '0 0 40px rgba(142,182,155,0.25)', scale: 1.04 }}
             whileTap={{ scale: 0.97 }}

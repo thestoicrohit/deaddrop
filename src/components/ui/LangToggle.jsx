@@ -9,8 +9,8 @@ export default function LangToggle() {
       onClick={toggleLang}
       className="fixed bottom-12 left-5 z-50 flex items-center gap-1.5 px-3 py-2 rounded-xl cursor-pointer select-none"
       style={{
-        background: 'rgba(5,31,32,0.85)',
-        border: '1px solid rgba(142,182,155,0.2)',
+        background: 'rgba(var(--c-0-rgb),0.85)',
+        border: '1px solid rgba(var(--c-4-rgb),0.2)',
         backdropFilter: 'blur(12px)',
       }}
       whileHover={{ scale: 1.05, borderColor: 'rgba(142,182,155,0.55)', boxShadow: '0 0 14px rgba(142,182,155,0.14)' }}
@@ -23,11 +23,11 @@ export default function LangToggle() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
         className="text-xs font-sora font-bold"
-        style={{ color: '#DAF1DE' }}
+        style={{ color: 'var(--c-5)' }}
       >
         {lang === 'en' ? 'EN' : 'हिंदी'}
       </motion.span>
-      <span className="text-xs font-inter" style={{ color: '#235347' }}>
+      <span className="text-xs font-inter" style={{ color: 'var(--c-3)' }}>
         {lang === 'en' ? '/ हिंदी' : '/ EN'}
       </span>
     </motion.button>

@@ -99,17 +99,17 @@ function FilePreview({ file, onClose }) {
 
   return (
     <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0" style={{ background: 'rgba(5,31,32,0.94)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
+      <div className="absolute inset-0" style={{ background: 'rgba(var(--c-0-rgb),0.94)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
       <motion.div className="relative z-10 w-full max-w-lg" initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
         <div className="glass-card overflow-hidden">
           {/* Preview area */}
-          <div className="w-full flex items-center justify-center" style={{ minHeight: '200px', background: 'rgba(5,31,32,0.6)' }}>
+          <div className="w-full flex items-center justify-center" style={{ minHeight: '200px', background: 'rgba(var(--c-0-rgb),0.6)' }}>
             {isImage && file.url ? (
               <img src={file.url} alt={file.name} className="max-w-full max-h-80 object-contain" />
             ) : (
               <div className="flex flex-col items-center gap-3 py-12">
                 <span className="text-5xl">{file.type === 'pdf' ? '📄' : '📁'}</span>
-                <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.6)' }}>Preview not available</p>
+                <p className="font-inter text-sm" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Preview not available</p>
               </div>
             )}
           </div>
@@ -117,23 +117,23 @@ function FilePreview({ file, onClose }) {
           <div className="p-5">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="font-sora font-semibold text-base truncate" style={{ color: '#DAF1DE' }}>{file.name}</h3>
-                <p className="font-inter text-xs mt-0.5" style={{ color: '#8EB69B' }}>
+                <h3 className="font-sora font-semibold text-base truncate" style={{ color: 'var(--c-5)' }}>{file.name}</h3>
+                <p className="font-inter text-xs mt-0.5" style={{ color: 'var(--c-4)' }}>
                   {file.size || 'Unknown size'} · {file.type?.toUpperCase() || 'FILE'}
                 </p>
               </div>
-              <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(11,43,38,0.7)', color: '#8EB69B' }}>✕</button>
+              <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(var(--c-1-rgb),0.7)', color: 'var(--c-4)' }}>✕</button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {file.date && (
-                <div className="p-3 rounded-xl" style={{ background: 'rgba(11,43,38,0.4)' }}>
-                  <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Added</p>
-                  <p className="font-sora font-semibold text-sm mt-0.5" style={{ color: '#DAF1DE' }}>{format(new Date(file.date), 'dd MMM yyyy')}</p>
+                <div className="p-3 rounded-xl" style={{ background: 'rgba(var(--c-1-rgb),0.4)' }}>
+                  <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Added</p>
+                  <p className="font-sora font-semibold text-sm mt-0.5" style={{ color: 'var(--c-5)' }}>{format(new Date(file.date), 'dd MMM yyyy')}</p>
                 </div>
               )}
-              <div className="p-3 rounded-xl" style={{ background: 'rgba(11,43,38,0.4)' }}>
-                <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Storage</p>
-                <p className="font-sora font-semibold text-sm mt-0.5" style={{ color: '#8EB69B' }}>IPFS · encrypted</p>
+              <div className="p-3 rounded-xl" style={{ background: 'rgba(var(--c-1-rgb),0.4)' }}>
+                <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Storage</p>
+                <p className="font-sora font-semibold text-sm mt-0.5" style={{ color: 'var(--c-4)' }}>IPFS · encrypted</p>
               </div>
             </div>
             <div className="flex gap-3 mt-4">
@@ -164,12 +164,12 @@ function VaultLock({ onUnlock }) {
   return (
     <motion.div
       className="fixed inset-0 z-50 flex flex-col items-center justify-center"
-      style={{ background: '#051F20' }}
+      style={{ background: 'var(--c-0)' }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="absolute" style={{ width: 340, height: 340, borderRadius: '50%', background: 'radial-gradient(circle, rgba(142,182,155,0.07) 0%, transparent 70%)' }} />
-      <div className="absolute" style={{ width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(218,241,222,0.05) 0%, transparent 70%)' }} />
+      <div className="absolute" style={{ width: 340, height: 340, borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--c-4-rgb),0.07) 0%, transparent 70%)' }} />
+      <div className="absolute" style={{ width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--c-5-rgb),0.05) 0%, transparent 70%)' }} />
 
       <motion.div
         className="relative"
@@ -178,13 +178,13 @@ function VaultLock({ onUnlock }) {
       >
         <motion.div
           className="w-40 h-40 rounded-full border-4 flex items-center justify-center"
-          style={{ borderColor: '#8EB69B', boxShadow: '0 0 50px rgba(142,182,155,0.3), 0 0 100px rgba(142,182,155,0.1)' }}
+          style={{ borderColor: 'var(--c-4)', boxShadow: '0 0 50px rgba(var(--c-4-rgb),0.3), 0 0 100px rgba(var(--c-4-rgb),0.1)' }}
           animate={spinning ? { rotate: 360 } : { rotate: 0 }}
           transition={spinning ? { duration: 1.2, ease: 'easeInOut' } : { duration: 0.3 }}
         >
           <motion.div
             className="w-24 h-24 rounded-full border-2 flex items-center justify-center"
-            style={{ borderColor: 'rgba(218,241,222,0.45)' }}
+            style={{ borderColor: 'rgba(var(--c-5-rgb),0.45)' }}
             animate={spinning ? { rotate: -540 } : {}}
             transition={spinning ? { duration: 1.2, ease: 'easeInOut' } : {}}
           >
@@ -192,12 +192,12 @@ function VaultLock({ onUnlock }) {
           </motion.div>
           {Array.from({ length: 12 }).map((_, i) => (
             <div key={i} className="absolute w-2 h-4 rounded-full"
-              style={{ background: '#8EB69B', opacity: 0.35, transformOrigin: '50% 80px', transform: `rotate(${i * 30}deg)`, top: '50%', left: '50%', marginLeft: '-4px', marginTop: '-72px' }} />
+              style={{ background: 'var(--c-4)', opacity: 0.35, transformOrigin: '50% 80px', transform: `rotate(${i * 30}deg)`, top: '50%', left: '50%', marginLeft: '-4px', marginTop: '-72px' }} />
           ))}
         </motion.div>
       </motion.div>
 
-      <motion.p className="mt-8 font-sora font-semibold text-lg" style={{ color: '#DAF1DE' }} animate={{ opacity: clicked ? 0 : 1 }}>
+      <motion.p className="mt-8 font-sora font-semibold text-lg" style={{ color: 'var(--c-5)' }} animate={{ opacity: clicked ? 0 : 1 }}>
         {spinning ? 'Unlocking your vault…' : 'Access granted.'}
       </motion.p>
 
@@ -207,7 +207,7 @@ function VaultLock({ onUnlock }) {
           initial={{ scale: 0.5, opacity: 0.7 }}
           animate={{ scale: 3, opacity: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          style={{ width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(218,241,222,0.35), transparent 70%)' }}
+          style={{ width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--c-5-rgb),0.35), transparent 70%)' }}
         />
       )}
     </motion.div>
@@ -219,15 +219,15 @@ function DemoSafeList({ items }) {
   return (
     <div className="space-y-2 px-5 pb-5">
       {items.map((it) => (
-        <div key={it.label} className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'rgba(11,43,38,0.3)' }}>
-          <span className="font-inter text-sm" style={{ color: '#DAF1DE' }}>{it.label}</span>
-          <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>{it.hint}</span>
+        <div key={it.label} className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'rgba(var(--c-1-rgb),0.3)' }}>
+          <span className="font-inter text-sm" style={{ color: 'var(--c-5)' }}>{it.label}</span>
+          <span className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>{it.hint}</span>
         </div>
       ))}
       <button
         onClick={() => toast('Sample entry \u2014 connect a wallet to store real ones.', { icon: '\uD83D\uDD17' })}
         className="w-full text-sm font-inter py-2 rounded-lg mt-1 transition-opacity hover:opacity-70"
-        style={{ color: '#8EB69B', border: '1px dashed rgba(142,182,155,0.3)' }}
+        style={{ color: 'var(--c-4)', border: '1px dashed rgba(var(--c-4-rgb),0.3)' }}
       >
         + Add entry
       </button>
@@ -252,12 +252,12 @@ function SafeSection({ icon, title, children, delay = 0 }) {
       >
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 transition-all group-hover:scale-105"
-          style={{ background: 'rgba(142,182,155,0.12)', border: '1px solid rgba(142,182,155,0.2)' }}
+          style={{ background: 'rgba(var(--c-4-rgb),0.12)', border: '1px solid rgba(var(--c-4-rgb),0.2)' }}
         >
           {icon}
         </div>
-        <span className="font-sora font-semibold flex-1" style={{ color: '#DAF1DE' }}>{title}</span>
-        <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.22 }} style={{ color: '#8EB69B' }}>
+        <span className="font-sora font-semibold flex-1" style={{ color: 'var(--c-5)' }}>{title}</span>
+        <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.22 }} style={{ color: 'var(--c-4)' }}>
           ▾
         </motion.span>
       </button>
@@ -271,7 +271,7 @@ function SafeSection({ icon, title, children, delay = 0 }) {
             transition={{ duration: 0.28 }}
             className="overflow-hidden"
           >
-            <div className="px-5 pb-5" style={{ borderTop: '1px solid rgba(218,241,222,0.07)' }}>
+            <div className="px-5 pb-5" style={{ borderTop: '1px solid rgba(var(--c-5-rgb),0.07)' }}>
               {children}
             </div>
           </motion.div>
@@ -323,13 +323,13 @@ function CryptoKeys({ safe, safeKey }) {
   return (
     <div className="pt-4 space-y-3">
       <div className="flex items-center justify-between">
-        <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+        <p className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
           AES-256 encrypted in your browser, then pinned to IPFS — only you can decrypt it.
         </p>
         <button
           onClick={() => setShowValues(!showValues)}
           className="text-xs px-2 py-1 rounded transition-all"
-          style={{ background: 'rgba(142,182,155,0.1)', color: '#8EB69B' }}
+          style={{ background: 'rgba(var(--c-4-rgb),0.1)', color: 'var(--c-4)' }}
         >
           {showValues ? 'Hide' : 'Show'}
         </button>
@@ -359,25 +359,25 @@ function CryptoKeys({ safe, safeKey }) {
           {chainEntries.map((entry) => {
             const idKey = entry.id.toString()
             return (
-              <div key={idKey} className="flex gap-2 items-center p-2 rounded-lg" style={{ background: 'rgba(11,43,38,0.25)' }}>
-                <span className="font-inter text-sm flex-1 truncate" style={{ color: '#DAF1DE' }}>
+              <div key={idKey} className="flex gap-2 items-center p-2 rounded-lg" style={{ background: 'rgba(var(--c-1-rgb),0.25)' }}>
+                <span className="font-inter text-sm flex-1 truncate" style={{ color: 'var(--c-5)' }}>
                   {titles[idKey] ?? 'Decrypting…'}
                 </span>
                 {showValues && (
-                  <span className="font-mono text-xs flex-1 truncate" style={{ color: '#8EB69B' }}>
+                  <span className="font-mono text-xs flex-1 truncate" style={{ color: 'var(--c-4)' }}>
                     {revealed[idKey] ?? '••••••••'}
                   </span>
                 )}
                 {showValues && !revealed[idKey] && (
-                  <button onClick={() => reveal(entry)} className="text-xs px-2" style={{ color: '#8EB69B' }}>Reveal</button>
+                  <button onClick={() => reveal(entry)} className="text-xs px-2" style={{ color: 'var(--c-4)' }}>Reveal</button>
                 )}
-                <button onClick={() => safe.removeEntry(entry.id)} className="text-sm px-2 flex-shrink-0 transition-opacity hover:opacity-60" style={{ color: '#8EB69B' }}>
+                <button onClick={() => safe.removeEntry(entry.id)} className="text-sm px-2 flex-shrink-0 transition-opacity hover:opacity-60" style={{ color: 'var(--c-4)' }}>
                   ✕
                 </button>
               </div>
             )
           })}
-          <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.5)' }}>
+          <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
             {chainEntries.length} key{chainEntries.length !== 1 ? 's' : ''} on-chain · encrypted
           </p>
         </div>
@@ -449,16 +449,16 @@ function DocumentsSection({ safe, safeKey }) {
 
       <div
         className="w-full py-8 rounded-xl border-2 border-dashed flex flex-col items-center gap-2 cursor-pointer transition-colors"
-        style={{ borderColor: 'rgba(218,241,222,0.18)' }}
+        style={{ borderColor: 'rgba(var(--c-5-rgb),0.18)' }}
         onClick={() => fileInputRef.current?.click()}
-        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(218,241,222,0.45)')}
-        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(218,241,222,0.18)')}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(var(--c-5-rgb),0.45)')}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(var(--c-5-rgb),0.18)')}
       >
         <span className="text-2xl">📄</span>
-        <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+        <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
           {uploading ? 'Encrypting and uploading…' : 'Click to upload documents — encrypted before upload'}
         </p>
-        <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.5)' }}>
+        <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
           Passports, wills, property deeds, contracts — AES-256 encrypted
         </p>
       </div>
@@ -475,21 +475,21 @@ function DocumentsSection({ safe, safeKey }) {
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-3 p-3 rounded-xl cursor-pointer"
-              style={{ background: 'rgba(11,43,38,0.25)' }}
+              style={{ background: 'rgba(var(--c-1-rgb),0.25)' }}
             >
               <span className="text-lg flex-shrink-0 cursor-pointer" onClick={() => openPreview(doc)}>
                 {doc.type === 'pdf' ? '📄' : ['jpg', 'jpeg', 'png'].includes(doc.type) ? '🖼️' : '📁'}
               </span>
               <div className="flex-1 min-w-0 cursor-pointer" onClick={() => openPreview(doc)}>
-                <p className="font-inter text-sm truncate" style={{ color: '#DAF1DE' }}>{doc.name}</p>
-                <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-sm truncate" style={{ color: 'var(--c-5)' }}>{doc.name}</p>
+                <p className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
                   {doc.size}{doc.size ? ' · ' : ''}on-chain{doc.addedAt ? ` · ${format(addedAtToDate(doc.addedAt), 'dd MMM yyyy')}` : ''}
                 </p>
               </div>
               <button
                 onClick={() => removeDoc(doc.entryId)}
                 className="text-sm flex-shrink-0 transition-opacity hover:opacity-60"
-                style={{ color: '#8EB69B' }}
+                style={{ color: 'var(--c-4)' }}
               >
                 ✕
               </button>
@@ -565,11 +565,11 @@ function LettersSection({ safe, safeKey }) {
       />
       <div className="flex justify-between items-center">
         <div>
-          <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+          <span className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
             {content.length} characters · AES-256 encrypted
           </span>
           {sorted.length > 0 && (
-            <span className="font-inter text-xs ml-3" style={{ color: 'rgba(142,182,155,0.5)' }}>
+            <span className="font-inter text-xs ml-3" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
               {sorted.length} letter{sorted.length > 1 ? 's' : ''} on-chain
             </span>
           )}
@@ -581,7 +581,7 @@ function LettersSection({ safe, safeKey }) {
 
       {sorted.length > 0 && (
         <div className="space-y-1 mt-1">
-          <p className="font-inter text-xs font-semibold" style={{ color: 'rgba(142,182,155,0.6)' }}>
+          <p className="font-inter text-xs font-semibold" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>
             Previously saved
           </p>
           {sorted.slice(0, 4).map((e) => {
@@ -592,11 +592,11 @@ function LettersSection({ safe, safeKey }) {
                 <button
                   onClick={() => loadLetter(e)}
                   className="flex-1 text-left p-2 rounded-lg text-xs transition-all hover:opacity-90"
-                  style={{ background: 'rgba(11,43,38,0.2)', color: '#8EB69B' }}
+                  style={{ background: 'rgba(var(--c-1-rgb),0.2)', color: 'var(--c-4)' }}
                 >
                   {format(addedAtToDate(e.addedAt), 'dd MMM yyyy HH:mm')} — {snippet ? `${snippet.slice(0, 60)}…` : 'Decrypting…'}
                 </button>
-                <button onClick={() => safe.removeEntry(e.id)} className="text-xs px-1" style={{ color: '#8EB69B' }}>✕</button>
+                <button onClick={() => safe.removeEntry(e.id)} className="text-xs px-1" style={{ color: 'var(--c-4)' }}>✕</button>
               </div>
             )
           })}
@@ -647,10 +647,10 @@ function VoiceSection({ safe, safeKey }) {
           whileTap={{ scale: 0.92 }}
           className="w-14 h-14 rounded-full flex items-center justify-center text-2xl flex-shrink-0"
           style={{
-            background: recording ? '#0B2B26' : 'rgba(142,182,155,0.12)',
-            border: '2px solid rgba(142,182,155,0.35)',
+            background: recording ? 'var(--c-1)' : 'rgba(var(--c-4-rgb),0.12)',
+            border: '2px solid rgba(var(--c-4-rgb),0.35)',
           }}
-          animate={recording ? { boxShadow: ['0 0 0 0 rgba(142,182,155,0.4)', '0 0 0 14px rgba(142,182,155,0)'] } : {}}
+          animate={recording ? { boxShadow: ['0 0 0 0 rgba(var(--c-4-rgb),0.4)', '0 0 0 14px rgba(var(--c-4-rgb),0)'] } : {}}
           transition={recording ? { duration: 1, repeat: Infinity } : {}}
         >
           🎙️
@@ -662,14 +662,14 @@ function VoiceSection({ safe, safeKey }) {
               <motion.div
                 key={i}
                 className="w-1 rounded-full"
-                style={{ background: '#8EB69B' }}
+                style={{ background: 'var(--c-4)' }}
                 animate={{ height: [`${Math.abs(Math.sin(i * 0.8)) * 12 + 3}px`, `${Math.abs(Math.sin(i * 0.5)) * 16 + 6}px`, `${Math.abs(Math.sin(i * 0.8)) * 12 + 3}px`] }}
                 transition={{ duration: 0.5 + i * 0.05, repeat: Infinity, ease: 'easeInOut' }}
               />
             ))}
           </div>
         ) : (
-          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+          <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
             {saving
               ? 'Encrypting…'
               : chainEntries.length === 0
@@ -689,7 +689,7 @@ function VoiceSection({ safe, safeKey }) {
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-3 p-3 rounded-xl"
-                style={{ background: 'rgba(11,43,38,0.25)' }}
+                style={{ background: 'rgba(var(--c-1-rgb),0.25)' }}
               >
                 <button
                   className="text-xl flex-shrink-0"
@@ -698,15 +698,15 @@ function VoiceSection({ safe, safeKey }) {
                   ▶️
                 </button>
                 <div className="flex-1 min-w-0">
-                  <p className="font-inter text-sm truncate" style={{ color: '#DAF1DE' }}>{labels[idKey] ?? 'Decrypting…'}</p>
+                  <p className="font-inter text-sm truncate" style={{ color: 'var(--c-5)' }}>{labels[idKey] ?? 'Decrypting…'}</p>
                 </div>
-                <span className="font-inter text-xs flex-shrink-0" style={{ color: '#8EB69B' }}>
+                <span className="font-inter text-xs flex-shrink-0" style={{ color: 'var(--c-4)' }}>
                   {format(addedAtToDate(entry.addedAt), 'dd MMM')}
                 </span>
                 <button
                   onClick={() => safe.removeEntry(entry.id)}
                   className="text-sm flex-shrink-0 transition-opacity hover:opacity-60"
-                  style={{ color: '#8EB69B' }}
+                  style={{ color: 'var(--c-4)' }}
                 >
                   ✕
                 </button>
@@ -787,18 +787,18 @@ function PhotosSection({ safe, safeKey }) {
 
       <div
         className="w-full py-6 rounded-xl border-2 border-dashed flex flex-col items-center gap-2 cursor-pointer transition-colors"
-        style={{ borderColor: 'rgba(218,241,222,0.18)' }}
+        style={{ borderColor: 'rgba(var(--c-5-rgb),0.18)' }}
         onClick={() => fileInputRef.current?.click()}
-        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(218,241,222,0.45)')}
-        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(218,241,222,0.18)')}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(var(--c-5-rgb),0.45)')}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(var(--c-5-rgb),0.18)')}
       >
         <span className="text-2xl">📸</span>
-        <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>{uploading ? 'Encrypting and uploading…' : 'Upload photos or videos'}</p>
+        <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>{uploading ? 'Encrypting and uploading…' : 'Upload photos or videos'}</p>
       </div>
 
       {photos.length > 0 && (
         <>
-          <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>
+          <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>
             {photos.length} file{photos.length > 1 ? 's' : ''} on-chain
           </p>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -813,11 +813,11 @@ function PhotosSection({ safe, safeKey }) {
                 >
                   {thumbs[idKey] && <img src={thumbs[idKey]} alt={photo.name} className="w-full h-full object-cover" />}
                   <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ background: 'rgba(5,31,32,0.75)' }}>
-                    <p className="font-inter text-xs text-center px-1" style={{ color: '#DAF1DE' }}>
+                    style={{ background: 'rgba(var(--c-0-rgb),0.75)' }}>
+                    <p className="font-inter text-xs text-center px-1" style={{ color: 'var(--c-5)' }}>
                       {photo.name.length > 12 ? `${photo.name.slice(0, 10)}…` : photo.name}
                     </p>
-                    <button onClick={(e) => { e.stopPropagation(); removePhoto(photo.entryId) }} className="text-xs mt-1" style={{ color: '#8EB69B' }}>
+                    <button onClick={(e) => { e.stopPropagation(); removePhoto(photo.entryId) }} className="text-xs mt-1" style={{ color: 'var(--c-4)' }}>
                       Remove
                     </button>
                   </div>
@@ -826,8 +826,8 @@ function PhotosSection({ safe, safeKey }) {
             })}
             {photos.length > 8 && (
               <div className="aspect-square rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(11,43,38,0.3)' }}>
-                <span className="font-sora text-sm font-semibold" style={{ color: '#8EB69B' }}>
+                style={{ background: 'rgba(var(--c-1-rgb),0.3)' }}>
+                <span className="font-sora text-sm font-semibold" style={{ color: 'var(--c-4)' }}>
                   +{photos.length - 8}
                 </span>
               </div>
@@ -881,13 +881,13 @@ function PasswordVault({ safe, safeKey }) {
   return (
     <div className="pt-4 space-y-3">
       <div className="flex items-center justify-between mb-1">
-        <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+        <p className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
           AES-256 encrypted, pinned to IPFS — never readable on-chain.
         </p>
         <button
           onClick={() => setShowPasswords(!showPasswords)}
           className="text-xs px-2 py-1 rounded transition-all"
-          style={{ background: 'rgba(142,182,155,0.1)', color: '#8EB69B' }}
+          style={{ background: 'rgba(var(--c-4-rgb),0.1)', color: 'var(--c-4)' }}
         >
           {showPasswords ? 'Hide' : 'Reveal'} passwords
         </button>
@@ -908,7 +908,7 @@ function PasswordVault({ safe, safeKey }) {
             onClick={handleSave}
             disabled={saving || safe.isPending || safe.isConfirming}
             className="text-sm px-1.5 transition-opacity hover:opacity-80 flex-shrink-0"
-            style={{ color: '#8EB69B' }}
+            style={{ color: 'var(--c-4)' }}
           >
             {saving ? '…' : '+'}
           </button>
@@ -921,22 +921,22 @@ function PasswordVault({ safe, safeKey }) {
             const idKey = entry.id.toString()
             const r = revealed[idKey]
             return (
-              <div key={idKey} className="grid grid-cols-3 gap-2 items-center p-2 rounded-lg" style={{ background: 'rgba(11,43,38,0.25)' }}>
-                <span className="font-inter text-sm truncate" style={{ color: '#DAF1DE' }}>{labels[idKey] ?? 'Decrypting…'}</span>
-                <span className="font-inter text-sm truncate" style={{ color: '#8EB69B' }}>{showPasswords ? (r?.username ?? '') : '••••'}</span>
+              <div key={idKey} className="grid grid-cols-3 gap-2 items-center p-2 rounded-lg" style={{ background: 'rgba(var(--c-1-rgb),0.25)' }}>
+                <span className="font-inter text-sm truncate" style={{ color: 'var(--c-5)' }}>{labels[idKey] ?? 'Decrypting…'}</span>
+                <span className="font-inter text-sm truncate" style={{ color: 'var(--c-4)' }}>{showPasswords ? (r?.username ?? '') : '••••'}</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm truncate flex-1" style={{ color: '#8EB69B' }}>
+                  <span className="font-mono text-sm truncate flex-1" style={{ color: 'var(--c-4)' }}>
                     {showPasswords ? (r?.password ?? '') : '••••••••'}
                   </span>
                   {showPasswords && !r && (
-                    <button onClick={() => reveal(entry)} className="text-xs" style={{ color: '#8EB69B' }}>Reveal</button>
+                    <button onClick={() => reveal(entry)} className="text-xs" style={{ color: 'var(--c-4)' }}>Reveal</button>
                   )}
-                  <button onClick={() => safe.removeEntry(entry.id)} className="text-sm px-1" style={{ color: '#8EB69B' }}>✕</button>
+                  <button onClick={() => safe.removeEntry(entry.id)} className="text-sm px-1" style={{ color: 'var(--c-4)' }}>✕</button>
                 </div>
               </div>
             )
           })}
-          <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.5)' }}>
+          <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
             {chainEntries.length} password{chainEntries.length > 1 ? 's' : ''} on-chain
           </p>
         </div>
@@ -999,11 +999,11 @@ export default function PrivateSafePage() {
         <div className="relative z-10 max-w-3xl mx-auto px-4 py-8">
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: '#8EB69B' }} />
-              <span className="font-inter text-xs uppercase tracking-widest" style={{ color: '#8EB69B' }}>Sample safe</span>
+              <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: 'var(--c-4)' }} />
+              <span className="font-inter text-xs uppercase tracking-widest" style={{ color: 'var(--c-4)' }}>Sample safe</span>
             </div>
             <h1 className="font-sora font-bold text-3xl shimmer-text mb-2">{tr('safe.title')}</h1>
-            <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>{DEMO_NOTICE}</p>
+            <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>{DEMO_NOTICE}</p>
           </div>
           <div className="space-y-4">
             <SafeSection icon="🔐" title="Keys" delay={0.05}><DemoSafeList items={DEMO_SAFE_SECTIONS.keys} /></SafeSection>
@@ -1041,8 +1041,8 @@ export default function PrivateSafePage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.55 }} className="relative z-10 max-w-md mx-auto px-4 py-24 text-center">
               <div className="glass-card p-8 text-center">
                 <span className="text-4xl mb-3 inline-block">🗝️</span>
-                <h2 className="font-sora font-semibold text-lg mb-2" style={{ color: '#DAF1DE' }}>Sign to unlock your safe</h2>
-                <p className="font-inter text-sm mb-5" style={{ color: '#8EB69B' }}>
+                <h2 className="font-sora font-semibold text-lg mb-2" style={{ color: 'var(--c-5)' }}>Sign to unlock your safe</h2>
+                <p className="font-inter text-sm mb-5" style={{ color: 'var(--c-4)' }}>
                   A free wallet signature deterministically derives the AES-256 key that protects every entry below. It costs no gas and never touches the blockchain.
                 </p>
                 <motion.button whileTap={{ scale: 0.97 }} onClick={handleSignToUnlock} disabled={unlocking} className="btn-primary text-sm px-5 py-2.5">
@@ -1070,15 +1070,15 @@ export default function PrivateSafePage() {
                 className="mb-8"
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: '#8EB69B' }} />
-                  <span className="font-inter text-xs uppercase tracking-widest" style={{ color: '#8EB69B' }}>
+                  <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: 'var(--c-4)' }} />
+                  <span className="font-inter text-xs uppercase tracking-widest" style={{ color: 'var(--c-4)' }}>
                     {safe.contractReady ? 'Encrypted vault active' : 'Safe contract not deployed'}
                   </span>
                 </div>
                 <h1 className="font-sora font-bold text-3xl shimmer-text mb-2">
                   {tr('safe.title')}
                 </h1>
-                <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                   {address ? `${address.slice(0, 10)}…${address.slice(-6)}` : 'Connected'}{' '}
                   · AES-256 · IPFS-backed
                 </p>
@@ -1103,10 +1103,10 @@ export default function PrivateSafePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.45 }}
                 className="mt-8 p-4 rounded-xl flex items-center gap-4 flex-wrap"
-                style={{ background: 'rgba(11,43,38,0.3)', border: '1px solid rgba(142,182,155,0.2)' }}
+                style={{ background: 'rgba(var(--c-1-rgb),0.3)', border: '1px solid rgba(var(--c-4-rgb),0.2)' }}
               >
                 <span className="text-xl">⚠️</span>
-                <p className="font-inter text-sm flex-1" style={{ color: '#DAF1DE' }}>
+                <p className="font-inter text-sm flex-1" style={{ color: 'var(--c-5)' }}>
                   {tr('safe.warning')}
                 </p>
                 <button

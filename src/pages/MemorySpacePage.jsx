@@ -45,12 +45,12 @@ const FILTERS = [
 const REACTION_EMOJI = ['🕯️', '❤️', '🌸']
 
 const COVER_GRADIENTS = [
-  'linear-gradient(135deg, #051F20, #0B2B26)',
-  'linear-gradient(135deg, #0B2B26, #163832)',
-  'linear-gradient(135deg, #163832, #051F20)',
-  'linear-gradient(135deg, #70191D, #0B2B26)',
-  'linear-gradient(135deg, #1a0810, #051F20)',
-  'linear-gradient(135deg, #0a1525, #0B2B26)',
+  'linear-gradient(135deg, var(--c-0), var(--c-1))',
+  'linear-gradient(135deg, var(--c-1), var(--c-2))',
+  'linear-gradient(135deg, var(--c-2), var(--c-0))',
+  'linear-gradient(135deg, #70191D, var(--c-1))',
+  'linear-gradient(135deg, #1a0810, var(--c-0))',
+  'linear-gradient(135deg, #0a1525, var(--c-1))',
 ]
 
 import { DEMO_CAPSULES, DEMO_NOTICE } from '@/lib/demoData'
@@ -104,26 +104,26 @@ function FilePreview({ file, onClose }) {
 
   return (
     <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0" style={{ background: 'rgba(5,31,32,0.94)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
+      <div className="absolute inset-0" style={{ background: 'rgba(var(--c-0-rgb),0.94)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
       <motion.div className="relative z-10 w-full max-w-lg" initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
         <div className="glass-card overflow-hidden">
-          <div className="w-full flex items-center justify-center" style={{ minHeight: '200px', background: 'rgba(5,31,32,0.6)' }}>
+          <div className="w-full flex items-center justify-center" style={{ minHeight: '200px', background: 'rgba(var(--c-0-rgb),0.6)' }}>
             {isImage && file.url ? (
               <img src={file.url} alt={file.name} className="max-w-full max-h-80 object-contain" />
             ) : (
               <div className="flex flex-col items-center gap-3 py-12">
                 <span className="text-5xl">📁</span>
-                <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.6)' }}>Preview not available</p>
+                <p className="font-inter text-sm" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Preview not available</p>
               </div>
             )}
           </div>
           <div className="p-5">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="font-sora font-semibold text-base truncate" style={{ color: '#DAF1DE' }}>{file.name}</h3>
-                <p className="font-inter text-xs mt-0.5" style={{ color: '#8EB69B' }}>IPFS · encrypted</p>
+                <h3 className="font-sora font-semibold text-base truncate" style={{ color: 'var(--c-5)' }}>{file.name}</h3>
+                <p className="font-inter text-xs mt-0.5" style={{ color: 'var(--c-4)' }}>IPFS · encrypted</p>
               </div>
-              <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(11,43,38,0.7)', color: '#8EB69B' }}>✕</button>
+              <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(var(--c-1-rgb),0.7)', color: 'var(--c-4)' }}>✕</button>
             </div>
             <div className="flex gap-3">
               <button onClick={handleDownload} className="btn-primary flex-1 text-sm">Download</button>
@@ -149,9 +149,9 @@ function DemoCapsuleCard({ capsule }) {
       style={{ background: COVER_GRADIENTS[0] }}
     >
       <span className="text-2xl">{meta.icon}</span>
-      <p className="font-sora font-semibold text-sm mt-3" style={{ color: '#DAF1DE' }}>{capsule.title}</p>
-      <p className="font-inter text-xs mt-1" style={{ color: '#8EB69B' }}>{capsule.preview}</p>
-      <span className="font-inter text-[10px] uppercase tracking-widest mt-3 inline-block" style={{ color: 'rgba(142,182,155,0.6)' }}>Sample &middot; {meta.label}</span>
+      <p className="font-sora font-semibold text-sm mt-3" style={{ color: 'var(--c-5)' }}>{capsule.title}</p>
+      <p className="font-inter text-xs mt-1" style={{ color: 'var(--c-4)' }}>{capsule.preview}</p>
+      <span className="font-inter text-[10px] uppercase tracking-widest mt-3 inline-block" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Sample &middot; {meta.label}</span>
     </motion.div>
   )
 }
@@ -200,7 +200,7 @@ function CapsuleCard({ capsule, capsules, onClick }) {
       className="glass-card overflow-hidden cursor-pointer group break-inside-avoid mb-4 relative"
     >
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{ background: 'linear-gradient(135deg, rgba(142,182,155,0.04) 0%, transparent 60%)' }}
+        style={{ background: 'linear-gradient(135deg, rgba(var(--c-4-rgb),0.04) 0%, transparent 60%)' }}
       />
 
       <div className="relative w-full flex items-end p-4" style={{ minHeight: '120px', background: COVER_GRADIENTS[gradIdx] }}>
@@ -210,39 +210,39 @@ function CapsuleCard({ capsule, capsules, onClick }) {
         <span className={`badge-${meta.badge} relative z-10`}>{meta.icon} {meta.label}</span>
         {isTimeLocked && (
           <div className="absolute top-3 right-3 text-xs font-sora px-2 py-1 rounded-lg"
-            style={{ background: 'rgba(11,43,38,0.7)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.2)' }}>
+            style={{ background: 'rgba(var(--c-1-rgb),0.7)', color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.2)' }}>
             {unlocked ? 'Unlocked' : `Unlocks ${format(new Date(unlockMs), 'MMM yyyy')}`}
           </div>
         )}
       </div>
 
       <div className="p-5">
-        <h3 className="font-sora font-semibold text-base mb-2 line-clamp-2" style={{ color: '#DAF1DE' }}>
+        <h3 className="font-sora font-semibold text-base mb-2 line-clamp-2" style={{ color: 'var(--c-5)' }}>
           {capsule.title}
         </h3>
         {capsule.contentPreview && (
-          <p className="font-inter text-sm mb-4 line-clamp-3" style={{ color: '#8EB69B' }}>
+          <p className="font-inter text-sm mb-4 line-clamp-3" style={{ color: 'var(--c-4)' }}>
             {capsule.contentPreview}
           </p>
         )}
 
         <div className="flex gap-3 mb-4">
           {counts.photos > 0 && (
-            <div className="flex items-center gap-1 text-xs" style={{ color: '#8EB69B' }}><span>📸</span> {counts.photos}</div>
+            <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--c-4)' }}><span>📸</span> {counts.photos}</div>
           )}
           {counts.voice > 0 && (
-            <div className="flex items-center gap-1 text-xs" style={{ color: '#8EB69B' }}><span>🎙️</span> {counts.voice}</div>
+            <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--c-4)' }}><span>🎙️</span> {counts.voice}</div>
           )}
           {counts.letters > 0 && (
-            <div className="flex items-center gap-1 text-xs" style={{ color: '#8EB69B' }}><span>💌</span> {counts.letters}</div>
+            <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--c-4)' }}><span>💌</span> {counts.letters}</div>
           )}
         </div>
 
-        <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.5)' }}>
+        <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
           {format(tsToDate(capsule.createdAt), 'dd MMMM yyyy')}
         </p>
 
-        <div className="flex gap-3 mt-3 pt-3" style={{ borderTop: '1px solid rgba(218,241,222,0.07)' }}>
+        <div className="flex gap-3 mt-3 pt-3" style={{ borderTop: '1px solid rgba(var(--c-5-rgb),0.07)' }}>
           {REACTION_EMOJI.map((emoji, idx) => {
             const count      = Number(reactionCounts?.[idx] || 0)
             const hasReacted = !!(Number(myBits || 0) & (1 << idx))
@@ -255,7 +255,7 @@ function CapsuleCard({ capsule, capsules, onClick }) {
                 title={hasReacted ? 'Remove reaction' : 'Add reaction'}
               >
                 {emoji}
-                {count > 0 && <span className="text-xs font-sora font-semibold" style={{ color: '#8EB69B' }}>{count}</span>}
+                {count > 0 && <span className="text-xs font-sora font-semibold" style={{ color: 'var(--c-4)' }}>{count}</span>}
               </button>
             )
           })}
@@ -315,14 +315,14 @@ function CapsuleDetail({ capsuleId, capsules, circles, memoryKey, unlocking, ens
 
   return (
     <motion.div className="fixed inset-0 z-50 overflow-y-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0" style={{ background: 'rgba(5,31,32,0.94)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
+      <div className="absolute inset-0" style={{ background: 'rgba(var(--c-0-rgb),0.94)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
       <motion.div className="relative z-10 max-w-2xl mx-auto my-8 px-4"
         initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
         transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}>
         <div className="glass-card overflow-hidden">
-          <div className="relative w-full h-36 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #051F20, #0B2B26)' }}>
+          <div className="relative w-full h-36 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--c-0), var(--c-1))' }}>
             <span className="text-6xl opacity-20">{meta.icon}</span>
-            <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(11,43,38,0.7)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.2)' }}>✕</button>
+            <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(var(--c-1-rgb),0.7)', color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.2)' }}>✕</button>
           </div>
 
           <div className="p-6">
@@ -338,21 +338,21 @@ function CapsuleDetail({ capsuleId, capsules, circles, memoryKey, unlocking, ens
             ) : (
               <div className="flex items-start justify-between mb-4 gap-3 flex-wrap">
                 <div>
-                  <h2 className="font-sora font-bold text-xl mb-1" style={{ color: '#DAF1DE' }}>{capsule.title}</h2>
+                  <h2 className="font-sora font-bold text-xl mb-1" style={{ color: 'var(--c-5)' }}>{capsule.title}</h2>
                   <span className={`badge-${meta.badge}`}>{meta.icon} {meta.label}</span>
                   {linkedCircle && (
-                    <span className="font-inter text-xs ml-2" style={{ color: '#8EB69B' }}>· shared with {linkedCircle.name}</span>
+                    <span className="font-inter text-xs ml-2" style={{ color: 'var(--c-4)' }}>· shared with {linkedCircle.name}</span>
                   )}
                 </div>
-                <button onClick={() => setEditing(true)} className="text-xs px-3 py-1.5 rounded-lg transition-all flex-shrink-0" style={{ background: 'rgba(142,182,155,0.1)', color: '#8EB69B' }}>Edit</button>
+                <button onClick={() => setEditing(true)} className="text-xs px-3 py-1.5 rounded-lg transition-all flex-shrink-0" style={{ background: 'rgba(var(--c-4-rgb),0.1)', color: 'var(--c-4)' }}>Edit</button>
               </div>
             )}
 
-            <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'rgba(11,43,38,0.4)' }}>
+            <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'rgba(var(--c-1-rgb),0.4)' }}>
               {['overview', 'photos', 'letters', 'voice'].map((t) => (
                 <button key={t} onClick={() => setTab(t)}
                   className="flex-1 py-1.5 rounded-lg text-xs font-sora font-semibold capitalize transition-all"
-                  style={{ background: tab === t ? 'rgba(142,182,155,0.15)' : 'transparent', color: tab === t ? '#DAF1DE' : '#8EB69B' }}>
+                  style={{ background: tab === t ? 'rgba(var(--c-4-rgb),0.15)' : 'transparent', color: tab === t ? 'var(--c-5)' : 'var(--c-4)' }}>
                   {t}{t === 'photos' && photos.length > 0 ? ` (${photos.length})` : ''}
                   {t === 'letters' && letters.length > 0 ? ` (${letters.length})` : ''}
                   {t === 'voice'   && voice.length   > 0 ? ` (${voice.length})`   : ''}
@@ -361,8 +361,8 @@ function CapsuleDetail({ capsuleId, capsules, circles, memoryKey, unlocking, ens
             </div>
 
             {tab !== 'overview' && !memoryKey && (
-              <div className="flex items-center justify-between gap-3 p-3 rounded-xl mb-4" style={{ background: 'rgba(11,43,38,0.35)', border: '1px solid rgba(142,182,155,0.15)' }}>
-                <p className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+              <div className="flex items-center justify-between gap-3 p-3 rounded-xl mb-4" style={{ background: 'rgba(var(--c-1-rgb),0.35)', border: '1px solid rgba(var(--c-4-rgb),0.15)' }}>
+                <p className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
                   Sign once (free, no gas) to decrypt this capsule's content.
                 </p>
                 <button onClick={ensureMemoryKey} disabled={unlocking} className="btn-primary text-xs px-3 py-1.5 whitespace-nowrap">
@@ -374,18 +374,18 @@ function CapsuleDetail({ capsuleId, capsules, circles, memoryKey, unlocking, ens
             {tab === 'overview' && (
               <div>
                 {capsule.contentPreview && (
-                  <p className="font-inter text-sm mb-4" style={{ color: '#8EB69B' }}>{capsule.contentPreview}</p>
+                  <p className="font-inter text-sm mb-4" style={{ color: 'var(--c-4)' }}>{capsule.contentPreview}</p>
                 )}
                 <div className="flex gap-4 flex-wrap mb-4">
                   {[['📸', 'photos', photos.length], ['🎙️', 'voice', voice.length], ['💌', 'letters', letters.length]].map(([icon, t, count]) => (
                     <div key={t} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg cursor-pointer transition-all"
-                      style={{ background: 'rgba(11,43,38,0.4)' }} onClick={() => setTab(t)}>
+                      style={{ background: 'rgba(var(--c-1-rgb),0.4)' }} onClick={() => setTab(t)}>
                       <span>{icon}</span>
-                      <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>{count} {t}</span>
+                      <span className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>{count} {t}</span>
                     </div>
                   ))}
                 </div>
-                <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
                   Created {format(tsToDate(capsule.createdAt), 'dd MMM yyyy')}
                   {Number(capsule.unlockDate) > 0 && ` · ${unlocked ? 'Unlocked' : 'Unlocks'} ${format(tsToDate(capsule.unlockDate), 'dd MMM yyyy')}`}
                 </p>
@@ -396,17 +396,17 @@ function CapsuleDetail({ capsuleId, capsules, circles, memoryKey, unlocking, ens
             {tab === 'letters' && <LettersTab capsule={capsule} capsules={capsules} items={letters} unlocked={unlocked} ensureMemoryKey={ensureMemoryKey} />}
             {tab === 'voice'   && <VoiceTab   capsule={capsule} capsules={capsules} items={voice}   ensureMemoryKey={ensureMemoryKey} />}
 
-            <div className="mt-5 pt-4" style={{ borderTop: '1px solid rgba(142,182,155,0.08)' }}>
+            <div className="mt-5 pt-4" style={{ borderTop: '1px solid rgba(var(--c-4-rgb),0.08)' }}>
               <AnimatePresence mode="wait">
                 {confirmDelete ? (
                   <motion.div key="confirm-del" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex gap-2">
                     <button onClick={handleDelete} className="flex-1 text-sm py-2 rounded-xl font-sora font-semibold" style={{ background: 'rgba(209,96,31,0.2)', color: '#D1601F', border: '1px solid rgba(209,96,31,0.4)' }}>Confirm delete</button>
-                    <button onClick={() => setConfirmDelete(false)} className="text-sm px-5 py-2 rounded-xl" style={{ background: 'rgba(142,182,155,0.08)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.18)' }}>Cancel</button>
+                    <button onClick={() => setConfirmDelete(false)} className="text-sm px-5 py-2 rounded-xl" style={{ background: 'rgba(var(--c-4-rgb),0.08)', color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.18)' }}>Cancel</button>
                   </motion.div>
                 ) : (
                   <motion.button key="del-btn" animate={{ opacity: 1 }} onClick={() => setConfirmDelete(true)}
                     className="w-full text-xs font-inter text-center py-1.5 transition-opacity hover:opacity-80"
-                    style={{ color: 'rgba(142,182,155,0.4)' }}>
+                    style={{ color: 'rgba(var(--c-4-rgb),0.4)' }}>
                     Delete capsule
                   </motion.button>
                 )}
@@ -476,11 +476,11 @@ function PhotosTab({ capsule, capsules, items, unlocked, memoryKey, ensureMemory
       <input ref={fileInputRef} type="file" multiple accept="image/*" hidden onChange={handleFileChange} />
       <button onClick={() => fileInputRef.current?.click()}
         className="w-full py-6 rounded-xl border-2 border-dashed flex flex-col items-center gap-2 transition-all"
-        style={{ borderColor: 'rgba(218,241,222,0.2)' }}
-        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(218,241,222,0.45)')}
-        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(218,241,222,0.2)')}>
+        style={{ borderColor: 'rgba(var(--c-5-rgb),0.2)' }}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(var(--c-5-rgb),0.45)')}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(var(--c-5-rgb),0.2)')}>
         <span className="text-2xl">📸</span>
-        <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>{uploading ? 'Encrypting and uploading…' : 'Click to add photos'}</span>
+        <span className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>{uploading ? 'Encrypting and uploading…' : 'Click to add photos'}</span>
       </button>
 
       {!unlocked && items.length > 0 && (
@@ -503,7 +503,7 @@ function PhotosTab({ capsule, capsules, items, unlocked, memoryKey, ensureMemory
                 )}
                 <button onClick={(e) => { e.stopPropagation(); capsules.removeContent(capsule.id, it.id) }}
                   className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{ background: 'rgba(5,31,32,0.8)', color: '#DAF1DE' }}>✕</button>
+                  style={{ background: 'rgba(var(--c-0-rgb),0.8)', color: 'var(--c-5)' }}>✕</button>
               </div>
             )
           })}
@@ -576,19 +576,19 @@ function LettersTab({ capsule, capsules, items, unlocked, ensureMemoryKey }) {
           {sorted.map((it) => {
             const idKey = it.id.toString()
             return (
-              <div key={idKey} className="p-3 rounded-xl relative group" style={{ background: 'rgba(11,43,38,0.3)' }}>
-                <p className="font-inter text-sm" style={{ color: '#DAF1DE' }}>{it.label}</p>
+              <div key={idKey} className="p-3 rounded-xl relative group" style={{ background: 'rgba(var(--c-1-rgb),0.3)' }}>
+                <p className="font-inter text-sm" style={{ color: 'var(--c-5)' }}>{it.label}</p>
                 {revealed[idKey] ? (
-                  <p className="font-inter text-sm leading-relaxed mt-1" style={{ color: '#8EB69B' }}>{revealed[idKey]}</p>
+                  <p className="font-inter text-sm leading-relaxed mt-1" style={{ color: 'var(--c-4)' }}>{revealed[idKey]}</p>
                 ) : (
-                  <button onClick={() => reveal(it)} className="font-inter text-xs mt-1 transition-opacity hover:opacity-80" style={{ color: '#8EB69B' }}>
+                  <button onClick={() => reveal(it)} className="font-inter text-xs mt-1 transition-opacity hover:opacity-80" style={{ color: 'var(--c-4)' }}>
                     {unlocked ? 'Reveal' : '🔒 Sealed until unlock date'}
                   </button>
                 )}
-                <p className="font-inter text-xs mt-1" style={{ color: 'rgba(142,182,155,0.5)' }}>{format(tsToDate(it.addedAt), 'dd MMM yyyy HH:mm')}</p>
+                <p className="font-inter text-xs mt-1" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>{format(tsToDate(it.addedAt), 'dd MMM yyyy HH:mm')}</p>
                 <button onClick={() => capsules.removeContent(capsule.id, it.id)}
                   className="absolute top-2 right-2 text-xs opacity-0 group-hover:opacity-60 transition-opacity"
-                  style={{ color: '#8EB69B' }}>✕</button>
+                  style={{ color: 'var(--c-4)' }}>✕</button>
               </div>
             )
           })}
@@ -639,13 +639,13 @@ function VoiceTab({ capsule, capsules, items, ensureMemoryKey }) {
           onClick={handleRecordToggle}
           whileTap={{ scale: 0.92 }}
           className="w-14 h-14 rounded-full flex items-center justify-center text-2xl flex-shrink-0"
-          style={{ background: recording ? '#0B2B26' : 'rgba(142,182,155,0.12)', border: '2px solid rgba(142,182,155,0.35)' }}
-          animate={recording ? { boxShadow: ['0 0 0 0 rgba(142,182,155,0.4)', '0 0 0 14px rgba(142,182,155,0)'] } : {}}
+          style={{ background: recording ? 'var(--c-1)' : 'rgba(var(--c-4-rgb),0.12)', border: '2px solid rgba(var(--c-4-rgb),0.35)' }}
+          animate={recording ? { boxShadow: ['0 0 0 0 rgba(var(--c-4-rgb),0.4)', '0 0 0 14px rgba(var(--c-4-rgb),0)'] } : {}}
           transition={recording ? { duration: 1, repeat: Infinity } : {}}
         >
           🎙️
         </motion.button>
-        <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+        <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
           {saving ? 'Encrypting…' : recording ? 'Recording… tap to stop' : items.length === 0 ? 'Tap to record' : `${items.length} note${items.length > 1 ? 's' : ''} · Tap to record more`}
         </p>
       </div>
@@ -654,13 +654,13 @@ function VoiceTab({ capsule, capsules, items, ensureMemoryKey }) {
         <div className="space-y-2">
           {items.map((it) => (
             <motion.div key={it.id.toString()} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(11,43,38,0.3)' }}>
+              className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(var(--c-1-rgb),0.3)' }}>
               <button className="text-lg flex-shrink-0" onClick={handlePlay}>▶️</button>
               <div className="flex-1 min-w-0">
-                <p className="font-inter text-sm truncate" style={{ color: '#DAF1DE' }}>{it.label}</p>
+                <p className="font-inter text-sm truncate" style={{ color: 'var(--c-5)' }}>{it.label}</p>
               </div>
-              <span className="font-inter text-xs flex-shrink-0" style={{ color: '#8EB69B' }}>{format(tsToDate(it.addedAt), 'dd MMM')}</span>
-              <button onClick={() => capsules.removeContent(capsule.id, it.id)} className="text-sm flex-shrink-0 transition-opacity hover:opacity-60" style={{ color: '#8EB69B' }}>✕</button>
+              <span className="font-inter text-xs flex-shrink-0" style={{ color: 'var(--c-4)' }}>{format(tsToDate(it.addedAt), 'dd MMM')}</span>
+              <button onClick={() => capsules.removeContent(capsule.id, it.id)} className="text-sm flex-shrink-0 transition-opacity hover:opacity-60" style={{ color: 'var(--c-4)' }}>✕</button>
             </motion.div>
           ))}
         </div>
@@ -691,37 +691,37 @@ function CreateCapsuleModal({ capsules, circles, onClose }) {
 
   return (
     <motion.div className="fixed inset-0 z-50 overflow-y-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0" style={{ background: 'rgba(5,31,32,0.94)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
+      <div className="absolute inset-0" style={{ background: 'rgba(var(--c-0-rgb),0.94)', backdropFilter: 'blur(14px)' }} onClick={onClose} />
       <motion.div className="relative z-10 max-w-lg mx-auto my-12 px-4"
         initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
         transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}>
         <div className="glass-card p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-sora font-bold text-xl" style={{ color: '#DAF1DE' }}>New memory capsule</h2>
-            <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(11,43,38,0.7)', color: '#8EB69B' }}>✕</button>
+            <h2 className="font-sora font-bold text-xl" style={{ color: 'var(--c-5)' }}>New memory capsule</h2>
+            <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(var(--c-1-rgb),0.7)', color: 'var(--c-4)' }}>✕</button>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="font-inter text-xs uppercase tracking-wide mb-1.5 block" style={{ color: '#8EB69B' }}>Title</label>
+              <label className="font-inter text-xs uppercase tracking-wide mb-1.5 block" style={{ color: 'var(--c-4)' }}>Title</label>
               <input className="vault-input" placeholder="e.g. For my daughter's wedding" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
             </div>
 
             <div>
-              <label className="font-inter text-xs uppercase tracking-wide mb-1.5 block" style={{ color: '#8EB69B' }}>Description (optional)</label>
+              <label className="font-inter text-xs uppercase tracking-wide mb-1.5 block" style={{ color: 'var(--c-4)' }}>Description (optional)</label>
               <textarea className="vault-input text-sm resize-none" rows={2} placeholder="A short note about what's inside…" value={preview} onChange={(e) => setPreview(e.target.value)} />
             </div>
 
             <div>
-              <label className="font-inter text-xs uppercase tracking-wide mb-1.5 block" style={{ color: '#8EB69B' }}>Type</label>
+              <label className="font-inter text-xs uppercase tracking-wide mb-1.5 block" style={{ color: 'var(--c-4)' }}>Type</label>
               <div className="grid grid-cols-2 gap-2">
                 {Object.entries(CAPSULE_TYPE_META).map(([val, m]) => (
                   <button key={val} onClick={() => setType(Number(val))}
                     className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-inter transition-all"
                     style={{
-                      background: type === Number(val) ? 'rgba(142,182,155,0.15)' : 'rgba(11,43,38,0.3)',
-                      color: type === Number(val) ? '#DAF1DE' : '#8EB69B',
-                      border: type === Number(val) ? '1px solid rgba(142,182,155,0.4)' : '1px solid rgba(142,182,155,0.1)',
+                      background: type === Number(val) ? 'rgba(var(--c-4-rgb),0.15)' : 'rgba(var(--c-1-rgb),0.3)',
+                      color: type === Number(val) ? 'var(--c-5)' : 'var(--c-4)',
+                      border: type === Number(val) ? '1px solid rgba(var(--c-4-rgb),0.4)' : '1px solid rgba(var(--c-4-rgb),0.1)',
                     }}>
                     <span>{m.icon}</span> {m.label}
                   </button>
@@ -731,9 +731,9 @@ function CreateCapsuleModal({ capsules, circles, onClose }) {
 
             {type === CAPSULE_TYPE.SHARED && (
               <div>
-                <label className="font-inter text-xs uppercase tracking-wide mb-1.5 block" style={{ color: '#8EB69B' }}>Share with circle</label>
+                <label className="font-inter text-xs uppercase tracking-wide mb-1.5 block" style={{ color: 'var(--c-4)' }}>Share with circle</label>
                 {circles.myCircles.length === 0 ? (
-                  <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>You haven't created a circle yet — visit Legacy Circles first.</p>
+                  <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>You haven't created a circle yet — visit Legacy Circles first.</p>
                 ) : (
                   <select className="vault-input" value={circleId} onChange={(e) => setCircleId(e.target.value)}>
                     <option value="">Choose a circle…</option>
@@ -747,7 +747,7 @@ function CreateCapsuleModal({ capsules, circles, onClose }) {
 
             {type === CAPSULE_TYPE.TIME_LOCKED && (
               <div>
-                <label className="font-inter text-xs uppercase tracking-wide mb-1.5 block" style={{ color: '#8EB69B' }}>Unlock date</label>
+                <label className="font-inter text-xs uppercase tracking-wide mb-1.5 block" style={{ color: 'var(--c-4)' }}>Unlock date</label>
                 <input type="date" className="vault-input" value={unlockDate} onChange={(e) => setUnlockDate(e.target.value)} min={format(new Date(), 'yyyy-MM-dd')} />
               </div>
             )}
@@ -838,11 +838,11 @@ export default function MemorySpacePage() {
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <motion.div initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: '#8EB69B' }} />
-              <span className="font-inter text-xs uppercase tracking-widest" style={{ color: '#8EB69B' }}>Memory Space</span>
+              <span className="w-2 h-2 rounded-full animate-pulse-dot" style={{ background: 'var(--c-4)' }} />
+              <span className="font-inter text-xs uppercase tracking-widest" style={{ color: 'var(--c-4)' }}>Memory Space</span>
             </div>
             <h1 className="font-sora font-bold text-3xl md:text-4xl shimmer-text">{tr('memory.title')}</h1>
-            <p className="font-inter text-sm mt-1" style={{ color: '#8EB69B' }}>{displayDemo ? DEMO_NOTICE : tr('memory.subtitle')}</p>
+            <p className="font-inter text-sm mt-1" style={{ color: 'var(--c-4)' }}>{displayDemo ? DEMO_NOTICE : tr('memory.subtitle')}</p>
           </motion.div>
 
           <motion.button onClick={() => { if (requireWallet('create a capsule')) setShowCreate(true) }} className="btn-primary text-sm px-4 py-2"
@@ -857,9 +857,9 @@ export default function MemorySpacePage() {
             <button key={f.label} onClick={() => setFilter(f.value)}
               className="px-4 py-1.5 rounded-full text-sm font-inter whitespace-nowrap transition-all"
               style={{
-                background: filter === f.value ? 'rgba(142,182,155,0.18)' : 'rgba(11,43,38,0.3)',
-                color: filter === f.value ? '#DAF1DE' : '#8EB69B',
-                border: filter === f.value ? '1px solid rgba(142,182,155,0.4)' : '1px solid rgba(142,182,155,0.1)',
+                background: filter === f.value ? 'rgba(var(--c-4-rgb),0.18)' : 'rgba(var(--c-1-rgb),0.3)',
+                color: filter === f.value ? 'var(--c-5)' : 'var(--c-4)',
+                border: filter === f.value ? '1px solid rgba(var(--c-4-rgb),0.4)' : '1px solid rgba(var(--c-4-rgb),0.1)',
               }}>
               {f.label}
             </button>
@@ -876,7 +876,7 @@ export default function MemorySpacePage() {
         ) : filtered.length === 0 ? (
           <motion.div className="text-center py-24" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="text-5xl mb-4">🕊️</div>
-            <p className="font-sora text-lg" style={{ color: '#8EB69B' }}>
+            <p className="font-sora text-lg" style={{ color: 'var(--c-4)' }}>
               {capsules.myCapsules.length === 0 ? 'No memory capsules yet.' : 'No capsules match this filter.'}
             </p>
             <button onClick={() => { if (requireWallet('create a capsule')) setShowCreate(true) }} className="btn-primary mt-6">Create your first capsule</button>
@@ -895,7 +895,7 @@ export default function MemorySpacePage() {
         onClick={() => setShowCreate(true)}
         whileTap={{ scale: 0.92 }}
         className="fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center text-2xl z-40 sm:hidden"
-        style={{ background: '#8EB69B', color: '#051F20', boxShadow: '0 8px 24px rgba(142,182,155,0.35)' }}
+        style={{ background: 'var(--c-4)', color: 'var(--c-0)', boxShadow: '0 8px 24px rgba(var(--c-4-rgb),0.35)' }}
       >
         +
       </motion.button>

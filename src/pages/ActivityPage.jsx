@@ -78,13 +78,13 @@ export default function ActivityPage() {
           className="mb-8"
         >
           <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full" style={{ background: '#8EB69B' }} />
-            <span className="font-inter text-xs uppercase tracking-widest" style={{ color: '#8EB69B' }}>
+            <span className="w-2 h-2 rounded-full" style={{ background: 'var(--c-4)' }} />
+            <span className="font-inter text-xs uppercase tracking-widest" style={{ color: 'var(--c-4)' }}>
               On-chain event feed
             </span>
           </div>
           <h1 className="font-sora font-bold text-3xl shimmer-text mb-2">Activity</h1>
-          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+          <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
             Live contract events across all DeadDrop domains.
           </p>
         </motion.div>
@@ -121,13 +121,13 @@ export default function ActivityPage() {
                 onClick={() => setFilter(f.key)}
                 className="px-4 py-1.5 rounded-full font-sora text-sm transition-all"
                 style={{
-                  background:   filter === f.key ? '#163832' : 'rgba(11,43,38,0.3)',
-                  color:        filter === f.key ? '#DAF1DE' : '#8EB69B',
-                  border:       `1px solid ${filter === f.key ? 'rgba(218,241,222,0.3)' : 'rgba(142,182,155,0.15)'}`,
+                  background:   filter === f.key ? 'var(--c-2)' : 'rgba(var(--c-1-rgb),0.3)',
+                  color:        filter === f.key ? 'var(--c-5)' : 'var(--c-4)',
+                  border:       `1px solid ${filter === f.key ? 'rgba(var(--c-5-rgb),0.3)' : 'rgba(var(--c-4-rgb),0.15)'}`,
                 }}
               >
                 {f.label}
-                <span className="ml-1.5 text-xs" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                <span className="ml-1.5 text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
                   {counts[f.key] ?? 0}
                 </span>
               </button>
@@ -142,9 +142,9 @@ export default function ActivityPage() {
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
               className="w-10 h-10 rounded-full border-2 border-t-transparent"
-              style={{ borderColor: '#8EB69B', borderTopColor: 'transparent' }}
+              style={{ borderColor: 'var(--c-4)', borderTopColor: 'transparent' }}
             />
-            <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>Fetching on-chain events…</p>
+            <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>Fetching on-chain events…</p>
           </motion.div>
         ) : grouped.length === 0 ? (
           <motion.div
@@ -153,7 +153,7 @@ export default function ActivityPage() {
             className="glass-card p-12 text-center"
           >
             <span className="text-4xl block mb-3">📭</span>
-            <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.5)' }}>
+            <p className="font-inter text-sm" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
               {search.length >= 2 ? `No results for "${search}"` : 'No on-chain events yet.'}
             </p>
           </motion.div>
@@ -162,11 +162,11 @@ export default function ActivityPage() {
             {grouped.map(([dateKey, events], gi) => (
               <div key={dateKey}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="h-px flex-1" style={{ background: 'rgba(142,182,155,0.1)' }} />
-                  <span className="font-inter text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(11,43,38,0.4)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.15)' }}>
+                  <div className="h-px flex-1" style={{ background: 'rgba(var(--c-4-rgb),0.1)' }} />
+                  <span className="font-inter text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(var(--c-1-rgb),0.4)', color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.15)' }}>
                     {dateKey}
                   </span>
-                  <div className="h-px flex-1" style={{ background: 'rgba(142,182,155,0.1)' }} />
+                  <div className="h-px flex-1" style={{ background: 'rgba(var(--c-4-rgb),0.1)' }} />
                 </div>
 
                 <div className="space-y-2">
@@ -180,7 +180,7 @@ export default function ActivityPage() {
                     >
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
-                        style={{ background: 'rgba(11,43,38,0.5)' }}
+                        style={{ background: 'rgba(var(--c-1-rgb),0.5)' }}
                       >
                         {DOMAIN_ICON[event.domain] || '📋'}
                       </div>
@@ -188,10 +188,10 @@ export default function ActivityPage() {
                         <div className="flex items-start justify-between gap-2 flex-wrap">
                           <div className="min-w-0">
                             <span className="badge-cobalt text-xs mb-1 inline-block">{event.domainLabel}</span>
-                            <p className="font-inter text-sm" style={{ color: '#DAF1DE' }}>
+                            <p className="font-inter text-sm" style={{ color: 'var(--c-5)' }}>
                               {describeActivity(event)}
                             </p>
-                            <p className="font-inter text-xs mt-0.5 font-mono truncate" style={{ color: 'rgba(142,182,155,0.4)' }}>
+                            <p className="font-inter text-xs mt-0.5 font-mono truncate" style={{ color: 'rgba(var(--c-4-rgb),0.4)' }}>
                               {event.transactionHash
                                 ? <a
                                     href={`https://sepolia.etherscan.io/tx/${event.transactionHash}`}
@@ -205,13 +205,13 @@ export default function ActivityPage() {
                             </p>
                           </div>
                           {event._ts && (
-                            <p className="font-inter text-xs flex-shrink-0" style={{ color: 'rgba(142,182,155,0.4)' }}>
+                            <p className="font-inter text-xs flex-shrink-0" style={{ color: 'rgba(var(--c-4-rgb),0.4)' }}>
                               {format(event._ts, 'HH:mm')}
                             </p>
                           )}
                         </div>
                         {event._ts && (
-                          <p className="font-inter text-xs mt-1" style={{ color: 'rgba(142,182,155,0.3)' }}>
+                          <p className="font-inter text-xs mt-1" style={{ color: 'rgba(var(--c-4-rgb),0.3)' }}>
                             {formatDistanceToNow(event._ts, { addSuffix: true })}
                           </p>
                         )}
@@ -230,7 +230,7 @@ export default function ActivityPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
             className="text-center font-inter text-xs mt-8"
-            style={{ color: 'rgba(142,182,155,0.3)' }}
+            style={{ color: 'rgba(var(--c-4-rgb),0.3)' }}
           >
             {filtered.length} event{filtered.length !== 1 ? 's' : ''} total
           </motion.p>

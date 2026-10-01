@@ -18,20 +18,20 @@ function StepBar({ step }) {
           <div
             className="flex items-center justify-center w-8 h-8 rounded-full font-sora font-bold text-sm transition-all duration-300"
             style={{
-              background: i < step ? '#0B2B26' : i === step ? 'rgba(218,241,222,0.2)' : 'rgba(11,43,38,0.2)',
-              border: i === step ? '2px solid #DAF1DE' : '2px solid transparent',
-              color: i <= step ? '#DAF1DE' : '#8EB69B',
+              background: i < step ? 'var(--c-1)' : i === step ? 'rgba(var(--c-5-rgb),0.2)' : 'rgba(var(--c-1-rgb),0.2)',
+              border: i === step ? '2px solid var(--c-5)' : '2px solid transparent',
+              color: i <= step ? 'var(--c-5)' : 'var(--c-4)',
             }}
           >
             {i < step ? '✓' : i + 1}
           </div>
-          <span className="text-xs font-inter hidden sm:block" style={{ color: i === step ? '#DAF1DE' : '#8EB69B' }}>
+          <span className="text-xs font-inter hidden sm:block" style={{ color: i === step ? 'var(--c-5)' : 'var(--c-4)' }}>
             {label}
           </span>
           {i < STEP_LABELS.length - 1 && (
             <div
               className="w-8 h-0.5 mx-1"
-              style={{ background: i < step ? '#0B2B26' : 'rgba(218,241,222,0.15)' }}
+              style={{ background: i < step ? 'var(--c-1)' : 'rgba(var(--c-5-rgb),0.15)' }}
             />
           )}
         </div>
@@ -48,19 +48,19 @@ function WalletButton({ icon, label, sublabel, onClick, disabled }) {
       whileHover={!disabled ? { scale: 1.02, boxShadow: '0 0 24px rgba(209,96,31,0.3)' } : {}}
       whileTap={!disabled ? { scale: 0.98 } : {}}
       className="w-full flex items-center gap-4 p-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-      style={{ background: 'rgba(11,43,38,0.2)', border: '1px solid rgba(218,241,222,0.15)' }}
+      style={{ background: 'rgba(var(--c-1-rgb),0.2)', border: '1px solid rgba(var(--c-5-rgb),0.15)' }}
     >
       <div
         className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
-        style={{ background: 'rgba(11,43,38,0.4)' }}
+        style={{ background: 'rgba(var(--c-1-rgb),0.4)' }}
       >
         {icon}
       </div>
       <div className="text-left">
-        <div className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>{label}</div>
-        <div className="font-inter text-xs" style={{ color: '#8EB69B' }}>{sublabel}</div>
+        <div className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>{label}</div>
+        <div className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>{sublabel}</div>
       </div>
-      <div className="ml-auto" style={{ color: '#8EB69B' }}>→</div>
+      <div className="ml-auto" style={{ color: 'var(--c-4)' }}>→</div>
     </motion.button>
   )
 }
@@ -155,8 +155,8 @@ export default function ConnectPage() {
           className="glass-card p-8"
         >
           <div className="text-center mb-8">
-            <h1 className="font-sora font-bold text-2xl" style={{ color: '#DAF1DE' }}>DeadDrop</h1>
-            <p className="font-inter text-sm mt-1" style={{ color: '#8EB69B' }}>Your vault awaits.</p>
+            <h1 className="font-sora font-bold text-2xl" style={{ color: 'var(--c-5)' }}>DeadDrop</h1>
+            <p className="font-inter text-sm mt-1" style={{ color: 'var(--c-4)' }}>Your vault awaits.</p>
           </div>
 
           <AnimatePresence mode="wait">
@@ -174,9 +174,9 @@ export default function ConnectPage() {
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                         className="w-10 h-10 rounded-full border-2 border-t-transparent"
-                        style={{ borderColor: '#DAF1DE', borderTopColor: 'transparent' }}
+                        style={{ borderColor: 'var(--c-5)', borderTopColor: 'transparent' }}
                       />
-                      <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+                      <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                         Waiting for MetaMask…
                       </p>
                     </div>
@@ -193,17 +193,17 @@ export default function ConnectPage() {
                       {/* Network badge */}
                       <div className="flex items-center justify-center gap-2 py-1">
                         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                        <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>
+                        <span className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>
                           Ethereum Sepolia testnet
                         </span>
                       </div>
 
                       <div className="relative my-1">
                         <div className="absolute inset-0 flex items-center">
-                          <div className="w-full h-px" style={{ background: 'rgba(218,241,222,0.1)' }} />
+                          <div className="w-full h-px" style={{ background: 'rgba(var(--c-5-rgb),0.1)' }} />
                         </div>
                         <div className="relative flex justify-center">
-                          <span className="px-2 text-xs font-inter" style={{ background: 'transparent', color: '#8EB69B' }}>
+                          <span className="px-2 text-xs font-inter" style={{ background: 'transparent', color: 'var(--c-4)' }}>
                             or
                           </span>
                         </div>
@@ -216,7 +216,7 @@ export default function ConnectPage() {
                   )}
                 </div>
 
-                <p className="text-center font-inter text-xs mt-6" style={{ color: '#8EB69B' }}>
+                <p className="text-center font-inter text-xs mt-6" style={{ color: 'var(--c-4)' }}>
                   Your wallet address is your identity. No password needed.
                 </p>
               </motion.div>
@@ -230,13 +230,13 @@ export default function ConnectPage() {
                 exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}
               >
                 <StepBar step={1} />
-                <h2 className="font-sora font-semibold text-lg mb-6" style={{ color: '#DAF1DE' }}>
+                <h2 className="font-sora font-semibold text-lg mb-6" style={{ color: 'var(--c-5)' }}>
                   Who are you?
                 </h2>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>
+                    <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>
                       Display Name
                     </label>
                     <input
@@ -249,26 +249,26 @@ export default function ConnectPage() {
                   </div>
 
                   <div>
-                    <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>
+                    <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>
                       Profile Photo (optional)
                     </label>
                     <input ref={photoInputRef} type="file" accept="image/*" hidden onChange={handlePhotoChange} />
                     <div
                       className="w-full py-6 rounded-xl border-dashed border-2 flex flex-col items-center gap-2 cursor-pointer transition-all"
-                      style={{ borderColor: photoPreview ? 'rgba(142,182,155,0.6)' : 'rgba(218,241,222,0.2)' }}
+                      style={{ borderColor: photoPreview ? 'rgba(var(--c-4-rgb),0.6)' : 'rgba(var(--c-5-rgb),0.2)' }}
                       onClick={() => photoInputRef.current?.click()}
-                      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(218,241,222,0.45)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = photoPreview ? 'rgba(142,182,155,0.6)' : 'rgba(218,241,222,0.2)')}
+                      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(var(--c-5-rgb),0.45)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = photoPreview ? 'rgba(var(--c-4-rgb),0.6)' : 'rgba(var(--c-5-rgb),0.2)')}
                     >
                       {photoPreview ? (
                         <>
-                          <img src={photoPreview} alt="profile" className="w-16 h-16 rounded-full object-cover" style={{ border: '2px solid rgba(142,182,155,0.5)' }} />
-                          <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>Photo set — click to change</span>
+                          <img src={photoPreview} alt="profile" className="w-16 h-16 rounded-full object-cover" style={{ border: '2px solid rgba(var(--c-4-rgb),0.5)' }} />
+                          <span className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>Photo set — click to change</span>
                         </>
                       ) : (
                         <>
                           <span className="text-2xl">📸</span>
-                          <span className="font-inter text-xs" style={{ color: '#8EB69B' }}>Click to upload a profile photo</span>
+                          <span className="font-inter text-xs" style={{ color: 'var(--c-4)' }}>Click to upload a profile photo</span>
                         </>
                       )}
                     </div>
@@ -287,16 +287,16 @@ export default function ConnectPage() {
                 exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}
               >
                 <StepBar step={2} />
-                <h2 className="font-sora font-semibold text-lg mb-2" style={{ color: '#DAF1DE' }}>
+                <h2 className="font-sora font-semibold text-lg mb-2" style={{ color: 'var(--c-5)' }}>
                   Set your Private Safe PIN
                 </h2>
-                <p className="font-inter text-xs mb-6" style={{ color: '#8EB69B' }}>
+                <p className="font-inter text-xs mb-6" style={{ color: 'var(--c-4)' }}>
                   6-digit PIN for the Private Safe. Never stored on any server.
                 </p>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>6-digit PIN</label>
+                    <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>6-digit PIN</label>
                     <input
                       className="vault-input text-center tracking-widest text-xl"
                       type="password" maxLength={6} placeholder="••••••"
@@ -306,7 +306,7 @@ export default function ConnectPage() {
                   </div>
 
                   <div>
-                    <label className="block font-inter text-xs mb-2" style={{ color: '#8EB69B' }}>Confirm PIN</label>
+                    <label className="block font-inter text-xs mb-2" style={{ color: 'var(--c-4)' }}>Confirm PIN</label>
                     <input
                       className="vault-input text-center tracking-widest text-xl"
                       type="password" maxLength={6} placeholder="••••••"
@@ -321,7 +321,7 @@ export default function ConnectPage() {
                   <button
                     onClick={() => { completeOnboarding(); navigate('/dashboard') }}
                     className="w-full text-xs font-inter text-center py-2 transition-opacity hover:opacity-70"
-                    style={{ color: '#8EB69B' }}
+                    style={{ color: 'var(--c-4)' }}
                   >
                     Skip for now
                   </button>

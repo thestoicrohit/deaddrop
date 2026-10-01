@@ -73,29 +73,29 @@ function HowItWorksSection() {
     { n: '04', title: 'Your people receive it', body: 'If the grace period lapses without a ping, your named beneficiaries can claim their share. If you ping in time, nothing happens at all.' },
   ]
   return (
-    <section className="relative py-28 px-6 md:px-14 lg:px-20" style={{ background: '#0B2B26' }}>
+    <section className="relative py-28 px-6 md:px-14 lg:px-20" style={{ background: 'var(--c-1)' }}>
       <div className="max-w-5xl mx-auto">
         <Reveal>
-          <p className="font-sora text-[10px] tracking-[0.25em] uppercase mb-4" style={{ color: 'rgba(142,182,155,0.65)' }}>
+          <p className="font-sora text-[10px] tracking-[0.25em] uppercase mb-4" style={{ color: 'rgba(var(--c-4-rgb),0.65)' }}>
             How it actually works
           </p>
-          <h2 className="font-sora font-bold leading-[1.1] mb-16" style={{ fontSize: 'clamp(1.9rem, 3.4vw, 2.9rem)', color: '#DAF1DE', maxWidth: '30ch' }}>
+          <h2 className="font-sora font-bold leading-[1.1] mb-16" style={{ fontSize: 'clamp(1.9rem, 3.4vw, 2.9rem)', color: 'var(--c-5)', maxWidth: '30ch' }}>
             Four steps. No lawyers in any of them.
           </h2>
         </Reveal>
 
         <div className="relative">
-          <div className="hidden md:block absolute left-0 right-0 top-6 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(142,182,155,0.25) 8%, rgba(142,182,155,0.25) 92%, transparent)' }} />
+          <div className="hidden md:block absolute left-0 right-0 top-6 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(var(--c-4-rgb),0.25) 8%, rgba(var(--c-4-rgb),0.25) 92%, transparent)' }} />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-6">
             {STEPS.map((s, i) => (
               <Reveal key={s.n} delay={0.08 + i * 0.12}>
                 <div className="relative">
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center font-sora font-bold text-sm mb-5 relative z-10"
-                    style={{ background: '#0B2B26', border: '2px solid rgba(142,182,155,0.45)', color: '#8EB69B' }}
+                    style={{ background: 'var(--c-1)', border: '2px solid rgba(var(--c-4-rgb),0.45)', color: 'var(--c-4)' }}
                   >{s.n}</div>
-                  <h3 className="font-sora font-semibold text-base mb-2.5" style={{ color: '#DAF1DE' }}>{s.title}</h3>
-                  <p className="font-inter text-sm leading-relaxed" style={{ color: 'rgba(142,182,155,0.6)' }}>{s.body}</p>
+                  <h3 className="font-sora font-semibold text-base mb-2.5" style={{ color: 'var(--c-5)' }}>{s.title}</h3>
+                  <p className="font-inter text-sm leading-relaxed" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>{s.body}</p>
                 </div>
               </Reveal>
             ))}
@@ -110,20 +110,20 @@ function HowItWorksSection() {
 /* ─── 05 · FINAL CTA ─────────────────────────────────────────── */
 function FinalCtaSection({ onPrimary, onSecondary, primaryLabel, secondaryLabel }) {
   return (
-    <section className="relative py-32 px-6 text-center" style={{ background: '#0B2B26' }}>
+    <section className="relative py-32 px-6 text-center" style={{ background: 'var(--c-1)' }}>
       <div className="max-w-2xl mx-auto">
         <Reveal>
-          <h2 className="font-sora font-bold leading-[1.15] mb-5" style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', color: '#DAF1DE' }}>
+          <h2 className="font-sora font-bold leading-[1.15] mb-5" style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', color: 'var(--c-5)' }}>
             Nobody plans to disappear.<br />That's exactly why this exists.
           </h2>
-          <p className="font-inter text-sm mb-10" style={{ color: 'rgba(142,182,155,0.6)' }}>
+          <p className="font-inter text-sm mb-10" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>
             Takes about two minutes. No wallet required to start.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <motion.button
               onClick={onPrimary}
               className="font-sora font-semibold text-sm px-8 py-3.5 rounded-lg"
-              style={{ background: 'rgba(142,182,155,0.14)', color: '#DAF1DE', border: '1px solid rgba(142,182,155,0.4)' }}
+              style={{ background: 'rgba(var(--c-4-rgb),0.14)', color: 'var(--c-5)', border: '1px solid rgba(var(--c-4-rgb),0.4)' }}
               whileHover={{ background: 'rgba(142,182,155,0.22)', boxShadow: '0 0 34px rgba(142,182,155,0.25)', y: -2 }}
               whileTap={{ scale: 0.97, y: 0 }}
               transition={{ duration: 0.3, ease: EASE }}
@@ -131,7 +131,7 @@ function FinalCtaSection({ onPrimary, onSecondary, primaryLabel, secondaryLabel 
             <motion.button
               onClick={onSecondary}
               className="font-sora font-semibold text-sm px-8 py-3.5 rounded-lg"
-              style={{ color: 'rgba(218,241,222,0.55)', border: '1px solid rgba(218,241,222,0.14)' }}
+              style={{ color: 'rgba(var(--c-5-rgb),0.55)', border: '1px solid rgba(var(--c-5-rgb),0.14)' }}
               whileHover={{ color: 'rgba(218,241,222,0.9)', borderColor: 'rgba(218,241,222,0.3)', y: -2 }}
               whileTap={{ scale: 0.97, y: 0 }}
               transition={{ duration: 0.3, ease: EASE }}

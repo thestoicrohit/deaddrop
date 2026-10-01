@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion'
 import { useAppStore } from '@/store/useAppStore'
+import { palette, tameForLight } from '@/lib/themePalette'
 import { useTranslation } from '@/lib/translations'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import LangToggle from '@/components/ui/LangToggle'
@@ -16,7 +17,9 @@ function NeuralOrb({ mouseX, mouseY }) {
   const canvasRef = useRef(null)
   const rafRef = useRef(null)
 
+  const theme = useAppStore((s) => s.theme)
   useEffect(() => {
+    const P = palette(theme)
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -26,6 +29,7 @@ function NeuralOrb({ mouseX, mouseY }) {
     canvas.width = W * dpr
     canvas.height = H * dpr
     const ctx = canvas.getContext('2d')
+    tameForLight(ctx, P, 0.85)
     ctx.scale(dpr, dpr)
 
     const cx = W / 2
@@ -36,7 +40,7 @@ function NeuralOrb({ mouseX, mouseY }) {
     const N = 280
     const PHI = (1 + Math.sqrt(5)) / 2
     // Sage, mint-mist, mid-forest, dark-moss, sage again
-    const COLORS = ['142,182,155', '218,241,222', '35,83,71', '11,43,38', '142,182,155']
+    const COLORS = [P.sage, P.mint, P.forest, P.moss, P.sage]
 
     const particles = Array.from({ length: N }, (_, i) => {
       const t2 = i / (N - 1)
@@ -69,7 +73,7 @@ function NeuralOrb({ mouseX, mouseY }) {
         r: r2,
         ph: Math.random() * Math.PI * 2,
         sp: 0.08 + Math.random() * 0.18,
-        rgb: '35,83,71',
+        rgb: P.forest,
         baseAlpha: 0.14 + Math.random() * 0.2,
         size: 0.4 + Math.random() * 0.7,
         bright: false,
@@ -82,9 +86,9 @@ function NeuralOrb({ mouseX, mouseY }) {
 
     // ── Orbital rings — green family ──
     const rings = [
-      { tilt: 18, speed: 0.009,  radius: R * 1.18, rgb: '142,182,155', alpha: 0.5,  w: 1.1 },
-      { tilt: 72, speed: -0.006, radius: R * 1.06, rgb: '218,241,222', alpha: 0.35, w: 0.8 },
-      { tilt: 45, speed: 0.014,  radius: R * 0.93, rgb: '35,83,71',   alpha: 0.4,  w: 0.7 },
+      { tilt: 18, speed: 0.009,  radius: R * 1.18, rgb: P.sage, alpha: 0.5,  w: 1.1 },
+      { tilt: 72, speed: -0.006, radius: R * 1.06, rgb: P.mint, alpha: 0.35, w: 0.8 },
+      { tilt: 45, speed: 0.014,  radius: R * 0.93, rgb: P.forest,   alpha: 0.4,  w: 0.7 },
     ]
     const ringAngles = rings.map(() => 0)
 
@@ -133,8 +137,8 @@ function NeuralOrb({ mouseX, mouseY }) {
 
       // ── Ambient glow — forest green ──
       const amb = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.5)
-      amb.addColorStop(0, 'rgba(35,83,71,0.14)')
-      amb.addColorStop(0.55, 'rgba(11,43,38,0.07)')
+      amb.addColorStop(0, `rgba(${P.forest},0.14)`)
+      amb.addColorStop(0.55, `rgba(${P.moss},0.07)`)
       amb.addColorStop(1, 'transparent')
       ctx.fillStyle = amb
       ctx.beginPath()
@@ -192,7 +196,7 @@ function NeuralOrb({ mouseX, mouseY }) {
             ctx.beginPath()
             ctx.moveTo(projected[i].x, projected[i].y)
             ctx.lineTo(projected[j].x, projected[j].y)
-            ctx.strokeStyle = `rgba(142,182,155,${alpha})`
+            ctx.strokeStyle = `rgba(${P.sage},${alpha})`
             ctx.lineWidth = 0.6
             ctx.stroke()
           }
@@ -212,7 +216,7 @@ function NeuralOrb({ mouseX, mouseY }) {
             ctx.beginPath()
             ctx.moveTo(projected[i].x, projected[i].y)
             ctx.lineTo(projected[j].x, projected[j].y)
-            ctx.strokeStyle = `rgba(35,83,71,${alpha})`
+            ctx.strokeStyle = `rgba(${P.forest},${alpha})`
             ctx.lineWidth = 0.3
             ctx.stroke()
           }
@@ -239,7 +243,7 @@ function NeuralOrb({ mouseX, mouseY }) {
         if (p.bright && pr.depth > 0.5) {
           ctx.beginPath()
           ctx.arc(pr.x, pr.y, 1.1, 0, Math.PI * 2)
-          ctx.fillStyle = `rgba(218,241,222,${pr.depth * 0.92})`
+          ctx.fillStyle = `rgba(${P.mint},${pr.depth * 0.92})`
           ctx.fill()
         }
       })
@@ -257,10 +261,10 @@ function NeuralOrb({ mouseX, mouseY }) {
         const sy = pr1.y + (pr2.y - pr1.y) * s.t
         const fade = Math.sin(s.t * Math.PI)
         ctx.shadowBlur = 16
-        ctx.shadowColor = 'rgba(218,241,222,1)'
+        ctx.shadowColor = `rgba(${P.mint},1)`
         ctx.beginPath()
         ctx.arc(sx, sy, 2.8 * fade, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(218,241,222,${fade * 0.92})`
+        ctx.fillStyle = `rgba(${P.mint},${fade * 0.92})`
         ctx.fill()
         ctx.shadowBlur = 0
       }
@@ -268,8 +272,8 @@ function NeuralOrb({ mouseX, mouseY }) {
       // ── Core glow (pulsing) — sage green ──
       const coreAlpha = 0.4 + Math.sin(time * 0.9) * 0.14
       const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.2)
-      coreGrad.addColorStop(0, `rgba(218,241,222,${coreAlpha * 1.3})`)
-      coreGrad.addColorStop(0.4, `rgba(142,182,155,${coreAlpha})`)
+      coreGrad.addColorStop(0, `rgba(${P.mint},${coreAlpha * 1.3})`)
+      coreGrad.addColorStop(0.4, `rgba(${P.sage},${coreAlpha})`)
       coreGrad.addColorStop(1, 'transparent')
       ctx.fillStyle = coreGrad
       ctx.beginPath()
@@ -282,7 +286,7 @@ function NeuralOrb({ mouseX, mouseY }) {
 
     draw()
     return () => cancelAnimationFrame(rafRef.current)
-  }, [mouseX, mouseY])
+  }, [mouseX, mouseY, theme])
 
   return <canvas ref={canvasRef} className="w-full h-full block" />
 }
@@ -298,12 +302,12 @@ function IrisTransition({ active }) {
   return (
     <AnimatePresence>
       {active && (
-        <motion.div className="fixed inset-0 z-[9999]" style={{ background: '#051F20' }}
+        <motion.div className="fixed inset-0 z-[9999]" style={{ background: 'var(--c-0)' }}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <motion.div className="absolute inset-0 flex items-center justify-center">
             <motion.div
               className="rounded-full"
-              style={{ background: '#051F20', width: 2500, height: 2500, willChange: 'transform' }}
+              style={{ background: 'var(--c-0)', width: 2500, height: 2500, willChange: 'transform' }}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
@@ -322,9 +326,9 @@ function EntryNavbar({ onConnect }) {
     <motion.header
       className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-6 md:px-12 h-16"
       style={{
-        background: 'rgba(5,31,32,0.82)',
+        background: 'rgba(var(--c-0-rgb),0.82)',
         backdropFilter: 'blur(18px)',
-        borderBottom: '1px solid rgba(142,182,155,0.08)',
+        borderBottom: '1px solid rgba(var(--c-4-rgb),0.08)',
       }}
       initial={{ y: -64, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -341,14 +345,14 @@ function EntryNavbar({ onConnect }) {
             className="w-10 h-10 rounded-full"
             style={{
               transform: 'rotateY(-12deg) rotateX(4deg)',
-              boxShadow: '4px 4px 16px rgba(142,182,155,0.25), -1px -1px 6px rgba(142,182,155,0.08)',
-              filter: 'drop-shadow(0 0 8px rgba(142,182,155,0.3))',
+              boxShadow: '4px 4px 16px rgba(var(--c-4-rgb),0.25), -1px -1px 6px rgba(var(--c-4-rgb),0.08)',
+              filter: 'drop-shadow(0 0 8px rgba(var(--c-4-rgb),0.3))',
               transformStyle: 'preserve-3d',
             }}
           />
         </motion.div>
-        <span className="font-sora font-bold text-sm tracking-tight" style={{ color: '#DAF1DE' }}>DeadDrop</span>
-        <span className="hidden sm:block text-[9px] font-inter tracking-[0.22em] uppercase ml-1" style={{ color: 'rgba(142,182,155,0.35)' }}>Digital Legacy Vault</span>
+        <span className="font-sora font-bold text-sm tracking-tight" style={{ color: 'var(--c-5)' }}>DeadDrop</span>
+        <span className="hidden sm:block text-[9px] font-inter tracking-[0.22em] uppercase ml-1" style={{ color: 'rgba(var(--c-4-rgb),0.35)' }}>Digital Legacy Vault</span>
         <span className="text-[9px] font-sora font-bold tracking-widest uppercase ml-2 px-1.5 py-0.5 rounded" style={{ color: '#D1601F', background: 'rgba(209,96,31,0.12)', border: '1px solid rgba(209,96,31,0.3)' }}>Beta</span>
       </div>
 
@@ -356,16 +360,16 @@ function EntryNavbar({ onConnect }) {
         {[['About', '/about'], ['For Organizations', '/organizations'], ['Claim Legacy', '/claim']].map(([label, path]) => (
           <button key={label} onClick={() => navigate(path)}
             className="px-4 py-2 font-inter text-sm rounded-lg transition-all duration-200"
-            style={{ color: 'rgba(218,241,222,0.4)' }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'rgba(218,241,222,0.88)'; e.currentTarget.style.background = 'rgba(142,182,155,0.06)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(218,241,222,0.4)'; e.currentTarget.style.background = 'transparent' }}
+            style={{ color: 'rgba(var(--c-5-rgb),0.4)' }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'rgba(var(--c-5-rgb),0.88)'; e.currentTarget.style.background = 'rgba(var(--c-4-rgb),0.06)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(var(--c-5-rgb),0.4)'; e.currentTarget.style.background = 'transparent' }}
           >{label}</button>
         ))}
       </nav>
 
       <motion.button onClick={onConnect}
         className="font-sora font-semibold text-sm px-5 py-2 rounded-lg"
-        style={{ color: '#8EB69B', border: '1px solid rgba(142,182,155,0.32)' }}
+        style={{ color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.32)' }}
         whileHover={{ background: 'rgba(142,182,155,0.1)', borderColor: 'rgba(142,182,155,0.65)', boxShadow: '0 0 22px rgba(142,182,155,0.2)' }}
         whileTap={{ scale: 0.97 }}
         transition={{ duration: 0.18 }}
@@ -415,14 +419,14 @@ function LiveCounters() {
     <motion.div className="flex items-center gap-5 mb-6"
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
       <div className="flex items-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full animate-pulse-dot" style={{ background: '#8EB69B', boxShadow: '0 0 6px rgba(142,182,155,0.9)' }} />
-        <span className="font-sora text-sm font-semibold" style={{ color: '#DAF1DE' }}>{online.toLocaleString()}</span>
-        <span className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>online now</span>
+        <span className="w-1.5 h-1.5 rounded-full animate-pulse-dot" style={{ background: 'var(--c-4)', boxShadow: '0 0 6px rgba(var(--c-4-rgb),0.9)' }} />
+        <span className="font-sora text-sm font-semibold" style={{ color: 'var(--c-5)' }}>{online.toLocaleString()}</span>
+        <span className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>online now</span>
       </div>
-      <span style={{ color: 'rgba(142,182,155,0.25)' }}>·</span>
+      <span style={{ color: 'rgba(var(--c-4-rgb),0.25)' }}>·</span>
       <div className="flex items-center gap-2">
-        <span className="font-sora text-sm font-semibold" style={{ color: '#DAF1DE' }}>{total.toLocaleString()}</span>
-        <span className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>vaults protected</span>
+        <span className="font-sora text-sm font-semibold" style={{ color: 'var(--c-5)' }}>{total.toLocaleString()}</span>
+        <span className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>vaults protected</span>
       </div>
     </motion.div>
   )
@@ -435,19 +439,19 @@ function Stat({ value, label, delay, isCounter, suffix }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
-      <span className="font-sora font-bold text-xl leading-none" style={{ color: '#8EB69B', letterSpacing: '-0.04em' }}>
+      <span className="font-sora font-bold text-xl leading-none" style={{ color: 'var(--c-4)', letterSpacing: '-0.04em' }}>
         {isCounter ? <Counter target={value} suffix={suffix} /> : value}
       </span>
-      <span className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.45)' }}>{label}</span>
+      <span className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.45)' }}>{label}</span>
     </motion.div>
   )
 }
 
 /* ── DATA CARDS on the right ──────────────────────────────────── */
 const DATA_CARDS = [
-  { label: 'LAST ACTIVE',   value: '2 days ago',  col: '#8EB69B',  delay: 1.0 },
-  { label: 'CAPSULES',      value: '4 sealed',    col: '#DAF1DE',  delay: 1.15 },
-  { label: 'BENEFICIARIES', value: '3 assigned',  col: '#8EB69B',  delay: 1.3 },
+  { label: 'LAST ACTIVE',   value: '2 days ago',  col: 'var(--c-4)',  delay: 1.0 },
+  { label: 'CAPSULES',      value: '4 sealed',    col: 'var(--c-5)',  delay: 1.15 },
+  { label: 'BENEFICIARIES', value: '3 assigned',  col: 'var(--c-4)',  delay: 1.3 },
 ]
 
 /* ══════════════════════════════════════════════════════════════
@@ -474,8 +478,8 @@ export default function EntryPage() {
     const root = document.querySelector('#root > div')
     const prevRoot = root?.style.backgroundColor
     const prevBody = document.body.style.backgroundColor
-    if (root) root.style.backgroundColor = '#051F20'
-    document.body.style.backgroundColor = '#051F20'
+    if (root) root.style.backgroundColor = 'var(--c-0)'
+    document.body.style.backgroundColor = 'var(--c-0)'
     return () => {
       if (root) root.style.backgroundColor = prevRoot || ''
       document.body.style.backgroundColor = prevBody || ''
@@ -505,17 +509,17 @@ export default function EntryPage() {
   return (
     <div
       className="relative min-h-[100dvh]"
-      style={{ background: '#051F20' }}
+      style={{ background: 'var(--c-0)' }}
       onMouseMove={handleMouseMove}
     >
       {/* Subtle ambient radial — deep forest */}
       <div className="fixed inset-0 z-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse 65% 70% at 72% 50%, rgba(35,83,71,0.14) 0%, rgba(11,43,38,0.08) 55%, transparent 85%)',
+        background: 'radial-gradient(ellipse 65% 70% at 72% 50%, rgba(var(--c-3-rgb),0.14) 0%, rgba(var(--c-1-rgb),0.08) 55%, transparent 85%)',
       }} />
 
       {/* Floating particle noise layer */}
       <div className="fixed inset-0 z-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse 40% 60% at 20% 80%, rgba(22,56,50,0.12) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse 40% 60% at 20% 80%, rgba(var(--c-2-rgb),0.12) 0%, transparent 70%)',
       }} />
 
       <IrisTransition active={transitioning} />
@@ -533,8 +537,8 @@ export default function EntryPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1, duration: 0.5 }}>
-            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#8EB69B', boxShadow: '0 0 7px rgba(142,182,155,0.9)' }} />
-            <span className="font-sora text-[10px] tracking-[0.22em] uppercase" style={{ color: 'rgba(142,182,155,0.65)' }}>
+            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: 'var(--c-4)', boxShadow: '0 0 7px rgba(var(--c-4-rgb),0.9)' }} />
+            <span className="font-sora text-[10px] tracking-[0.22em] uppercase" style={{ color: 'rgba(var(--c-4-rgb),0.65)' }}>
               DIGITAL LEGACY VAULT
             </span>
           </motion.div>
@@ -542,22 +546,22 @@ export default function EntryPage() {
           {/* H1 */}
           <motion.h1
             className="font-sora font-bold leading-[1.03] tracking-[-0.035em] mb-5"
-            style={{ fontSize: 'clamp(2.5rem, 4.8vw, 4.4rem)', color: '#DAF1DE' }}
+            style={{ fontSize: 'clamp(2.5rem, 4.8vw, 4.4rem)', color: 'var(--c-5)' }}
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.22, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
           >
             {walletConnected ? (
-              <><span style={{ color: '#DAF1DE' }}>Welcome back,</span><br /><span style={{ color: '#8EB69B' }}>{short}</span></>
+              <><span style={{ color: 'var(--c-5)' }}>Welcome back,</span><br /><span style={{ color: 'var(--c-4)' }}>{short}</span></>
             ) : (
-              <><span style={{ color: '#DAF1DE' }}>Your memories</span><br /><span style={{ color: '#8EB69B' }}>outlive everything.</span></>
+              <><span style={{ color: 'var(--c-5)' }}>Your memories</span><br /><span style={{ color: 'var(--c-4)' }}>outlive everything.</span></>
             )}
           </motion.h1>
 
           {/* Subtext */}
           <motion.p
             className="font-inter leading-relaxed mb-8 max-w-[400px]"
-            style={{ fontSize: 'clamp(0.9rem, 1.4vw, 1.05rem)', color: 'rgba(142,182,155,0.6)' }}
+            style={{ fontSize: 'clamp(0.9rem, 1.4vw, 1.05rem)', color: 'rgba(var(--c-4-rgb),0.6)' }}
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.38, duration: 0.55 }}
@@ -575,7 +579,7 @@ export default function EntryPage() {
             <motion.button
               onClick={handlePrimary}
               className="font-sora font-semibold text-sm px-7 py-3 rounded-lg"
-              style={{ background: 'rgba(142,182,155,0.1)', color: '#8EB69B', border: '1px solid rgba(142,182,155,0.38)' }}
+              style={{ background: 'rgba(var(--c-4-rgb),0.1)', color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.38)' }}
               whileHover={{ background: 'rgba(142,182,155,0.18)', boxShadow: '0 0 30px rgba(142,182,155,0.22)', y: -2 }}
               whileTap={{ scale: 0.97, y: 0 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
@@ -585,7 +589,7 @@ export default function EntryPage() {
             <motion.button
               onClick={handleSecondary}
               className="font-sora font-semibold text-sm px-7 py-3 rounded-lg"
-              style={{ color: 'rgba(218,241,222,0.45)', border: '1px solid rgba(218,241,222,0.1)' }}
+              style={{ color: 'rgba(var(--c-5-rgb),0.45)', border: '1px solid rgba(var(--c-5-rgb),0.1)' }}
               whileHover={{ color: 'rgba(218,241,222,0.88)', borderColor: 'rgba(218,241,222,0.28)', y: -2 }}
               whileTap={{ scale: 0.97, y: 0 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
@@ -607,8 +611,8 @@ export default function EntryPage() {
           {/* Footer whisper */}
           <motion.div className="flex items-center gap-2.5"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}>
-            <div className="w-5 h-px" style={{ background: 'rgba(142,182,155,0.2)' }} />
-            <span className="font-inter text-xs italic" style={{ color: 'rgba(142,182,155,0.35)' }}>
+            <div className="w-5 h-px" style={{ background: 'rgba(var(--c-4-rgb),0.2)' }} />
+            <span className="font-inter text-xs italic" style={{ color: 'rgba(var(--c-4-rgb),0.35)' }}>
               Your keys. Your memories. No one else.
             </span>
           </motion.div>
@@ -617,8 +621,8 @@ export default function EntryPage() {
         {/* ──────── RIGHT: Neural Orb ──────── */}
         <div className="relative hidden lg:block">
           {/* Edge vignettes — deep forest */}
-          <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #051F20 0%, transparent 6%, transparent 94%, #051F20 100%)' }} />
-          <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, #051F20 0%, transparent 7%, transparent 86%, #051F20 100%)' }} />
+          <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, var(--c-0) 0%, transparent 6%, transparent 94%, var(--c-0) 100%)' }} />
+          <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, var(--c-0) 0%, transparent 7%, transparent 86%, var(--c-0) 100%)' }} />
 
           {/* Canvas */}
           {!transitioning && <NeuralOrb mouseX={mouseX} mouseY={mouseY} />}
@@ -629,8 +633,8 @@ export default function EntryPage() {
               <motion.div key={card.label}
                 className="px-3.5 py-2.5 rounded-xl"
                 style={{
-                  background: 'rgba(5,31,32,0.78)',
-                  border: `1px solid rgba(142,182,155,0.12)`,
+                  background: 'rgba(var(--c-0-rgb),0.78)',
+                  border: `1px solid rgba(var(--c-4-rgb),0.12)`,
                   backdropFilter: 'blur(14px)',
                   minWidth: 155,
                 }}
@@ -638,7 +642,7 @@ export default function EntryPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: card.delay, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               >
-                <p className="font-sora text-[8.5px] tracking-[0.2em] uppercase mb-0.5" style={{ color: `rgba(142,182,155,0.45)` }}>{card.label}</p>
+                <p className="font-sora text-[8.5px] tracking-[0.2em] uppercase mb-0.5" style={{ color: `rgba(var(--c-4-rgb),0.45)` }}>{card.label}</p>
                 <p className="font-sora font-semibold text-xs" style={{ color: card.col }}>{card.value}</p>
               </motion.div>
             ))}
@@ -648,16 +652,16 @@ export default function EntryPage() {
           <motion.div
             className="absolute bottom-[13%] left-8 z-20 px-4 py-2.5 rounded-xl"
             style={{
-              background: 'rgba(5,31,32,0.82)',
-              border: '1px solid rgba(142,182,155,0.1)',
+              background: 'rgba(var(--c-0-rgb),0.82)',
+              border: '1px solid rgba(var(--c-4-rgb),0.1)',
               backdropFilter: 'blur(16px)',
             }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.45, duration: 0.5 }}
           >
-            <p className="font-sora text-[8.5px] tracking-[0.2em] uppercase mb-1" style={{ color: 'rgba(142,182,155,0.38)' }}>ON-CHAIN IDENTITY</p>
-            <p className="font-inter text-xs" style={{ color: 'rgba(218,241,222,0.7)' }}>Ethereum · IPFS · Chainlink</p>
+            <p className="font-sora text-[8.5px] tracking-[0.2em] uppercase mb-1" style={{ color: 'rgba(var(--c-4-rgb),0.38)' }}>ON-CHAIN IDENTITY</p>
+            <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-5-rgb),0.7)' }}>Ethereum · IPFS · Chainlink</p>
           </motion.div>
         </div>
       </div>

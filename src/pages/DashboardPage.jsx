@@ -44,7 +44,7 @@ function HealthRing({ score }) {
   const dash  = circ * (score / 100)
   return (
     <svg width="90" height="90" viewBox="0 0 90 90" className="flex-shrink-0">
-      <circle cx="45" cy="45" r={r} fill="none" stroke="rgba(142,182,155,0.1)" strokeWidth="6" />
+      <circle cx="45" cy="45" r={r} fill="none" stroke="rgba(var(--c-4-rgb),0.1)" strokeWidth="6" />
       <circle
         cx="45" cy="45" r={r}
         fill="none"
@@ -58,7 +58,7 @@ function HealthRing({ score }) {
       <text x="45" y="41" textAnchor="middle" fill={color} fontSize="17" fontWeight="700" fontFamily="Sora, sans-serif">
         {score}
       </text>
-      <text x="45" y="55" textAnchor="middle" fill="rgba(142,182,155,0.6)" fontSize="8" fontFamily="Inter, sans-serif">
+      <text x="45" y="55" textAnchor="middle" fill="rgba(var(--c-4-rgb),0.6)" fontSize="8" fontFamily="Inter, sans-serif">
         / 100
       </text>
     </svg>
@@ -80,12 +80,12 @@ function VaultHealthScore({ checks, navigate }) {
     >
       <div className="flex items-center gap-3 mb-5">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-          style={{ background: 'rgba(142,182,155,0.1)', border: '1px solid rgba(142,182,155,0.18)' }}>
+          style={{ background: 'rgba(var(--c-4-rgb),0.1)', border: '1px solid rgba(var(--c-4-rgb),0.18)' }}>
           🛡️
         </div>
         <div>
-          <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Vault Health</h2>
-          <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>How protected is your legacy?</p>
+          <h2 className="font-sora font-semibold text-base" style={{ color: 'var(--c-5)' }}>Vault Health</h2>
+          <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>How protected is your legacy?</p>
         </div>
       </div>
 
@@ -94,7 +94,7 @@ function VaultHealthScore({ checks, navigate }) {
         <div>
           <p className="font-sora font-bold text-2xl" style={{ color }}>{score}%</p>
           <p className="font-inter text-sm font-medium" style={{ color }}>{label}</p>
-          <p className="font-inter text-xs mt-1" style={{ color: 'rgba(142,182,155,0.5)' }}>
+          <p className="font-inter text-xs mt-1" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
             {done} of {checks.length} tasks complete
           </p>
         </div>
@@ -103,10 +103,10 @@ function VaultHealthScore({ checks, navigate }) {
       <div className="space-y-2">
         {checks.map((c, i) => (
           <div key={i} className="flex items-center gap-2.5">
-            <span className="text-sm flex-shrink-0" style={{ color: c.done ? '#4a9e6a' : 'rgba(142,182,155,0.3)' }}>
+            <span className="text-sm flex-shrink-0" style={{ color: c.done ? '#4a9e6a' : 'rgba(var(--c-4-rgb),0.3)' }}>
               {c.done ? '✓' : '○'}
             </span>
-            <span className="font-inter text-xs" style={{ color: c.done ? '#8EB69B' : 'rgba(142,182,155,0.45)' }}>
+            <span className="font-inter text-xs" style={{ color: c.done ? 'var(--c-4)' : 'rgba(var(--c-4-rgb),0.45)' }}>
               {c.label}
             </span>
           </div>
@@ -136,18 +136,18 @@ function OnboardingChecklist({ checks, onDismiss, navigate }) {
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className="overflow-hidden mb-8"
     >
-      <div className="glass-card p-6" style={{ border: '1px solid rgba(142,182,155,0.25)' }}>
+      <div className="glass-card p-6" style={{ border: '1px solid rgba(var(--c-4-rgb),0.25)' }}>
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Getting started</h2>
-            <p className="font-inter text-xs mt-0.5" style={{ color: 'rgba(142,182,155,0.6)' }}>
+            <h2 className="font-sora font-semibold text-base" style={{ color: 'var(--c-5)' }}>Getting started</h2>
+            <p className="font-inter text-xs mt-0.5" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>
               Complete these steps to protect your legacy.
             </p>
           </div>
           <button
             onClick={onDismiss}
             className="text-xs px-3 py-1 rounded-lg transition-opacity hover:opacity-70"
-            style={{ color: 'rgba(142,182,155,0.5)', border: '1px solid rgba(142,182,155,0.15)' }}
+            style={{ color: 'rgba(var(--c-4-rgb),0.5)', border: '1px solid rgba(var(--c-4-rgb),0.15)' }}
           >
             Dismiss
           </button>
@@ -162,21 +162,21 @@ function OnboardingChecklist({ checks, onDismiss, navigate }) {
               transition={{ delay: i * 0.06 }}
               onClick={step.action || undefined}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${step.action && !step.done ? 'cursor-pointer' : ''}`}
-              style={{ background: step.done ? 'rgba(74,158,106,0.08)' : 'rgba(11,43,38,0.25)' }}
-              whileHover={step.action && !step.done ? { background: 'rgba(142,182,155,0.08)' } : {}}
+              style={{ background: step.done ? 'rgba(74,158,106,0.08)' : 'rgba(var(--c-1-rgb),0.25)' }}
+              whileHover={step.action && !step.done ? { background: 'rgba(var(--c-4-rgb),0.08)' } : {}}
             >
               <span className="text-base flex-shrink-0" style={{ opacity: step.done ? 1 : 0.6 }}>
                 {step.done ? '✅' : step.icon}
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-inter text-xs font-medium leading-tight"
-                  style={{ color: step.done ? '#4a9e6a' : '#DAF1DE', textDecoration: step.done ? 'line-through' : 'none', opacity: step.done ? 0.7 : 1 }}>
+                  style={{ color: step.done ? '#4a9e6a' : 'var(--c-5)', textDecoration: step.done ? 'line-through' : 'none', opacity: step.done ? 0.7 : 1 }}>
                   {step.label}
                 </p>
-                <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.45)' }}>{step.hint}</p>
+                <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.45)' }}>{step.hint}</p>
               </div>
               {step.action && !step.done && (
-                <span className="text-xs flex-shrink-0" style={{ color: 'rgba(142,182,155,0.4)' }}>→</span>
+                <span className="text-xs flex-shrink-0" style={{ color: 'rgba(var(--c-4-rgb),0.4)' }}>→</span>
               )}
             </motion.div>
           ))}
@@ -184,16 +184,16 @@ function OnboardingChecklist({ checks, onDismiss, navigate }) {
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <span className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.5)' }}>Progress</span>
-            <span className="font-sora text-xs font-semibold" style={{ color: '#8EB69B' }}>{doneCount}/{steps.length}</span>
+            <span className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>Progress</span>
+            <span className="font-sora text-xs font-semibold" style={{ color: 'var(--c-4)' }}>{doneCount}/{steps.length}</span>
           </div>
-          <div className="h-1.5 rounded-full" style={{ background: 'rgba(142,182,155,0.1)' }}>
+          <div className="h-1.5 rounded-full" style={{ background: 'rgba(var(--c-4-rgb),0.1)' }}>
             <motion.div
               className="h-full rounded-full"
               initial={{ width: 0 }}
               animate={{ width: `${pct}%` }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              style={{ background: 'linear-gradient(90deg, #4a9e6a, #8EB69B)' }}
+              style={{ background: 'linear-gradient(90deg, #4a9e6a, var(--c-4))' }}
             />
           </div>
         </div>
@@ -208,11 +208,11 @@ function PingRing({ daysLeft, totalDays }) {
   const r     = 44
   const circ  = 2 * Math.PI * r
   const dash  = circ * pct
-  const color = daysLeft > 14 ? '#8EB69B' : daysLeft > 7 ? '#D1601F' : '#e05252'
+  const color = daysLeft > 14 ? 'var(--c-4)' : daysLeft > 7 ? '#D1601F' : '#e05252'
 
   return (
     <svg width="108" height="108" viewBox="0 0 108 108">
-      <circle cx="54" cy="54" r={r} fill="none" stroke="rgba(142,182,155,0.1)" strokeWidth="7" />
+      <circle cx="54" cy="54" r={r} fill="none" stroke="rgba(var(--c-4-rgb),0.1)" strokeWidth="7" />
       <circle
         cx="54" cy="54" r={r}
         fill="none"
@@ -226,7 +226,7 @@ function PingRing({ daysLeft, totalDays }) {
       <text x="54" y="50" textAnchor="middle" fill={color} fontSize="20" fontWeight="700" fontFamily="Sora, sans-serif">
         {daysLeft}
       </text>
-      <text x="54" y="66" textAnchor="middle" fill="rgba(142,182,155,0.7)" fontSize="9" fontFamily="Inter, sans-serif">
+      <text x="54" y="66" textAnchor="middle" fill="rgba(var(--c-4-rgb),0.7)" fontSize="9" fontFamily="Inter, sans-serif">
         days left
       </text>
     </svg>
@@ -234,7 +234,7 @@ function PingRing({ daysLeft, totalDays }) {
 }
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
-function StatCard({ label, value, icon, sub, color = '#8EB69B', delay = 0, onClick }) {
+function StatCard({ label, value, icon, sub, color = 'var(--c-4)', delay = 0, onClick }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -248,8 +248,8 @@ function StatCard({ label, value, icon, sub, color = '#8EB69B', delay = 0, onCli
         <span className="text-2xl">{icon}</span>
         <span className="font-sora font-bold text-2xl" style={{ color }}>{value}</span>
       </div>
-      <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>{label}</p>
-      {sub && <p className="font-inter text-xs mt-0.5" style={{ color: 'rgba(142,182,155,0.6)' }}>{sub}</p>}
+      <p className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>{label}</p>
+      {sub && <p className="font-inter text-xs mt-0.5" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>{sub}</p>}
     </motion.div>
   )
 }
@@ -265,19 +265,19 @@ function QuickAction({ icon, label, sub, onClick, delay = 0 }) {
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
       className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all"
-      style={{ background: 'rgba(142,182,155,0.04)', border: '1px solid rgba(142,182,155,0.1)' }}
+      style={{ background: 'rgba(var(--c-4-rgb),0.04)', border: '1px solid rgba(var(--c-4-rgb),0.1)' }}
     >
       <div
         className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-        style={{ background: 'rgba(142,182,155,0.1)' }}
+        style={{ background: 'rgba(var(--c-4-rgb),0.1)' }}
       >
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>{label}</p>
-        <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>{sub}</p>
+        <p className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>{label}</p>
+        <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>{sub}</p>
       </div>
-      <span style={{ color: 'rgba(142,182,155,0.4)' }}>→</span>
+      <span style={{ color: 'rgba(var(--c-4-rgb),0.4)' }}>→</span>
     </motion.button>
   )
 }
@@ -374,7 +374,7 @@ export default function DashboardPage() {
     dd.ping()
   }
 
-  const statusColor = pingStatus === 'safe' ? '#8EB69B' : pingStatus === 'urgent' ? '#D1601F' : pingStatus === 'overdue' ? '#e05252' : 'rgba(142,182,155,0.5)'
+  const statusColor = pingStatus === 'safe' ? 'var(--c-4)' : pingStatus === 'urgent' ? '#D1601F' : pingStatus === 'overdue' ? '#e05252' : 'rgba(var(--c-4-rgb),0.5)'
   const statusLabel = pingStatus === 'safe' ? 'Vault is active' : pingStatus === 'urgent' ? 'Ping soon!' : pingStatus === 'overdue' ? 'Ping overdue!' : 'No vault yet'
 
   return (
@@ -399,7 +399,7 @@ export default function DashboardPage() {
           <h1 className="font-sora font-bold text-3xl md:text-4xl shimmer-text mb-1">
             {greeting(displayName)}
           </h1>
-          <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+          <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
             {format(new Date(), 'EEEE, d MMMM yyyy')}
           </p>
         </motion.div>
@@ -412,7 +412,7 @@ export default function DashboardPage() {
           >
             <div className="flex items-center gap-3">
               <span className="text-lg">👀</span>
-              <p className="font-inter text-sm" style={{ color: '#8EB69B' }}>
+              <p className="font-inter text-sm" style={{ color: 'var(--c-4)' }}>
                 You're browsing in preview mode — connect a wallet whenever you're ready to actually store something on-chain.
               </p>
             </div>
@@ -478,18 +478,18 @@ export default function DashboardPage() {
               >
                 <div className="flex items-center gap-3 mb-5">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-                    style={{ background: 'rgba(142,182,155,0.1)', border: '1px solid rgba(142,182,155,0.18)' }}>
+                    style={{ background: 'rgba(var(--c-4-rgb),0.1)', border: '1px solid rgba(var(--c-4-rgb),0.18)' }}>
                     💓
                   </div>
                   <div>
-                    <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Alive Ping</h2>
-                    <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>On-chain inactivity monitor</p>
+                    <h2 className="font-sora font-semibold text-base" style={{ color: 'var(--c-5)' }}>Alive Ping</h2>
+                    <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>On-chain inactivity monitor</p>
                   </div>
                 </div>
 
                 {!hasOnChain ? (
                   <div className="text-center py-6">
-                    <p className="font-inter text-sm mb-3" style={{ color: 'rgba(142,182,155,0.6)' }}>
+                    <p className="font-inter text-sm mb-3" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>
                       Create your on-chain vault to start the ping clock.
                     </p>
                     <button onClick={() => navigate('/legacy')} className="btn-primary text-xs px-4 py-2">
@@ -502,20 +502,20 @@ export default function DashboardPage() {
                       <PingRing daysLeft={daysLeft ?? 0} totalDays={totalDays} />
                       <div className="space-y-3">
                         <div>
-                          <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Last ping</p>
-                          <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>
+                          <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Last ping</p>
+                          <p className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>
                             {lastPingDate ? format(lastPingDate, 'dd MMM yyyy') : '—'}
                           </p>
                         </div>
                         <div>
-                          <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Next due</p>
+                          <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Next due</p>
                           <p className="font-sora font-semibold text-sm" style={{ color: statusColor }}>
                             {nextPingDate ? format(nextPingDate, 'dd MMM yyyy') : '—'}
                           </p>
                         </div>
                         <div>
-                          <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>Threshold</p>
-                          <p className="font-sora font-semibold text-sm" style={{ color: '#DAF1DE' }}>
+                          <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>Threshold</p>
+                          <p className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>
                             {totalDays} days
                           </p>
                         </div>
@@ -548,10 +548,10 @@ export default function DashboardPage() {
               >
                 <div className="flex items-center gap-3 mb-5">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-                    style={{ background: 'rgba(142,182,155,0.1)', border: '1px solid rgba(142,182,155,0.18)' }}>
+                    style={{ background: 'rgba(var(--c-4-rgb),0.1)', border: '1px solid rgba(var(--c-4-rgb),0.18)' }}>
                     ⚡
                   </div>
-                  <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Quick Actions</h2>
+                  <h2 className="font-sora font-semibold text-base" style={{ color: 'var(--c-5)' }}>Quick Actions</h2>
                 </div>
                 <div className="space-y-2">
                   <QuickAction icon="🌸" label="New memory capsule" sub="Add a photo, letter, or voice note" onClick={() => navigate('/memory')} delay={0.37} />
@@ -569,18 +569,18 @@ export default function DashboardPage() {
                 className="glass-card p-6"
               >
                 <div className="flex items-center justify-between mb-5">
-                  <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Recent Activity</h2>
+                  <h2 className="font-sora font-semibold text-base" style={{ color: 'var(--c-5)' }}>Recent Activity</h2>
                   <button
                     onClick={() => navigate('/activity')}
                     className="font-inter text-xs transition-opacity hover:opacity-70"
-                    style={{ color: '#8EB69B' }}
+                    style={{ color: 'var(--c-4)' }}
                   >
                     View all →
                   </button>
                 </div>
                 {activityLoading ? (
                   <div className="text-center py-8">
-                    <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.5)' }}>Loading on-chain activity…</p>
+                    <p className="font-inter text-sm" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>Loading on-chain activity…</p>
                   </div>
                 ) : recentActivity.length > 0 ? (
                   <div className="space-y-3">
@@ -594,10 +594,10 @@ export default function DashboardPage() {
                       >
                         <span className="text-base flex-shrink-0 mt-0.5">{DOMAIN_ICON[e.domain] || '📋'}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="font-inter text-sm leading-snug" style={{ color: '#DAF1DE' }}>
-                            <span style={{ color: '#8EB69B' }}>{e.domainLabel}</span> · {describeActivity(e)}
+                          <p className="font-inter text-sm leading-snug" style={{ color: 'var(--c-5)' }}>
+                            <span style={{ color: 'var(--c-4)' }}>{e.domainLabel}</span> · {describeActivity(e)}
                           </p>
-                          <p className="font-inter text-xs mt-0.5" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                          <p className="font-inter text-xs mt-0.5" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
                             {e.timestamp ? formatDistanceToNow(new Date(Number(e.timestamp) * 1000), { addSuffix: true }) : '—'}
                           </p>
                         </div>
@@ -607,7 +607,7 @@ export default function DashboardPage() {
                 ) : (
                   <div className="text-center py-8">
                     <span className="text-3xl block mb-2">📭</span>
-                    <p className="font-inter text-sm" style={{ color: 'rgba(142,182,155,0.5)' }}>
+                    <p className="font-inter text-sm" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>
                       No activity yet — upload a file or create a capsule.
                     </p>
                   </div>
@@ -623,11 +623,11 @@ export default function DashboardPage() {
               className="glass-card p-6"
             >
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-sora font-semibold text-base" style={{ color: '#DAF1DE' }}>Recent Capsules</h2>
+                <h2 className="font-sora font-semibold text-base" style={{ color: 'var(--c-5)' }}>Recent Capsules</h2>
                 <button
                   onClick={() => navigate('/memory')}
                   className="font-inter text-xs transition-opacity hover:opacity-70"
-                  style={{ color: '#8EB69B' }}
+                  style={{ color: 'var(--c-4)' }}
                 >
                   View all →
                 </button>
@@ -641,17 +641,17 @@ export default function DashboardPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.47 + i * 0.06 }}
                       className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
-                      style={{ background: 'rgba(11,43,38,0.3)' }}
+                      style={{ background: 'rgba(var(--c-1-rgb),0.3)' }}
                       onClick={() => navigate('/memory')}
                       whileHover={{ background: 'rgba(11,43,38,0.5)' }}
                     >
                       <div className="w-9 h-9 rounded-lg flex items-center justify-center text-base flex-shrink-0"
-                        style={{ background: 'rgba(142,182,155,0.1)' }}>
+                        style={{ background: 'rgba(var(--c-4-rgb),0.1)' }}>
                         {CAPSULE_TYPE_ICON[Number(c.capsuleType)] || '🔒'}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-sora font-semibold text-xs truncate" style={{ color: '#DAF1DE' }}>{c.title}</p>
-                        <p className="font-inter text-xs" style={{ color: 'rgba(142,182,155,0.6)' }}>
+                        <p className="font-sora font-semibold text-xs truncate" style={{ color: 'var(--c-5)' }}>{c.title}</p>
+                        <p className="font-inter text-xs" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>
                           {contentCountById.get(String(c.id)) ?? 0} items
                         </p>
                       </div>
@@ -661,7 +661,7 @@ export default function DashboardPage() {
               ) : (
                 <div className="text-center py-8">
                   <span className="text-3xl block mb-2">🌸</span>
-                  <p className="font-inter text-sm mb-3" style={{ color: 'rgba(142,182,155,0.5)' }}>No capsules yet.</p>
+                  <p className="font-inter text-sm mb-3" style={{ color: 'rgba(var(--c-4-rgb),0.5)' }}>No capsules yet.</p>
                   <button onClick={() => navigate('/memory')} className="btn-primary text-xs px-4 py-2">
                     Create first capsule
                   </button>

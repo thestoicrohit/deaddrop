@@ -14,7 +14,7 @@ function TypingIndicator() {
         <motion.div
           key={i}
           className="w-2 h-2 rounded-full"
-          style={{ background: '#8EB69B' }}
+          style={{ background: 'var(--c-4)' }}
           animate={{ y: [0, -6, 0] }}
           transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
         />
@@ -154,9 +154,9 @@ export default function AIAssistant() {
         onClick={() => setAiOpen(!aiOpen)}
         className="fixed bottom-24 right-5 z-50 w-12 h-12 rounded-xl flex items-center justify-center"
         style={{
-          background: 'linear-gradient(135deg, #235347, #163832)',
-          border: '1px solid rgba(142,182,155,0.35)',
-          boxShadow: '0 0 20px rgba(142,182,155,0.2)',
+          background: 'linear-gradient(135deg, var(--c-3), var(--c-2))',
+          border: '1px solid rgba(var(--c-4-rgb),0.35)',
+          boxShadow: '0 0 20px rgba(var(--c-4-rgb),0.2)',
         }}
         whileHover={{ scale: 1.1, boxShadow: '0 0 32px rgba(142,182,155,0.4)' }}
         whileTap={{ scale: 0.92 }}
@@ -164,7 +164,7 @@ export default function AIAssistant() {
         transition={{ duration: 0.3 }}
         title="AI Vault Assistant"
       >
-        <span className="text-lg" style={{ color: '#DAF1DE' }}>{aiOpen ? '✕' : '✦'}</span>
+        <span className="text-lg" style={{ color: 'var(--c-5)' }}>{aiOpen ? '✕' : '✦'}</span>
       </motion.button>
 
       {/* Panel */}
@@ -176,7 +176,7 @@ export default function AIAssistant() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              style={{ background: 'rgba(5,31,32,0.65)', backdropFilter: 'blur(4px)' }}
+              style={{ background: 'rgba(var(--c-0-rgb),0.65)', backdropFilter: 'blur(4px)' }}
               onClick={() => setAiOpen(false)}
             />
             <motion.div
@@ -184,9 +184,9 @@ export default function AIAssistant() {
               style={{
                 width: 'min(420px, 100vw)',
                 height: 'min(580px, 100vh)',
-                background: 'rgba(5,31,32,0.97)',
+                background: 'rgba(var(--c-0-rgb),0.97)',
                 backdropFilter: 'blur(24px)',
-                border: '1px solid rgba(142,182,155,0.18)',
+                border: '1px solid rgba(var(--c-4-rgb),0.18)',
                 borderRadius: '20px 0 0 0',
               }}
               initial={{ y: '100%', opacity: 0 }}
@@ -195,18 +195,18 @@ export default function AIAssistant() {
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             >
               {/* Header */}
-              <div className="flex items-center gap-3 p-4" style={{ borderBottom: '1px solid rgba(142,182,155,0.1)' }}>
+              <div className="flex items-center gap-3 p-4" style={{ borderBottom: '1px solid rgba(var(--c-4-rgb),0.1)' }}>
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #235347, #163832)' }}
+                  style={{ background: 'linear-gradient(135deg, var(--c-3), var(--c-2))' }}
                 >
-                  <span className="text-base" style={{ color: '#DAF1DE' }}>✦</span>
+                  <span className="text-base" style={{ color: 'var(--c-5)' }}>✦</span>
                 </div>
                 <div>
-                  <p className="font-sora font-semibold text-sm" style={{ color: '#8EB69B' }}>
+                  <p className="font-sora font-semibold text-sm" style={{ color: 'var(--c-4)' }}>
                     {tr('ai.title')}
                   </p>
-                  <p className="font-inter text-xs" style={{ color: '#235347' }}>
+                  <p className="font-inter text-xs" style={{ color: 'var(--c-3)' }}>
                     Vault-aware · {myCapsules?.length || 0} capsules · {myCircles?.length || 0} circles
                   </p>
                 </div>
@@ -214,12 +214,12 @@ export default function AIAssistant() {
                   <button
                     onClick={clearAiMessages}
                     className="text-xs px-2 py-1 rounded transition-all hover:opacity-80"
-                    style={{ background: 'rgba(142,182,155,0.08)', color: '#235347' }}
+                    style={{ background: 'rgba(var(--c-4-rgb),0.08)', color: 'var(--c-3)' }}
                     title="Clear history"
                   >
                     Clear
                   </button>
-                  <button onClick={() => setAiOpen(false)} className="text-sm" style={{ color: '#235347' }}>
+                  <button onClick={() => setAiOpen(false)} className="text-sm" style={{ color: 'var(--c-3)' }}>
                     ✕
                   </button>
                 </div>
@@ -239,10 +239,10 @@ export default function AIAssistant() {
                       className="max-w-[85%] px-4 py-3 font-inter text-sm leading-relaxed"
                       style={{
                         background: msg.role === 'user'
-                          ? 'rgba(11,43,38,0.7)'
-                          : 'rgba(142,182,155,0.07)',
-                        color: '#DAF1DE',
-                        border: `1px solid ${msg.role === 'user' ? 'rgba(142,182,155,0.15)' : 'rgba(142,182,155,0.14)'}`,
+                          ? 'rgba(var(--c-1-rgb),0.7)'
+                          : 'rgba(var(--c-4-rgb),0.07)',
+                        color: 'var(--c-5)',
+                        border: `1px solid ${msg.role === 'user' ? 'rgba(var(--c-4-rgb),0.15)' : 'rgba(var(--c-4-rgb),0.14)'}`,
                         borderRadius: msg.role === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
                       }}
                     >
@@ -253,7 +253,7 @@ export default function AIAssistant() {
 
                 {typing && (
                   <div className="flex justify-start">
-                    <div style={{ background: 'rgba(142,182,155,0.07)', border: '1px solid rgba(142,182,155,0.14)', borderRadius: '4px 16px 16px 16px' }}>
+                    <div style={{ background: 'rgba(var(--c-4-rgb),0.07)', border: '1px solid rgba(var(--c-4-rgb),0.14)', borderRadius: '4px 16px 16px 16px' }}>
                       <TypingIndicator />
                     </div>
                   </div>
@@ -270,9 +270,9 @@ export default function AIAssistant() {
                       onClick={() => sendMessage(s)}
                       className="text-xs px-3 py-1.5 rounded-full transition-all hover:opacity-90"
                       style={{
-                        background: 'rgba(142,182,155,0.07)',
-                        color: '#8EB69B',
-                        border: '1px solid rgba(142,182,155,0.18)',
+                        background: 'rgba(var(--c-4-rgb),0.07)',
+                        color: 'var(--c-4)',
+                        border: '1px solid rgba(var(--c-4-rgb),0.18)',
                       }}
                     >
                       {s}
@@ -282,7 +282,7 @@ export default function AIAssistant() {
               )}
 
               {/* Input */}
-              <div className="p-4 flex gap-3 items-end" style={{ borderTop: '1px solid rgba(142,182,155,0.08)' }}>
+              <div className="p-4 flex gap-3 items-end" style={{ borderTop: '1px solid rgba(var(--c-4-rgb),0.08)' }}>
                 <textarea
                   ref={inputRef}
                   className="vault-input flex-1 resize-none text-sm"
@@ -300,8 +300,8 @@ export default function AIAssistant() {
                   disabled={!input.trim() || typing}
                   className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
                   style={{
-                    background: input.trim() && !typing ? 'linear-gradient(135deg, #235347, #163832)' : 'rgba(142,182,155,0.08)',
-                    color:      input.trim() && !typing ? '#DAF1DE' : '#235347',
+                    background: input.trim() && !typing ? 'linear-gradient(135deg, var(--c-3), var(--c-2))' : 'rgba(var(--c-4-rgb),0.08)',
+                    color:      input.trim() && !typing ? 'var(--c-5)' : 'var(--c-3)',
                   }}
                 >
                   ↑
