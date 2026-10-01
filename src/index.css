@@ -14,17 +14,27 @@
     --c-4: #8EB69B;  --c-4-rgb: 142,182,155;    /* secondary text, borders */
     --c-5: #DAF1DE;  --c-5-rgb: 218,241,222;    /* primary text */
     --c-warn: #E0967A;                          /* warnings */
+    /* Liquid Glass surface */
+    --glass-fill: linear-gradient(135deg, rgba(255,255,255,0.075), rgba(255,255,255,0.02));
+    --glass-rim: rgba(255,255,255,0.32);
+    --glass-rim-low: rgba(255,255,255,0.04);
+    --glass-shadow: 0 14px 40px -14px rgba(0,0,0,0.6), 0 2px 8px -2px rgba(0,0,0,0.25);
     color-scheme: dark;
   }
 
+  /* Light: a soft sage-grey page with brighter frosted boxes floating on it */
   .light {
-    --c-0: #F4F9F5;  --c-0-rgb: 244,249,245;
-    --c-1: #E6F0E8;  --c-1-rgb: 230,240,232;
-    --c-2: #D4E4D8;  --c-2-rgb: 212,228,216;
-    --c-3: #7F9F8A;  --c-3-rgb: 127,159,138;
-    --c-4: #3D6B57;  --c-4-rgb: 61,107,87;
+    --c-0: #CFDDD3;  --c-0-rgb: 207,221,211;
+    --c-1: #EEF4F0;  --c-1-rgb: 238,244,240;
+    --c-2: #DDE8E0;  --c-2-rgb: 221,232,224;
+    --c-3: #6A8B76;  --c-3-rgb: 106,139,118;
+    --c-4: #2F5D49;  --c-4-rgb: 47,93,73;
     --c-5: #0B2B26;  --c-5-rgb: 11,43,38;
-    --c-warn: #A8401A;
+    --c-warn: #A13A14;
+    --glass-fill: linear-gradient(135deg, rgba(255,255,255,0.72), rgba(255,255,255,0.42));
+    --glass-rim: rgba(255,255,255,0.95);
+    --glass-rim-low: rgba(255,255,255,0.35);
+    --glass-shadow: 0 12px 32px -14px rgba(20,55,40,0.35), 0 2px 6px -2px rgba(20,55,40,0.12);
     color-scheme: light;
   }
 
@@ -37,6 +47,10 @@
     --c-4: #D4AF37;  --c-4-rgb: 212,175,55;
     --c-5: #F6EEDC;  --c-5-rgb: 246,238,220;
     --c-warn: #E8A07A;
+    --glass-fill: linear-gradient(135deg, rgba(255,236,190,0.08), rgba(255,236,190,0.015));
+    --glass-rim: rgba(232,199,102,0.5);
+    --glass-rim-low: rgba(232,199,102,0.06);
+    --glass-shadow: 0 14px 40px -14px rgba(0,0,0,0.7), 0 0 24px -12px rgba(212,175,55,0.25);
     color-scheme: dark;
   }
 
@@ -81,29 +95,56 @@
 
 @layer components {
 
-  /* ── Glass card ── */
-  .glass-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-card);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 16px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  /* ── Liquid Glass (iOS 26-style) ──
+     Frosted, saturated backdrop + a specular rim (::before, masked to the
+     border) + a soft top sheen (::after). An optional --tint / --tint-a
+     colours a card from its top-right corner. */
+  .glass-card,
+  .vault-card,
+  .liquid-glass {
+    position: relative;
+    isolation: isolate;
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgba(var(--tint, 255,255,255), var(--tint-a, 0)), transparent 62%),
+      var(--glass-fill),
+      rgba(var(--c-1-rgb), 0.35);
+    border: 1px solid transparent;
+    backdrop-filter: blur(22px) saturate(170%);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    border-radius: 18px;
+    box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-rim-low);
+    transition: box-shadow 0.35s ease, transform 0.35s ease;
+  }
+  .glass-card::before,
+  .vault-card::before,
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(140deg, var(--glass-rim), var(--glass-rim-low) 38%, transparent 55%, var(--glass-rim-low) 75%, var(--glass-rim));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .glass-card::after,
+  .vault-card::after,
+  .liquid-glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, var(--glass-rim-low), transparent 38%);
+    pointer-events: none;
+    z-index: -1;
   }
   .glass-card:hover {
-    border-color: var(--border-glow);
-    box-shadow: 0 0 32px rgba(var(--c-4-rgb),0.1), inset 0 1px 0 rgba(var(--c-5-rgb),0.06);
+    box-shadow: var(--glass-shadow), 0 0 0 1px rgba(var(--c-4-rgb),0.12), inset 0 1px 0 var(--glass-rim-low);
   }
-
-  /* ── Vault card ── */
-  .vault-card {
-    background: rgba(var(--c-1-rgb), 0.85);
-    border: 1px solid rgba(var(--c-4-rgb), 0.22);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 14px;
-    transition: all 0.3s ease;
-  }
+  .vault-card { border-radius: 14px; }
 
   /* ── Buttons ── */
   .btn-primary {
@@ -358,4 +399,11 @@ html.reduce-motion *::after {
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
+}
+
+/* ── Theme switch: circular reveal (driven from SettingsPanel) ── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppStore } from '@/store/useAppStore'
+import { THEMES as THEME_IDS } from '@/lib/themePalette'
 
 const THEMES = [
   { id: 'dark',  label: 'Forest',        swatch: 'linear-gradient(135deg, #163832, #051F20)', dot: '#8EB69B' },
@@ -20,6 +22,27 @@ export default function SettingsPanel({ className = 'fixed bottom-12 right-5 z-5
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
   const { theme, setTheme, lang, toggleLang, textSize, setTextSize, reduceMotion, setReduceMotion } = useAppStore()
+
+  // Circular reveal from the clicked swatch (View Transitions API); falls back
+  // to an instant switch where unsupported or when motion is reduced.
+  function switchTheme(id, e) {
+    if (id === theme) return
+    const apply = () => {
+      const cl = document.documentElement.classList
+      cl.remove(...THEME_IDS)
+      cl.add(id)
+      flushSync(() => setTheme(id))
+    }
+    if (!document.startViewTransition || reduceMotion) return apply()
+    const x = e.clientX, y = e.clientY
+    const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))
+    document.startViewTransition(apply).ready.then(() => {
+      document.documentElement.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
+        { duration: 700, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', pseudoElement: '::view-transition-new(root)' },
+      )
+    })
+  }
 
   useEffect(() => {
     if (!open) return
@@ -44,13 +67,8 @@ export default function SettingsPanel({ className = 'fixed bottom-12 right-5 z-5
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.97 }}
             transition={{ duration: 0.2 }}
-            className="absolute bottom-12 right-0 w-72 rounded-2xl p-4 space-y-4"
-            style={{
-              background: 'rgba(var(--c-0-rgb),0.97)',
-              border: '1px solid rgba(var(--c-4-rgb),0.25)',
-              boxShadow: '0 20px 50px -15px rgba(0,0,0,0.45)',
-              backdropFilter: 'blur(14px)',
-            }}
+            className="liquid-glass absolute bottom-12 right-0 w-72 p-4 space-y-4"
+            style={{ background: 'var(--glass-fill), rgba(var(--c-0-rgb),0.82)' }}
           >
             <p className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>Display settings</p>
 
@@ -61,7 +79,7 @@ export default function SettingsPanel({ className = 'fixed bottom-12 right-5 z-5
                   return (
                     <button
                       key={t.id}
-                      onClick={() => setTheme(t.id)}
+                      onClick={(e) => switchTheme(t.id, e)}
                       aria-pressed={active}
                       className="relative rounded-xl p-2 text-left transition-transform hover:-translate-y-0.5"
                       style={{
@@ -126,13 +144,8 @@ export default function SettingsPanel({ className = 'fixed bottom-12 right-5 z-5
         aria-label="Display settings"
         aria-expanded={open}
         title="Display settings"
-        className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer select-none"
-        style={{
-          background: 'rgba(var(--c-0-rgb),0.85)',
-          border: '1px solid rgba(var(--c-4-rgb),0.3)',
-          backdropFilter: 'blur(12px)',
-          color: 'var(--c-5)',
-        }}
+        className="liquid-glass w-11 h-11 flex items-center justify-center cursor-pointer select-none"
+        style={{ borderRadius: 14, color: 'var(--c-5)' }}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
       >

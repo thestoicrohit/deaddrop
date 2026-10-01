@@ -8,8 +8,9 @@ import EmailCaptureModal from '@/components/ui/EmailCaptureModal'
 import LandingSections from '@/components/landing/LandingSections'
 
 /* ─────────────────────────────────────────────────────────────
-   NEURAL ORB — 3D rotating particle sphere + rings + sparks
-   Forest green palette: #051F20 → #DAF1DE
+   NEURAL ORB — 3D rotating particle sphere + rings + sparks, with a
+   glossy liquid blob inside. The surface ripples, and both the blob
+   and the sphere stretch toward the cursor like jelly.
 ───────────────────────────────────────────────────────────── */
 function NeuralOrb({ mouseX, mouseY }) {
   const canvasRef = useRef(null)
@@ -91,6 +92,37 @@ function NeuralOrb({ mouseX, mouseY }) {
     ]
     const ringAngles = rings.map(() => 0)
 
+    // ── Cursor pull (eased so the liquid lags behind the pointer) ──
+    let mProx = 0, mAngX = 1, mAngY = 0
+    const pull = (dx, dy) => {
+      const len = Math.hypot(dx, dy) || 1
+      const c = Math.max(0, (dx * mAngX + dy * mAngY) / len)
+      return 1 + mProx * 0.2 * c * c
+    }
+
+    // Smooth closed blob: radius wobbles with a few travelling sine waves.
+    function blobPath(radius, phase) {
+      const PTS = 72, pts = []
+      for (let i = 0; i < PTS; i++) {
+        const a = (i / PTS) * Math.PI * 2
+        const rr = radius * (1
+          + 0.06 * Math.sin(3 * a + time * 1.1 + phase)
+          + 0.04 * Math.sin(5 * a - time * 1.7 + phase * 2)
+          + 0.03 * Math.sin(2 * a + time * 0.6))
+        const dx = Math.cos(a) * rr, dy = Math.sin(a) * rr
+        const k = pull(dx, dy)
+        pts.push([cx + dx * k, cy + dy * k])
+      }
+      ctx.beginPath()
+      for (let i = 0; i <= PTS; i++) {
+        const [x0, y0] = pts[i % PTS], [x1, y1] = pts[(i + 1) % PTS]
+        const mx2 = (x0 + x1) / 2, my2 = (y0 + y1) / 2
+        if (i === 0) ctx.moveTo(mx2, my2)
+        else ctx.quadraticCurveTo(x0, y0, mx2, my2)
+      }
+      ctx.closePath()
+    }
+
     // ── Synaptic sparks ──
     const sparks = []
     const addSpark = () => {
@@ -115,10 +147,20 @@ function NeuralOrb({ mouseX, mouseY }) {
       const cosY = Math.cos(tiltY), sinY = Math.sin(tiltY)
       const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX)
 
+      const rect = canvas.getBoundingClientRect()
+      const lx = mx - rect.left - cx, ly = my - rect.top - cy
+      const dist = Math.hypot(lx, ly) || 1
+      const prox = Math.max(0, Math.min(1, 1 - (dist - R * 0.6) / (R * 1.8)))
+      mProx += (prox - mProx) * 0.06
+      mAngX += (lx / dist - mAngX) * 0.08
+      mAngY += (ly / dist - mAngY) * 0.08
+
       // Project all points
       allPts.forEach((p, idx) => {
         const pulse = 1 + Math.sin(time * p.sp + p.ph) * 0.025
-        const r = p.r * pulse
+        // liquid surface ripple
+        const ripple = 1 + 0.05 * Math.sin(p.sx * 4 + time * 1.6) * Math.cos(p.sy * 4 - time * 1.2)
+        const r = p.r * pulse * ripple
         let x3 = p.sx * r, y3 = p.sy * r, z3 = p.sz * r
 
         const rx2 = x3 * cosY - z3 * sinY
@@ -127,9 +169,11 @@ function NeuralOrb({ mouseX, mouseY }) {
         const rz3 = y3 * sinX + rz2 * cosX
 
         const persp = 3 / (3 + rz3 / R)
+        const px = rx2 * persp, py = -ry3 * persp
+        const k = pull(px, py)
         projected[idx] = {
-          x: cx + rx2 * persp,
-          y: cy - ry3 * persp,
+          x: cx + px * k,
+          y: cy + py * k,
           depth: (rz3 + R) / (2 * R),
         }
       })
@@ -142,6 +186,35 @@ function NeuralOrb({ mouseX, mouseY }) {
       ctx.fillStyle = amb
       ctx.beginPath()
       ctx.arc(cx, cy, R * 1.5, 0, Math.PI * 2)
+      ctx.fill()
+
+      // ── Liquid glass blob (two layers) ──
+      const hx = cx - R * 0.28, hy = cy - R * 0.32
+      blobPath(R * 0.66, 0)
+      const body = ctx.createRadialGradient(hx, hy, R * 0.05, cx, cy, R * 0.85)
+      body.addColorStop(0, `rgba(${P.mint},0.32)`)
+      body.addColorStop(0.45, `rgba(${P.sage},0.2)`)
+      body.addColorStop(1, `rgba(${P.forest},0.06)`)
+      ctx.fillStyle = body
+      ctx.fill()
+      ctx.strokeStyle = `rgba(${P.mint},0.3)`
+      ctx.lineWidth = 1.2
+      ctx.stroke()
+
+      blobPath(R * 0.42, 2.1)
+      const inner2 = ctx.createRadialGradient(cx + R * 0.1, cy + R * 0.12, 0, cx, cy, R * 0.5)
+      inner2.addColorStop(0, `rgba(${P.sage},0.28)`)
+      inner2.addColorStop(1, `rgba(${P.sage},0.02)`)
+      ctx.fillStyle = inner2
+      ctx.fill()
+
+      // specular highlight, like light catching a droplet
+      const spec = ctx.createRadialGradient(hx, hy, 0, hx, hy, R * 0.3)
+      spec.addColorStop(0, 'rgba(255,255,255,0.38)')
+      spec.addColorStop(1, 'rgba(255,255,255,0)')
+      ctx.fillStyle = spec
+      ctx.beginPath()
+      ctx.ellipse(hx, hy, R * 0.3, R * 0.18, -0.6, 0, Math.PI * 2)
       ctx.fill()
 
       // ── Orbital rings (projected 3D) ──

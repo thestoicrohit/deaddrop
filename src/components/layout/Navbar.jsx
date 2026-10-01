@@ -341,8 +341,8 @@ export default function Navbar() {
         initial={{ y: -60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="fixed top-0 left-0 right-0 z-40"
-        style={{ background: 'rgba(var(--c-0-rgb),0.93)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(var(--c-4-rgb),0.1)' }}
+        className="liquid-glass fixed top-3 inset-x-3 mx-auto max-w-7xl z-40"
+        style={{ background: 'var(--glass-fill), rgba(var(--c-0-rgb),0.62)', borderRadius: 20 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           {/* Logo */}

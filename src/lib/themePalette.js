@@ -13,11 +13,11 @@ const PALETTES = {
     mint:   '218,241,222',
   },
   light: {
-    deep:   '244,249,245',
-    moss:   '230,240,232',
-    pine:   '212,228,216',
-    forest: '127,159,138',
-    sage:   '61,107,87',
+    deep:   '207,221,211',
+    moss:   '238,244,240',
+    pine:   '221,232,224',
+    forest: '106,139,118',
+    sage:   '47,93,73',
     mint:   '11,43,38',
   },
   gold: {
@@ -59,8 +59,9 @@ export function palette(theme) {
 const ORDER = ['deep', 'moss', 'pine', 'forest', 'sage', 'mint']
 
 // Token n (0–5) of the active theme as "r,g,b", for framer-motion props such as
-// whileHover={{ boxShadow: `0 0 20px rgba(${tok(4)},0.2)` }}. Read at render time;
-// App remounts the page tree on theme change so these pick up the new palette.
+// whileHover={{ boxShadow: `0 0 20px rgba(${tok(4)},0.2)` }}. framer-motion can't
+// interpolate var() colours, so these are resolved at render time; a theme change
+// re-renders the whole tree from App (nothing is memoised), picking them up.
 export function tok(n) {
   return (PALETTES[useAppStore.getState().theme] || PALETTES.dark)[ORDER[n]]
 }

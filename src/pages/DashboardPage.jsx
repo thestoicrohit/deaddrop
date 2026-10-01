@@ -235,7 +235,9 @@ function PingRing({ daysLeft, totalDays }) {
 }
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
-function StatCard({ label, value, icon, sub, color = 'var(--c-4)', delay = 0, onClick }) {
+// `tint` (an "r,g,b" string) washes the glass from its top-right corner so
+// each stat reads as its own box rather than four identical tiles.
+function StatCard({ label, value, icon, sub, color, tint, delay = 0, onClick }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -244,10 +246,11 @@ function StatCard({ label, value, icon, sub, color = 'var(--c-4)', delay = 0, on
       whileHover={{ y: -3, boxShadow: `0 12px 30px rgba(${tok(4)},0.12)` }}
       onClick={onClick}
       className={`glass-card p-5 ${onClick ? 'cursor-pointer' : ''}`}
+      style={tint ? { '--tint': tint, '--tint-a': 0.22 } : undefined}
     >
       <div className="flex items-start justify-between mb-3">
         <span className="text-2xl">{icon}</span>
-        <span className="font-sora font-bold text-2xl" style={{ color }}>{value}</span>
+        <span className="font-sora font-bold text-2xl" style={{ color: color || (tint ? `rgb(${tint})` : 'var(--c-4)') }}>{value}</span>
       </div>
       <p className="font-sora font-semibold text-sm" style={{ color: 'var(--c-5)' }}>{label}</p>
       {sub && <p className="font-inter text-xs mt-0.5" style={{ color: 'rgba(var(--c-4-rgb),0.6)' }}>{sub}</p>}
@@ -443,17 +446,17 @@ export default function DashboardPage() {
             {/* Stats row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <StatCard
-                label="Memory Capsules" value={capsuleCount} icon="🌸"
+                label="Memory Capsules" value={capsuleCount} icon="🌸" tint="226,110,150"
                 sub={sortedCapsules.length > 0 ? `Latest: ${sortedCapsules[0]?.title?.slice(0, 18)}…` : 'None yet'}
                 delay={0.05} onClick={() => navigate('/memory')}
               />
               <StatCard
-                label="Legacy Circles" value={circleCount} icon="👥"
+                label="Legacy Circles" value={circleCount} icon="👥" tint="130,110,220"
                 sub={`${totalMembers} total members`}
                 delay={0.1} onClick={() => navigate('/profiles')}
               />
               <StatCard
-                label="Safe Items" value={safeCount} icon="🔐"
+                label="Safe Items" value={safeCount} icon="🔐" tint="214,160,50"
                 sub="AES-256 encrypted"
                 delay={0.15} onClick={() => navigate('/safe')}
               />
@@ -461,7 +464,7 @@ export default function DashboardPage() {
                 label="Days to Ping" value={daysLeft ?? '—'}
                 icon={daysLeft != null && daysLeft <= 7 ? '⚠️' : '💓'}
                 sub={hasOnChain ? (nextPingDate ? `Due ${format(nextPingDate, 'dd MMM yyyy')}` : '—') : 'No vault yet'}
-                color={statusColor} delay={0.2}
+                tint="220,96,96" color={statusColor} delay={0.2}
                 onClick={() => navigate('/legacy')}
               />
             </div>

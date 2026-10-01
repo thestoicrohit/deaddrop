@@ -98,17 +98,12 @@ function ThemeInitializer() {
 }
 
 export default function App() {
-  const { theme, reduceMotion } = useAppStore()
+  const { reduceMotion } = useAppStore()
   return (
     <BrowserRouter>
       <ThemeInitializer />
       <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
-        {/* Keyed by theme: animation props capture palette colours at render
-            (see tok() in lib/themePalette), so a theme switch remounts the
-            page tree to pick them up. The settings panel sits outside so it
-            stays open while you try themes. */}
         <div
-          key={theme}
           className="min-h-screen transition-colors duration-400"
           style={{ backgroundColor: 'var(--bg-primary)' }}
         >
