@@ -62,18 +62,16 @@ low-value L2 first (e.g. Base or Polygon PoS), not Ethereum mainnet directly.
 - Nothing server-side ever touches a decryption key — keys are derived
   per-session from a `personal_sign` signature and held only in React state
   (lost on refresh, by design).
-- ⚠️ One real exposure: `VITE_PINATA_JWT` is a Vite env var, which means it
-  gets **inlined into the shipped JavaScript bundle** — anyone can extract it
-  from your deployed site and use your Pinata account's quota (pin their own
-  files, or if the token has delete scope, unpin yours). Before launch,
-  either (a) scope the Pinata API key to pin-only, no delete, with a
-  reasonable rate/size cap, or (b) move uploads behind a small serverless
-  function that holds the real key server-side and the client only talks to.
+- ✅ Fixed: the Pinata key is now server-side only (`PINATA_JWT`, read by
+  `api/pin-url.js`). The browser proves wallet control with a signed message
+  (cached ~12 h), gets a 60-second, 25 MB-capped upload URL, and uploads the
+  encrypted file straight to Pinata. Remaining risk: anyone with *a* wallet
+  can still spend upload quota — add per-wallet rate limits if that bites.
 
 ## 4. IPFS persistence
 
 **Status: needs a decision before launch.** Right now content is pinned to
-whatever Pinata account owns `VITE_PINATA_JWT`. Before calling this
+whatever Pinata account owns `PINATA_JWT`. Before calling this
 production-ready:
 
 - Decide who pays for and owns the pin long-term — a personal Pinata free

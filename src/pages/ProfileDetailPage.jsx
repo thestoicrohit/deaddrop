@@ -18,7 +18,7 @@ import {
 import { uploadBlob, uploadJSON, fetchBlob, fetchJSON, isIPFSConfigured } from '@/lib/ipfs'
 import { formatDistanceToNow, format } from 'date-fns'
 import toast from 'react-hot-toast'
-import { notDeployedMsg } from '@/lib/notDeployed'
+import { notDeployedMsg } from '@/lib/notDeployed'
 import { tok } from '@/lib/themePalette'
 
 const TYPE_COLORS = {
@@ -62,7 +62,7 @@ function formatSize(bytes) {
 
 function requireIPFS() {
   if (!isIPFSConfigured()) {
-    toast.error('IPFS storage not configured — add VITE_PINATA_JWT to .env first.')
+    toast.error("File storage isn't set up on this site yet.")
     return false
   }
   return true

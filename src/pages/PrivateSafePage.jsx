@@ -14,7 +14,7 @@ import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
 import SideDecorCanvas from '@/components/ui/SideDecorCanvas'
-import { DEMO_SAFE_SECTIONS, DEMO_NOTICE } from '@/lib/demoData'
+import { DEMO_SAFE_SECTIONS, DEMO_NOTICE } from '@/lib/demoData'
 import { tok } from '@/lib/themePalette'
 
 // ── Tiny UID (local-only, for unsaved form rows before they exist on-chain) ──
@@ -47,7 +47,7 @@ function bytesToJson(bytes) {
 
 function requireIPFS() {
   if (!isIPFSConfigured()) {
-    toast.error('IPFS storage not configured — add VITE_PINATA_JWT to .env first.')
+    toast.error("File storage isn't set up on this site yet.")
     return false
   }
   return true

@@ -55,7 +55,7 @@ function shortAddr(addr) {
 
 function requireIPFS() {
   if (!isIPFSConfigured()) {
-    toast.error('IPFS storage is not configured yet. Add VITE_PINATA_JWT to .env.')
+    toast.error("File storage isn't set up on this site yet.")
     return false
   }
   return true

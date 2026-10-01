@@ -297,11 +297,11 @@ A few deliberate properties and hardening choices worth understanding before dep
 - **ETH release uses the pull-payment pattern.** `claimLegacy(owner)` doesn't push ETH to beneficiaries — it *credits* each beneficiary's share to an on-chain ledger and flips the vault to `Released`. Each beneficiary then calls `withdraw()` to pull their own funds. This means a single beneficiary whose address reverts on receiving ETH (a misconfigured contract wallet, or a deliberate griefer) **cannot block anyone else's inheritance**. A `nonReentrant` guard backs both functions as defense-in-depth.
 - **Multi-sig can't deadlock a small vault.** The confirmation requirement is capped at the beneficiary count, so enabling multi-sig on a single-beneficiary vault still releases on one confirmation rather than waiting forever for a second that can never come.
 - **Chainlink `checkUpkeep` is paginated.** `vaultOwners` only grows, so an unbounded scan would eventually exceed the gas bound and silently stop automation for everyone. `checkData` may encode a `(start, end)` index window; register one upkeep per window to keep each scan bounded. An empty `checkData` preserves the original full-scan behaviour.
-- **The Pinata JWT ships to the browser.** Vite inlines every `VITE_*` variable into the client bundle, so `VITE_PINATA_JWT` is extractable from the deployed JS. **Use a key scoped to `pinFileToIPFS`/`pinJSONToIPFS` only**, never an Admin-scope key. For production, prefer a backend upload proxy or short-lived signed JWTs so no long-lived credential reaches the client. `src/lib/ipfs.js` also caps individual upload size to limit quota abuse.
+- **The Pinata key never reaches the browser.** `PINATA_JWT` lives only on the server; `api/pin-url.js` checks a wallet-signed message and hands out a 60-second, 25 MB-capped upload URL, and the browser uploads the already-encrypted file straight to Pinata.
 - **Lose your wallet → lose your keys.** Encryption keys are derived fresh each session from a wallet signature and never persisted. There is no recovery path by design — the same guarantee that makes self-custody crypto self-sovereign. The Private Safe PIN is a UI convenience only; it is **not** part of the encryption key.
 - **Circles are public-membership on-chain.** `joinCircle` is callable directly by anyone — the "invite code" is enforced only in the frontend. Treat circle membership as open unless you add on-chain gating. Reading file lists is public regardless (only the encrypted CIDs are stored on-chain).
 - **`DeadDropCapsules.deleteCapsule` doesn't prune `ownerCapsules`.** The id stays in the owner's list forever (flagged `exists: false`); the frontend filters it out, but it's unbounded storage growth worth cleaning up before scale.
-- **IPFS persistence depends on who's paying to pin.** If the Pinata account behind `VITE_PINATA_JWT` lapses, previously-uploaded encrypted blobs stop being fetchable (the CID still "exists" in principle, but nothing keeps serving it). See [PRELAUNCH.md](PRELAUNCH.md) §4 for the plan here.
+- **IPFS persistence depends on who's paying to pin.** If the Pinata account behind `PINATA_JWT` lapses, previously-uploaded encrypted blobs stop being fetchable (the CID still "exists" in principle, but nothing keeps serving it). See [PRELAUNCH.md](PRELAUNCH.md) §4 for the plan here.
 - **No key recovery yet.** Lose the connected wallet and every encrypted Safe entry, capsule, and final message becomes permanently unreadable — there is no password reset, by design and currently by necessity. See [PRELAUNCH.md](PRELAUNCH.md) §5.
 
 ## Tech Stack
@@ -374,7 +374,7 @@ node scripts/gen-contract-modules.mjs
 | `VITE_CAPSULES_ADDRESS` | DeadDropCapsules deployed address |
 | `VITE_SAFE_ADDRESS` | DeadDropSafe deployed address |
 | `VITE_CREDENTIALS_ADDRESS` | DeadDropCredentials deployed address |
-| `VITE_PINATA_JWT` | Pinata JWT for IPFS uploads. **Use a key scoped to `pinFileToIPFS`/`pinJSONToIPFS` only — never an Admin-scope key.** This value ships in the client bundle (see Security Notes). |
+| `PINATA_JWT` | Pinata JWT for IPFS uploads (Files: Write). **Server-side only** — set it in Vercel's environment variables; `npm run dev` reads it from `.env`. |
 | `VITE_ALCHEMY_KEY` | Alchemy key for frontend RPC |
 | `VITE_DEPLOY_BLOCK` | Block number of first deploy (speeds up activity feed) |
 

@@ -63,7 +63,7 @@ function tsToDate(ts) {
 
 function requireIPFS() {
   if (!isIPFSConfigured()) {
-    toast.error('IPFS storage not configured — add VITE_PINATA_JWT to .env first.')
+    toast.error("File storage isn't set up on this site yet.")
     return false
   }
   return true

@@ -20,7 +20,7 @@ import {
   encryptText,
   wrapContentKeyForRecipient,
 } from '@/lib/crypto'
-import { uploadBlob, uploadJSON, isIPFSConfigured } from '@/lib/ipfs'
+import { uploadBlob, uploadJSON, isIPFSConfigured } from '@/lib/ipfs'
 import { tok } from '@/lib/themePalette'
 
 function SectionCard({ title, icon, children, delay = 0 }) {
@@ -185,7 +185,7 @@ export default function LegacyPage() {
   // that hasn't published a public key, the same limitation PGP has.
   async function buildEncryptedFinalMessageCID(validBens) {
     if (!isIPFSConfigured()) {
-      toast.error('IPFS is not configured — add VITE_PINATA_JWT to your .env to save an encrypted final message.')
+      toast.error("File storage isn't set up on this site yet.")
       return null
     }
 
