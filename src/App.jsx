@@ -83,6 +83,23 @@ function AppRoutes() {
   )
 }
 
+// Feeds the pointer position to the glass surface under it, so its specular
+// highlight (--mx / --my in index.css) follows the cursor.
+function GlassPointer() {
+  useEffect(() => {
+    const onMove = (e) => {
+      const el = e.target.closest?.('.glass-card, .vault-card, .liquid-glass')
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      el.style.setProperty('--mx', `${e.clientX - r.left}px`)
+      el.style.setProperty('--my', `${e.clientY - r.top}px`)
+    }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => window.removeEventListener('pointermove', onMove)
+  }, [])
+  return null
+}
+
 // Mirrors the display settings onto <html> so CSS (index.css) can react.
 function ThemeInitializer() {
   const { theme, textSize, reduceMotion } = useAppStore()
@@ -102,6 +119,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ThemeInitializer />
+      <GlassPointer />
       <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
         <div
           className="min-h-screen transition-colors duration-400"

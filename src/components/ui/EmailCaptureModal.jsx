@@ -74,12 +74,8 @@ export default function EmailCaptureModal({ open, onClose, destination = '/dashb
           />
 
           <motion.div
-            className="relative w-full max-w-md rounded-2xl p-8"
-            style={{
-              background: 'rgba(var(--c-1-rgb),0.92)',
-              border: '1px solid rgba(var(--c-4-rgb),0.18)',
-              boxShadow: '0 30px 80px -20px rgba(0,0,0,0.5), 0 0 60px rgba(var(--c-4-rgb),0.08)',
-            }}
+            className="liquid-glass relative w-full max-w-md p-8"
+            style={{ borderRadius: 24, background: 'var(--glass-fill), rgba(var(--c-1-rgb),0.82)' }}
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}

@@ -53,7 +53,7 @@ const COVER_GRADIENTS = [
   'linear-gradient(135deg, #0a1525, var(--c-1))',
 ]
 
-import { DEMO_CAPSULES, DEMO_NOTICE } from '@/lib/demoData'
+import { DEMO_CAPSULES, DEMO_NOTICE } from '@/lib/demoData'
 import { tok } from '@/lib/themePalette'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -147,7 +147,6 @@ function DemoCapsuleCard({ capsule }) {
       viewport={{ once: true, margin: '-40px' }}
       className="glass-card p-5 mb-4 break-inside-avoid cursor-pointer relative overflow-hidden"
       onClick={() => toast('Sample capsule \u2014 connect a wallet to seal real ones.', { icon: '\uD83D\uDD17' })}
-      style={{ background: COVER_GRADIENTS[0] }}
     >
       <span className="text-2xl">{meta.icon}</span>
       <p className="font-sora font-semibold text-sm mt-3" style={{ color: 'var(--c-5)' }}>{capsule.title}</p>

@@ -19,19 +19,23 @@
     --glass-rim: rgba(255,255,255,0.32);
     --glass-rim-low: rgba(255,255,255,0.04);
     --glass-shadow: 0 14px 40px -14px rgba(0,0,0,0.6), 0 2px 8px -2px rgba(0,0,0,0.25);
+    --spec-max: 0.09;
+    --auto-tint-a: 0.12;
     color-scheme: dark;
   }
 
   /* Light: a soft sage-grey page with brighter frosted boxes floating on it */
   .light {
-    --c-0: #CFDDD3;  --c-0-rgb: 207,221,211;
+    --c-0: #B9CCBF;  --c-0-rgb: 185,204,191;
     --c-1: #EEF4F0;  --c-1-rgb: 238,244,240;
-    --c-2: #DDE8E0;  --c-2-rgb: 221,232,224;
-    --c-3: #6A8B76;  --c-3-rgb: 106,139,118;
-    --c-4: #2F5D49;  --c-4-rgb: 47,93,73;
+    --c-2: #D3E0D7;  --c-2-rgb: 211,224,215;
+    --c-3: #557562;  --c-3-rgb: 85,117,98;
+    --c-4: #284F3E;  --c-4-rgb: 40,79,62;
     --c-5: #0B2B26;  --c-5-rgb: 11,43,38;
     --c-warn: #A13A14;
-    --glass-fill: linear-gradient(135deg, rgba(255,255,255,0.72), rgba(255,255,255,0.42));
+    --glass-fill: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4));
+    --spec-max: 0.55;
+    --auto-tint-a: 0.24;
     --glass-rim: rgba(255,255,255,0.95);
     --glass-rim-low: rgba(255,255,255,0.35);
     --glass-shadow: 0 12px 32px -14px rgba(20,55,40,0.35), 0 2px 6px -2px rgba(20,55,40,0.12);
@@ -51,6 +55,8 @@
     --glass-rim: rgba(232,199,102,0.5);
     --glass-rim-low: rgba(232,199,102,0.06);
     --glass-shadow: 0 14px 40px -14px rgba(0,0,0,0.7), 0 0 24px -12px rgba(212,175,55,0.25);
+    --spec-max: 0.1;
+    --auto-tint-a: 0.07;
     color-scheme: dark;
   }
 
@@ -93,6 +99,13 @@
   ::-webkit-scrollbar-thumb:hover { background: var(--c-4); }
 }
 
+/* Lets the hover sheen fade instead of snapping. */
+@property --spec-a {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
 @layer components {
 
   /* ── Liquid Glass (iOS 26-style) ──
@@ -130,6 +143,8 @@
     pointer-events: none;
     z-index: 1;
   }
+  /* Top sheen + a specular spot that follows the pointer (--mx/--my are
+     set by the pointer tracker in App.jsx) and brightens on hover. */
   .glass-card::after,
   .vault-card::after,
   .liquid-glass::after {
@@ -137,69 +152,116 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(180deg, var(--glass-rim-low), transparent 38%);
+    background:
+      radial-gradient(240px circle at var(--mx, 50%) var(--my, 0%), rgba(255,255,255,var(--spec-a)), transparent 65%),
+      linear-gradient(180deg, var(--glass-rim-low), transparent 38%);
     pointer-events: none;
     z-index: -1;
+    transition: --spec-a 0.45s ease;
   }
+  .glass-card:hover::after,
+  .vault-card:hover::after,
+  .liquid-glass:hover::after { --spec-a: var(--spec-max); }
   .glass-card:hover {
     box-shadow: var(--glass-shadow), 0 0 0 1px rgba(var(--c-4-rgb),0.12), inset 0 1px 0 var(--glass-rim-low);
   }
+
+  /* Neighbouring cards get different tints so a grid doesn't read as a row
+     of identical boxes. An inline --tint (e.g. dashboard stats) wins. */
+  .glass-card:has(~ .glass-card),
+  .glass-card ~ .glass-card { --tint-a: var(--auto-tint-a); }
+  .glass-card:nth-child(5n+1 of .glass-card) { --tint: 226,110,150; }
+  .glass-card:nth-child(5n+2 of .glass-card) { --tint: 130,110,220; }
+  .glass-card:nth-child(5n+3 of .glass-card) { --tint: 214,160,50; }
+  .glass-card:nth-child(5n+4 of .glass-card) { --tint: 60,165,170; }
+  .glass-card:nth-child(5n+5 of .glass-card) { --tint: 220,96,96; }
+  /* Same idea for grids where each card sits in its own wrapper (e.g. an
+     animated motion.div per item). */
+  .grid > * > .glass-card:only-child { --tint-a: var(--auto-tint-a); }
+  .grid > :nth-child(5n+1) > .glass-card:only-child { --tint: 226,110,150; }
+  .grid > :nth-child(5n+2) > .glass-card:only-child { --tint: 130,110,220; }
+  .grid > :nth-child(5n+3) > .glass-card:only-child { --tint: 214,160,50; }
+  .grid > :nth-child(5n+4) > .glass-card:only-child { --tint: 60,165,170; }
+  .grid > :nth-child(5n+5) > .glass-card:only-child { --tint: 220,96,96; }
   .vault-card { border-radius: 14px; }
 
-  /* ── Buttons ── */
-  .btn-primary {
-    background: linear-gradient(135deg, var(--c-1), var(--c-0));
-    color: var(--c-5);
-    font-family: 'Sora', sans-serif;
-    font-weight: 600;
-    padding: 0.75rem 2rem;
-    border-radius: 10px;
-    border: 1px solid rgba(var(--c-4-rgb), 0.4);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    letter-spacing: 0.01em;
-  }
-  .btn-primary:hover {
-    background: linear-gradient(135deg, var(--c-2), var(--c-1));
-    border-color: rgba(var(--c-5-rgb), 0.55);
-    box-shadow: 0 0 24px rgba(var(--c-4-rgb),0.25), 0 0 8px rgba(var(--c-5-rgb),0.1);
-    transform: translateY(-2px);
-  }
-  .btn-primary:active { transform: translateY(0); }
-
-  .btn-outline {
-    background: transparent;
-    color: var(--c-5);
-    font-family: 'Sora', sans-serif;
-    font-weight: 600;
-    padding: 0.75rem 2rem;
-    border-radius: 10px;
-    border: 1px solid rgba(var(--c-5-rgb), 0.3);
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  .btn-outline:hover {
-    background: rgba(var(--c-5-rgb), 0.06);
-    border-color: rgba(var(--c-5-rgb), 0.6);
-    box-shadow: 0 0 20px rgba(var(--c-4-rgb),0.18);
-    transform: translateY(-2px);
-  }
-
+  /* ── Buttons: Liquid Glass pills ──
+     Glossy top highlight, a shine that sweeps across on hover, and a
+     springy lift / squish on hover and press. */
+  .btn-primary,
+  .btn-outline,
   .btn-cobalt {
-    background: linear-gradient(135deg, var(--c-3), var(--c-2));
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     color: var(--c-5);
     font-family: 'Sora', sans-serif;
     font-weight: 600;
+    letter-spacing: 0.01em;
     padding: 0.75rem 2rem;
-    border-radius: 10px;
-    border: 1px solid rgba(var(--c-4-rgb),0.35);
+    border-radius: 14px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.22),
+      inset 0 -1px 0 rgba(0,0,0,0.12),
+      0 8px 22px -12px rgba(0,0,0,0.5);
+    transition:
+      transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
   }
+  .btn-primary {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02) 55%),
+      linear-gradient(135deg, rgba(var(--c-3-rgb),0.6), rgba(var(--c-1-rgb),0.75));
+    border: 1px solid rgba(var(--c-5-rgb), 0.22);
+  }
+  .btn-outline {
+    background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.01) 55%), rgba(var(--c-5-rgb),0.03);
+    border: 1px solid rgba(var(--c-5-rgb), 0.26);
+  }
+  .btn-cobalt {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 55%),
+      linear-gradient(135deg, rgba(var(--c-4-rgb),0.45), rgba(var(--c-2-rgb),0.7));
+    border: 1px solid rgba(var(--c-4-rgb), 0.4);
+  }
+  .btn-primary::after,
+  .btn-outline::after,
+  .btn-cobalt::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.32) 50%, transparent 70%);
+    transform: translateX(-130%);
+    transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .btn-primary:hover::after,
+  .btn-outline:hover::after,
+  .btn-cobalt:hover::after { transform: translateX(130%); }
+  .btn-primary:hover,
+  .btn-outline:hover,
   .btn-cobalt:hover {
-    box-shadow: 0 0 24px rgba(var(--c-4-rgb),0.3);
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.02);
+    border-color: rgba(var(--c-5-rgb), 0.5);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.3),
+      inset 0 -1px 0 rgba(0,0,0,0.12),
+      0 12px 28px -12px rgba(0,0,0,0.55),
+      0 0 22px rgba(var(--c-4-rgb),0.22);
   }
+  .btn-primary:active,
+  .btn-outline:active,
+  .btn-cobalt:active {
+    transform: scale(0.96);
+    transition-duration: 0.12s;
+  }
+  .btn-primary:disabled,
+  .btn-outline:disabled,
+  .btn-cobalt:disabled { transform: none; cursor: not-allowed; }
 
   /* ── Shimmer text ── */
   .shimmer-text {
@@ -246,6 +308,12 @@
     width: 100%;
     outline: none;
     transition: all 0.3s ease;
+  }
+  .vault-input {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.14), inset 0 0 0 1px rgba(255,255,255,0.03);
+    border-radius: 12px;
   }
   .vault-input:focus {
     border-color: rgba(var(--c-4-rgb), 0.55);
@@ -378,7 +446,9 @@
   animation: shimmer 8s linear infinite;
 }
 .gold .btn-primary {
-  background: linear-gradient(135deg, #2A2312, #0B0A08);
+  background:
+    linear-gradient(180deg, rgba(255,240,200,0.16), rgba(255,240,200,0.02) 55%),
+    linear-gradient(135deg, #3A2F14, #0B0A08);
   border-color: rgba(212,175,55,0.55);
 }
 .gold .btn-primary:hover {

@@ -153,11 +153,10 @@ export default function AIAssistant() {
       {/* Floating orb */}
       <motion.button
         onClick={() => setAiOpen(!aiOpen)}
-        className="fixed bottom-24 right-5 z-50 w-12 h-12 rounded-xl flex items-center justify-center"
+        className="liquid-glass fixed bottom-24 right-5 z-50 w-12 h-12 flex items-center justify-center"
         style={{
-          background: 'linear-gradient(135deg, var(--c-3), var(--c-2))',
-          border: '1px solid rgba(var(--c-4-rgb),0.35)',
-          boxShadow: '0 0 20px rgba(var(--c-4-rgb),0.2)',
+          borderRadius: 16,
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 55%), linear-gradient(135deg, rgba(var(--c-3-rgb),0.7), rgba(var(--c-2-rgb),0.7))',
         }}
         whileHover={{ scale: 1.1, boxShadow: `0 0 32px rgba(${tok(4)},0.4)` }}
         whileTap={{ scale: 0.92 }}
@@ -181,14 +180,12 @@ export default function AIAssistant() {
               onClick={() => setAiOpen(false)}
             />
             <motion.div
-              className="fixed right-0 bottom-0 z-40 flex flex-col"
+              className="liquid-glass fixed right-0 bottom-0 z-40 flex flex-col"
               style={{
                 width: 'min(420px, 100vw)',
                 height: 'min(580px, 100vh)',
-                background: 'rgba(var(--c-0-rgb),0.97)',
-                backdropFilter: 'blur(24px)',
-                border: '1px solid rgba(var(--c-4-rgb),0.18)',
-                borderRadius: '20px 0 0 0',
+                background: 'var(--glass-fill), rgba(var(--c-0-rgb),0.86)',
+                borderRadius: '24px 0 0 0',
               }}
               initial={{ y: '100%', opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
