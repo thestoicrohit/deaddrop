@@ -11,6 +11,7 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
   const rafRef = useRef(null)
 
   const theme = useAppStore((s) => s.theme)
+  const reduceMotion = useAppStore((s) => s.reduceMotion)
   useEffect(() => {
     const P = palette(theme)
     const canvas = canvasRef.current
@@ -165,7 +166,7 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
         ctx.shadowBlur = 0
 
         time += 0.01
-        rafRef.current = requestAnimationFrame(drawHand)
+        if (!reduceMotion) rafRef.current = requestAnimationFrame(drawHand)
       }
       drawHand()
     }
@@ -298,7 +299,7 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
         ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, cy, R * 0.16, 0, Math.PI * 2); ctx.fill()
 
         time += 0.012
-        rafRef.current = requestAnimationFrame(drawSphere)
+        if (!reduceMotion) rafRef.current = requestAnimationFrame(drawSphere)
       }
       drawSphere()
     }
@@ -359,13 +360,13 @@ export default function SideDecorCanvas({ type = 'hand-left', style = {} }) {
         })
 
         time += 0.01
-        rafRef.current = requestAnimationFrame(drawData)
+        if (!reduceMotion) rafRef.current = requestAnimationFrame(drawData)
       }
       drawData()
     }
 
     return () => cancelAnimationFrame(rafRef.current)
-  }, [type, theme])
+  }, [type, theme, reduceMotion])
 
   return (
     <canvas

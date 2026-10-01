@@ -14,7 +14,8 @@ import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
 import SideDecorCanvas from '@/components/ui/SideDecorCanvas'
-import { DEMO_SAFE_SECTIONS, DEMO_NOTICE } from '@/lib/demoData'
+import { DEMO_SAFE_SECTIONS, DEMO_NOTICE } from '@/lib/demoData'
+import { tok } from '@/lib/themePalette'
 
 // ── Tiny UID (local-only, for unsaved form rows before they exist on-chain) ──
 const uid = () => Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4)
@@ -243,7 +244,7 @@ function SafeSection({ icon, title, children, delay = 0 }) {
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ boxShadow: '0 8px 30px rgba(142,182,155,0.08)' }}
+      whileHover={{ boxShadow: `0 8px 30px rgba(${tok(4)},0.08)` }}
       className="glass-card overflow-hidden"
     >
       <button
@@ -1048,7 +1049,7 @@ export default function PrivateSafePage() {
                 <motion.button whileTap={{ scale: 0.97 }} onClick={handleSignToUnlock} disabled={unlocking} className="btn-primary text-sm px-5 py-2.5">
                   {unlocking ? 'Waiting for signature…' : 'Sign to unlock →'}
                 </motion.button>
-                <p className="font-inter text-xs mt-4" style={{ color: 'rgba(218,150,120,0.85)' }}>
+                <p className="font-inter text-xs mt-4" style={{ color: 'var(--c-warn)' }}>
                   ⚠️ {tr('safe.noRecovery')}
                 </p>
               </div>

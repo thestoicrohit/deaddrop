@@ -17,6 +17,7 @@ export default function FlowingCanvas() {
   const rafRef    = useRef(null)
 
   const theme = useAppStore((s) => s.theme)
+  const reduceMotion = useAppStore((s) => s.reduceMotion)
   useEffect(() => {
     const P = palette(theme)
     const canvas = canvasRef.current
@@ -189,7 +190,7 @@ export default function FlowingCanvas() {
       })
 
       time += 0.007
-      rafRef.current = requestAnimationFrame(draw)
+      if (!reduceMotion) rafRef.current = requestAnimationFrame(draw)
     }
 
     draw()
@@ -198,7 +199,7 @@ export default function FlowingCanvas() {
       cancelAnimationFrame(rafRef.current)
       window.removeEventListener('resize', setSize)
     }
-  }, [theme])
+  }, [theme, reduceMotion])
 
   return (
     <canvas

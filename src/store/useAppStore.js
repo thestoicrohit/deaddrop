@@ -29,14 +29,14 @@ export const useAppStore = create(
   persist(
     (set, get) => ({
 
-      // ── Theme ────────────────────────────────────────────────────────────────
-      theme: 'dark',
-      toggleTheme: () => {
-        const next = get().theme === 'dark' ? 'light' : 'dark'
-        set({ theme: next })
-        document.documentElement.classList.toggle('dark',  next === 'dark')
-        document.documentElement.classList.toggle('light', next === 'light')
-      },
+      // ── Display settings (applied to <html> by ThemeInitializer in App.jsx) ──
+      theme: 'dark',                     // 'dark' | 'light' | 'gold'
+      setTheme: (theme) => set({ theme }),
+      toggleTheme: () => set((s) => ({ theme: s.theme === 'light' ? 'dark' : 'light' })),
+      textSize: 'md',                    // 'sm' | 'md' | 'lg'
+      setTextSize: (textSize) => set({ textSize }),
+      reduceMotion: false,
+      setReduceMotion: (reduceMotion) => set({ reduceMotion }),
 
       // ── Language ─────────────────────────────────────────────────────────────
       lang: 'en',
@@ -137,7 +137,7 @@ export const useAppStore = create(
       importVault: (data) => {
         const allowed = [
           'displayName', 'profilePhoto', 'safePin', 'onboardingComplete', 'demoMode',
-          'theme', 'lang', 'aiMessages', 'notifications', 'emergencyContact',
+          'theme', 'textSize', 'reduceMotion', 'lang', 'aiMessages', 'notifications', 'emergencyContact',
         ]
         const imported = {}
         allowed.forEach(k => { if (data[k] !== undefined) imported[k] = data[k] })
@@ -166,6 +166,8 @@ export const useAppStore = create(
       partialize: (s) => ({
         // Identity & settings
         theme:              s.theme,
+        textSize:           s.textSize,
+        reduceMotion:       s.reduceMotion,
         lang:               s.lang,
         walletAddress:      s.walletAddress,
         walletConnected:    s.walletConnected,

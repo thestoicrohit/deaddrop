@@ -18,7 +18,8 @@ import {
 import { uploadBlob, uploadJSON, fetchBlob, fetchJSON, isIPFSConfigured } from '@/lib/ipfs'
 import { formatDistanceToNow, format } from 'date-fns'
 import toast from 'react-hot-toast'
-import { notDeployedMsg } from '@/lib/notDeployed'
+import { notDeployedMsg } from '@/lib/notDeployed'
+import { tok } from '@/lib/themePalette'
 
 const TYPE_COLORS = {
   Family:     'var(--c-5)',
@@ -299,7 +300,7 @@ function SharedVault({ circleId, isMember, members, files, circles }) {
       <motion.div
         className="w-full py-10 rounded-xl border-2 border-dashed flex flex-col items-center gap-3 cursor-pointer transition-all"
         style={{ borderColor: 'rgba(var(--c-5-rgb),0.25)' }}
-        whileHover={{ borderColor: 'rgba(218,241,222,0.5)', background: 'rgba(218,241,222,0.03)' }}
+        whileHover={{ borderColor: `rgba(${tok(5)},0.5)`, background: `rgba(${tok(5)},0.03)` }}
         onClick={() => fileInputRef.current?.click()}
       >
         <span className="text-3xl" style={{ color: 'var(--c-5)' }}>☁️</span>

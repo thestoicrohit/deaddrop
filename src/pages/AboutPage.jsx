@@ -5,6 +5,7 @@ import { useAppStore } from '@/store/useAppStore'
 import { useTranslation } from '@/lib/translations'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
 import SideDecorCanvas from '@/components/ui/SideDecorCanvas'
+import { tok } from '@/lib/themePalette'
 const STATS_COUNTERS = [
   { value: 50000000000, label: 'Unclaimed Crypto',   prefix: '$', display: '$50B+' },
   { value: 2000000000,  label: 'Photos Deleted Yearly', prefix: '', display: '2B+' },
@@ -54,7 +55,7 @@ function CounterCard({ value, label, prefix }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(142,182,155,0.12)' }}
+      whileHover={{ y: -4, boxShadow: `0 16px 48px rgba(${tok(4)},0.12)` }}
       className="glass-card p-8 text-center flex-1 min-w-[200px]"
     >
       <div className="font-sora font-bold text-4xl md:text-5xl mb-2 shimmer-text">
@@ -167,7 +168,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            whileHover={{ background: 'rgba(142,182,155,0.2)', boxShadow: '0 0 36px rgba(142,182,155,0.25)', scale: 1.03 }}
+            whileHover={{ background: `rgba(${tok(4)},0.2)`, boxShadow: `0 0 36px rgba(${tok(4)},0.25)`, scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
             <span>💳</span>
@@ -214,7 +215,7 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={stagger(i)}
-                whileHover={{ y: -6, scale: 1.04, boxShadow: '0 12px 36px rgba(142,182,155,0.15)' }}
+                whileHover={{ y: -6, scale: 1.04, boxShadow: `0 12px 36px rgba(${tok(4)},0.15)` }}
                 className="glass-card p-6 flex flex-col items-center gap-3 text-center cursor-default"
               >
                 <span className="text-3xl" style={{ filter: 'drop-shadow(0 0 10px rgba(var(--c-4-rgb),0.5))' }}>
@@ -248,7 +249,7 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={stagger(i)}
-                  whileHover={{ y: -5, boxShadow: '0 14px 40px rgba(142,182,155,0.12)' }}
+                  whileHover={{ y: -5, boxShadow: `0 14px 40px rgba(${tok(4)},0.12)` }}
                   className="glass-card p-6 text-center"
                 >
                   <div
@@ -289,7 +290,7 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={stagger(i)}
-                whileHover={{ y: -5, boxShadow: `0 14px 40px rgba(142,182,155,0.12)` }}
+                whileHover={{ y: -5, boxShadow: `0 14px 40px rgba(${tok(4)},0.12)` }}
                 className="glass-card p-6 text-center"
                 style={{ borderLeft: `2px solid ${p.color}` }}
               >
@@ -351,7 +352,7 @@ export default function AboutPage() {
             className="font-sora font-semibold text-lg px-12 py-4 rounded-xl"
             style={{ background: 'rgba(var(--c-4-rgb),0.12)', color: 'var(--c-5)', border: '1px solid rgba(var(--c-4-rgb),0.4)' }}
             initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-            whileHover={{ background: 'rgba(142,182,155,0.22)', boxShadow: '0 0 40px rgba(142,182,155,0.25)', scale: 1.04 }}
+            whileHover={{ background: `rgba(${tok(4)},0.22)`, boxShadow: `0 0 40px rgba(${tok(4)},0.25)`, scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
           >
             Open My Vault

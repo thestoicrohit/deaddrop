@@ -20,7 +20,8 @@ import {
   encryptText,
   wrapContentKeyForRecipient,
 } from '@/lib/crypto'
-import { uploadBlob, uploadJSON, isIPFSConfigured } from '@/lib/ipfs'
+import { uploadBlob, uploadJSON, isIPFSConfigured } from '@/lib/ipfs'
+import { tok } from '@/lib/themePalette'
 
 function SectionCard({ title, icon, children, delay = 0 }) {
   return (
@@ -29,7 +30,7 @@ function SectionCard({ title, icon, children, delay = 0 }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-30px' }}
       transition={{ delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ boxShadow: '0 8px 32px rgba(142,182,155,0.1)' }}
+      whileHover={{ boxShadow: `0 8px 32px rgba(${tok(4)},0.1)` }}
       className="glass-card p-6"
     >
       <div className="flex items-center gap-3 mb-5">
@@ -315,7 +316,7 @@ export default function LegacyPage() {
                       </motion.button>
                       <TxBadge isPending={dd.isPending} isConfirming={dd.isConfirming} txHash={dd.txHash} />
                     </div>
-                    <p className="font-inter text-xs mt-3" style={{ color: 'rgba(218,150,120,0.85)' }}>
+                    <p className="font-inter text-xs mt-3" style={{ color: 'var(--c-warn)' }}>
                       ⚠️ {tr('legacy.noRecovery')}
                     </p>
                   </div>
@@ -449,7 +450,7 @@ export default function LegacyPage() {
                           onClick={handlePing}
                           disabled={dd.isPending || dd.isConfirming}
                           className="btn-primary text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-                          whileHover={{ scale: 1.02, boxShadow: '0 0 24px rgba(142,182,155,0.3)' }}
+                          whileHover={{ scale: 1.02, boxShadow: `0 0 24px rgba(${tok(4)},0.3)` }}
                           whileTap={{ scale: 0.97 }}
                         >
                           {dd.isPending ? 'Confirm in MetaMask…' : dd.isConfirming ? 'Confirming…' : "Ping — I'm here ✓"}
@@ -733,7 +734,7 @@ export default function LegacyPage() {
                   onClick={handleSave}
                   disabled={dd.isPending || dd.isConfirming || isEncrypting || !hasOnChain}
                   className="btn-primary text-base px-10 disabled:opacity-60 disabled:cursor-not-allowed"
-                  whileHover={{ scale: 1.03, boxShadow: '0 0 30px rgba(142,182,155,0.3)' }}
+                  whileHover={{ scale: 1.03, boxShadow: `0 0 30px rgba(${tok(4)},0.3)` }}
                   whileTap={{ scale: 0.97 }}
                 >
                   {isEncrypting ? 'Encrypting & uploading…' : dd.isPending ? 'Confirm in MetaMask…' : dd.isConfirming ? 'Confirming…' : 'Save legacy settings'}

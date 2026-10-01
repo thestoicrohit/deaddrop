@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion'
+import { motion } from 'framer-motion'
+import { tok } from '@/lib/themePalette'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -124,7 +125,7 @@ function FinalCtaSection({ onPrimary, onSecondary, primaryLabel, secondaryLabel 
               onClick={onPrimary}
               className="font-sora font-semibold text-sm px-8 py-3.5 rounded-lg"
               style={{ background: 'rgba(var(--c-4-rgb),0.14)', color: 'var(--c-5)', border: '1px solid rgba(var(--c-4-rgb),0.4)' }}
-              whileHover={{ background: 'rgba(142,182,155,0.22)', boxShadow: '0 0 34px rgba(142,182,155,0.25)', y: -2 }}
+              whileHover={{ background: `rgba(${tok(4)},0.22)`, boxShadow: `0 0 34px rgba(${tok(4)},0.25)`, y: -2 }}
               whileTap={{ scale: 0.97, y: 0 }}
               transition={{ duration: 0.3, ease: EASE }}
             >{primaryLabel}</motion.button>
@@ -132,7 +133,7 @@ function FinalCtaSection({ onPrimary, onSecondary, primaryLabel, secondaryLabel 
               onClick={onSecondary}
               className="font-sora font-semibold text-sm px-8 py-3.5 rounded-lg"
               style={{ color: 'rgba(var(--c-5-rgb),0.55)', border: '1px solid rgba(var(--c-5-rgb),0.14)' }}
-              whileHover={{ color: 'rgba(218,241,222,0.9)', borderColor: 'rgba(218,241,222,0.3)', y: -2 }}
+              whileHover={{ color: `rgba(${tok(5)},0.9)`, borderColor: `rgba(${tok(5)},0.3)`, y: -2 }}
               whileTap={{ scale: 0.97, y: 0 }}
               transition={{ duration: 0.3, ease: EASE }}
             >{secondaryLabel}</motion.button>

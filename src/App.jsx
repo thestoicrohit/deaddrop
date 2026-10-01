@@ -1,14 +1,13 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { Toaster } from 'react-hot-toast'
 import { useAppStore } from '@/store/useAppStore'
 import { useWalletSync } from '@/hooks/useWalletSync'
 
 // Layout
 import Navbar from '@/components/layout/Navbar'
-import ThemeToggle from '@/components/ui/ThemeToggle'
-import LangToggle from '@/components/ui/LangToggle'
+import SettingsPanel from '@/components/ui/SettingsPanel'
 import AIAssistant from '@/components/ui/AIAssistant'
 
 // Pages
@@ -34,7 +33,10 @@ function PageWrapper({ children }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6 }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      style={{ willChange: 'opacity, transform' }}
+      // Only `opacity` here: will-change: transform makes this wrapper the
+      // containing block for position:fixed children, which stretched the
+      // full-screen background canvas down the whole page.
+      style={{ willChange: 'opacity' }}
     >
       {children}
     </motion.div>
@@ -76,43 +78,44 @@ function AppRoutes() {
       </AnimatePresence>
 
       {/* Global floating UI — hidden on entry */}
-      {!isEntry && (
-        <>
-          <ThemeToggle />
-          <LangToggle />
-          <AIAssistant />
-        </>
-      )}
+      {!isEntry && <AIAssistant />}
     </>
   )
 }
 
+// Mirrors the display settings onto <html> so CSS (index.css) can react.
 function ThemeInitializer() {
-  const { theme } = useAppStore()
+  const { theme, textSize, reduceMotion } = useAppStore()
 
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
-      document.documentElement.classList.remove('light')
-    } else {
-      document.documentElement.classList.add('light')
-      document.documentElement.classList.remove('dark')
-    }
-  }, [theme])
+    const cl = document.documentElement.classList
+    cl.remove('dark', 'light', 'gold', 'text-size-sm', 'text-size-md', 'text-size-lg')
+    cl.add(theme, `text-size-${textSize}`)
+    cl.toggle('reduce-motion', reduceMotion)
+  }, [theme, textSize, reduceMotion])
 
   return null
 }
 
 export default function App() {
+  const { theme, reduceMotion } = useAppStore()
   return (
     <BrowserRouter>
       <ThemeInitializer />
-      <div
-        className="min-h-screen transition-colors duration-400"
-        style={{ backgroundColor: 'var(--bg-primary)' }}
-      >
-        <AppRoutes />
-      </div>
+      <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
+        {/* Keyed by theme: animation props capture palette colours at render
+            (see tok() in lib/themePalette), so a theme switch remounts the
+            page tree to pick them up. The settings panel sits outside so it
+            stays open while you try themes. */}
+        <div
+          key={theme}
+          className="min-h-screen transition-colors duration-400"
+          style={{ backgroundColor: 'var(--bg-primary)' }}
+        >
+          <AppRoutes />
+        </div>
+        <SettingsPanel />
+      </MotionConfig>
 
       <Toaster
         position="bottom-right"

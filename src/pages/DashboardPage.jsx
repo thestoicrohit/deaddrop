@@ -13,6 +13,7 @@ import { CAPSULES_ADDRESS, CAPSULES_ABI } from '@/lib/contracts/capsules'
 import { formatDistanceToNow, format, differenceInDays } from 'date-fns'
 import toast from 'react-hot-toast'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
+import { tok } from '@/lib/themePalette'
 
 // ── Greeting ──────────────────────────────────────────────────────────────────
 function greeting(name) {
@@ -240,7 +241,7 @@ function StatCard({ label, value, icon, sub, color = 'var(--c-4)', delay = 0, on
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ y: -3, boxShadow: `0 12px 30px rgba(142,182,155,0.12)` }}
+      whileHover={{ y: -3, boxShadow: `0 12px 30px rgba(${tok(4)},0.12)` }}
       onClick={onClick}
       className={`glass-card p-5 ${onClick ? 'cursor-pointer' : ''}`}
     >
@@ -261,7 +262,7 @@ function QuickAction({ icon, label, sub, onClick, delay = 0 }) {
       initial={{ opacity: 0, x: 12 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay, duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ x: 4, background: 'rgba(142,182,155,0.1)' }}
+      whileHover={{ x: 4, background: `rgba(${tok(4)},0.1)` }}
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
       className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all"
@@ -526,7 +527,7 @@ export default function DashboardPage() {
                       onClick={handlePing}
                       disabled={dd.isPending || dd.isConfirming}
                       className="btn-primary w-full text-sm"
-                      whileHover={{ scale: 1.02, boxShadow: '0 0 24px rgba(142,182,155,0.3)' }}
+                      whileHover={{ scale: 1.02, boxShadow: `0 0 24px rgba(${tok(4)},0.3)` }}
                       whileTap={{ scale: 0.97 }}
                     >
                       {dd.isPending ? 'Confirm in MetaMask…' : dd.isConfirming ? 'Confirming…' : "Ping — I'm here ✓"}
@@ -643,7 +644,7 @@ export default function DashboardPage() {
                       className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
                       style={{ background: 'rgba(var(--c-1-rgb),0.3)' }}
                       onClick={() => navigate('/memory')}
-                      whileHover={{ background: 'rgba(11,43,38,0.5)' }}
+                      whileHover={{ background: `rgba(${tok(1)},0.5)` }}
                     >
                       <div className="w-9 h-9 rounded-lg flex items-center justify-center text-base flex-shrink-0"
                         style={{ background: 'rgba(var(--c-4-rgb),0.1)' }}>

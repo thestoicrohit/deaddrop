@@ -5,7 +5,8 @@ import { useCapsules } from '@/hooks/useCapsules'
 import { useCircles } from '@/hooks/useCircles'
 import { useDeadDrop } from '@/hooks/useDeadDrop'
 import { useSafe, SAFE_CATEGORY } from '@/hooks/useSafe'
-import { useTranslation } from '@/lib/translations'
+import { useTranslation } from '@/lib/translations'
+import { tok } from '@/lib/themePalette'
 
 function TypingIndicator() {
   return (
@@ -158,7 +159,7 @@ export default function AIAssistant() {
           border: '1px solid rgba(var(--c-4-rgb),0.35)',
           boxShadow: '0 0 20px rgba(var(--c-4-rgb),0.2)',
         }}
-        whileHover={{ scale: 1.1, boxShadow: '0 0 32px rgba(142,182,155,0.4)' }}
+        whileHover={{ scale: 1.1, boxShadow: `0 0 32px rgba(${tok(4)},0.4)` }}
         whileTap={{ scale: 0.92 }}
         animate={aiOpen ? { rotate: 45 } : { rotate: 0 }}
         transition={{ duration: 0.3 }}

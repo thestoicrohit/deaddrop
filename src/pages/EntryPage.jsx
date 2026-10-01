@@ -2,10 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion'
 import { useAppStore } from '@/store/useAppStore'
-import { palette, tameForLight } from '@/lib/themePalette'
+import { palette, tameForLight, tok } from '@/lib/themePalette'
 import { useTranslation } from '@/lib/translations'
-import ThemeToggle from '@/components/ui/ThemeToggle'
-import LangToggle from '@/components/ui/LangToggle'
 import EmailCaptureModal from '@/components/ui/EmailCaptureModal'
 import LandingSections from '@/components/landing/LandingSections'
 
@@ -18,6 +16,7 @@ function NeuralOrb({ mouseX, mouseY }) {
   const rafRef = useRef(null)
 
   const theme = useAppStore((s) => s.theme)
+  const reduceMotion = useAppStore((s) => s.reduceMotion)
   useEffect(() => {
     const P = palette(theme)
     const canvas = canvasRef.current
@@ -281,12 +280,12 @@ function NeuralOrb({ mouseX, mouseY }) {
       ctx.fill()
 
       time += 0.012
-      rafRef.current = requestAnimationFrame(draw)
+      if (!reduceMotion) rafRef.current = requestAnimationFrame(draw)
     }
 
     draw()
     return () => cancelAnimationFrame(rafRef.current)
-  }, [mouseX, mouseY, theme])
+  }, [mouseX, mouseY, theme, reduceMotion])
 
   return <canvas ref={canvasRef} className="w-full h-full block" />
 }
@@ -370,7 +369,7 @@ function EntryNavbar({ onConnect }) {
       <motion.button onClick={onConnect}
         className="font-sora font-semibold text-sm px-5 py-2 rounded-lg"
         style={{ color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.32)' }}
-        whileHover={{ background: 'rgba(142,182,155,0.1)', borderColor: 'rgba(142,182,155,0.65)', boxShadow: '0 0 22px rgba(142,182,155,0.2)' }}
+        whileHover={{ background: `rgba(${tok(4)},0.1)`, borderColor: `rgba(${tok(4)},0.65)`, boxShadow: `0 0 22px rgba(${tok(4)},0.2)` }}
         whileTap={{ scale: 0.97 }}
         transition={{ duration: 0.18 }}
       >Open Vault</motion.button>
@@ -580,7 +579,7 @@ export default function EntryPage() {
               onClick={handlePrimary}
               className="font-sora font-semibold text-sm px-7 py-3 rounded-lg"
               style={{ background: 'rgba(var(--c-4-rgb),0.1)', color: 'var(--c-4)', border: '1px solid rgba(var(--c-4-rgb),0.38)' }}
-              whileHover={{ background: 'rgba(142,182,155,0.18)', boxShadow: '0 0 30px rgba(142,182,155,0.22)', y: -2 }}
+              whileHover={{ background: `rgba(${tok(4)},0.18)`, boxShadow: `0 0 30px rgba(${tok(4)},0.22)`, y: -2 }}
               whileTap={{ scale: 0.97, y: 0 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
@@ -590,7 +589,7 @@ export default function EntryPage() {
               onClick={handleSecondary}
               className="font-sora font-semibold text-sm px-7 py-3 rounded-lg"
               style={{ color: 'rgba(var(--c-5-rgb),0.45)', border: '1px solid rgba(var(--c-5-rgb),0.1)' }}
-              whileHover={{ color: 'rgba(218,241,222,0.88)', borderColor: 'rgba(218,241,222,0.28)', y: -2 }}
+              whileHover={{ color: `rgba(${tok(5)},0.88)`, borderColor: `rgba(${tok(5)},0.28)`, y: -2 }}
               whileTap={{ scale: 0.97, y: 0 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
@@ -676,8 +675,6 @@ export default function EntryPage() {
       )}
 
       <div className="pb-10" />
-      <ThemeToggle />
-      <LangToggle />
     </div>
   )
 }

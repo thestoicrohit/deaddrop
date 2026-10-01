@@ -12,7 +12,8 @@ import toast from 'react-hot-toast'
 import { notDeployedMsg } from '@/lib/notDeployed'
 import FlowingCanvas from '@/components/ui/FlowingCanvas'
 import SideDecorCanvas from '@/components/ui/SideDecorCanvas'
-import { DEMO_CIRCLES, DEMO_NOTICE } from '@/lib/demoData'
+import { DEMO_CIRCLES, DEMO_NOTICE } from '@/lib/demoData'
+import { tok } from '@/lib/themePalette'
 
 const TYPE_COLORS = {
   Family:     'var(--c-5)',
@@ -554,8 +555,8 @@ export default function ProfilesPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: displayCircles.length * 0.08, duration: 0.5 }}
               whileHover={{
-                borderColor: 'rgba(142,182,155,0.55)',
-                boxShadow: '0 12px 40px rgba(142,182,155,0.1)',
+                borderColor: `rgba(${tok(4)},0.55)`,
+                boxShadow: `0 12px 40px rgba(${tok(4)},0.1)`,
                 scale: 1.015,
               }}
               onClick={() => { if (requireWallet("create a circle")) setShowCreate(true) }}

@@ -53,7 +53,8 @@ const COVER_GRADIENTS = [
   'linear-gradient(135deg, #0a1525, var(--c-1))',
 ]
 
-import { DEMO_CAPSULES, DEMO_NOTICE } from '@/lib/demoData'
+import { DEMO_CAPSULES, DEMO_NOTICE } from '@/lib/demoData'
+import { tok } from '@/lib/themePalette'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function tsToDate(ts) {
@@ -194,7 +195,7 @@ function CapsuleCard({ capsule, capsules, onClick }) {
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
-      whileHover={{ y: -6, boxShadow: '0 20px 50px rgba(142,182,155,0.15), 0 0 0 1px rgba(142,182,155,0.12)' }}
+      whileHover={{ y: -6, boxShadow: `0 20px 50px rgba(${tok(4)},0.15), 0 0 0 1px rgba(${tok(4)},0.12)` }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       onClick={onClick}
       className="glass-card overflow-hidden cursor-pointer group break-inside-avoid mb-4 relative"
